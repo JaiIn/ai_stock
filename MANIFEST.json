@@ -1,0 +1,296 @@
+{
+  "name": "ai_stock_project_docs",
+  "project_name": "ai_stock",
+  "repository": "https://github.com/JaiIn/ai_stock",
+  "version": "v5_github_commit_process",
+  "created_at": "2026-06-19",
+  "local_only": true,
+  "deployment": "none",
+  "files": [
+    {
+      "path": "CODEX.md",
+      "size_bytes": 10783,
+      "sha256": "15b618134592483977984864e510eee08bf4f04fb9a11fe57434685f3a4583e6"
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 9627,
+      "sha256": "f9a856ffadba3c1d950396ab5721d482c9e6d34c43b613ba40fde7b5475113c7"
+    },
+    {
+      "path": "docs/00_SOURCE_REVIEW.md",
+      "size_bytes": 2895,
+      "sha256": "a4802ec6966bf1e83e561ed2c8b3b85277138b8d822211e1f721d6a5279236ea"
+    },
+    {
+      "path": "docs/01_PRODUCT_REQUIREMENTS.md",
+      "size_bytes": 2755,
+      "sha256": "0d57e09c260f0b3a5f64c1ebb060789ea10608718bbcfb5657d34e48bdf2f1ef"
+    },
+    {
+      "path": "docs/02_TOSS_OPEN_API_REFERENCE.md",
+      "size_bytes": 5440,
+      "sha256": "6ef3085a1aef9b672734405cd5ec979683cbe7ca99848a4119b9468dbe5a3cd3"
+    },
+    {
+      "path": "docs/03_DEVELOPMENT_ARCHITECTURE.md",
+      "size_bytes": 3903,
+      "sha256": "116a6489b5be3b3a86fbdc496337d0134dce8fe8584f90036eff41badd64e757"
+    },
+    {
+      "path": "docs/04_PROJECT_STRUCTURE.md",
+      "size_bytes": 6356,
+      "sha256": "b1e38baf35ab09a0c7feda6ea95a3876acfb6b2826b7702827e8c3ca8481f551"
+    },
+    {
+      "path": "docs/05_CONFIG_AND_SECRETS.md",
+      "size_bytes": 4247,
+      "sha256": "f9ad573141656af787ebcc17891254557002c699caace4acd16bd00090b619cf"
+    },
+    {
+      "path": "docs/06_TOSS_CLIENT_DESIGN.md",
+      "size_bytes": 2721,
+      "sha256": "a9b2bd5cc78ad2aec02194433759c2ec5743f5ab4b69c39f79821de80da5d476"
+    },
+    {
+      "path": "docs/07_MARKET_DATA_PIPELINE.md",
+      "size_bytes": 1825,
+      "sha256": "a6f9de48ee71b547e83bf0925bcaf4531b1e1f0abd7210a174885f2f45a3b1b5"
+    },
+    {
+      "path": "docs/08_AI_RECOMMENDATION_ENGINE.md",
+      "size_bytes": 2639,
+      "sha256": "5ec8489a8a342ed74ea7fe8a37f44483ec35d18134c330e8298f1135cd89c2b9"
+    },
+    {
+      "path": "docs/09_PAPER_TRADING_ENGINE.md",
+      "size_bytes": 1896,
+      "sha256": "04397043eb398bfe3493315d11e6bf8a842fd34efaad6c5711529692e620f017"
+    },
+    {
+      "path": "docs/10_TEST_EXECUTION_AND_LOGGING.md",
+      "size_bytes": 4046,
+      "sha256": "58ad8a26261c1d07840bd5985e25857041be7e8f1caa9281b1c9063c14967b20"
+    },
+    {
+      "path": "docs/11_ORDER_AND_SAFETY_POLICY.md",
+      "size_bytes": 2447,
+      "sha256": "ae2f1fdbbebae8908a204605e06183ffaa2a1146b460b0661cbd91b30cff8c42"
+    },
+    {
+      "path": "docs/12_WBS.md",
+      "size_bytes": 6164,
+      "sha256": "328c4f2ef5af53736a4b05b7b551a227dd0d55d5686b653c45d27ed28f653a61"
+    },
+    {
+      "path": "docs/13_CODEX_TASK_PROMPTS.md",
+      "size_bytes": 7546,
+      "sha256": "a229fad542036fe2d2d1f38cb4c0a64a76ca60f0bd0619ae9ae86106a6967569"
+    },
+    {
+      "path": "docs/14_RISK_COMPLIANCE_AND_OPERATIONS.md",
+      "size_bytes": 2003,
+      "sha256": "6a21bf31b834f34744e1c9f7d59bba5bdd0ab4ec4f4f1f8c52a96733b8f49586"
+    },
+    {
+      "path": "docs/15_OBSERVABILITY_AND_REPORTS.md",
+      "size_bytes": 1511,
+      "sha256": "08162cbe17147d35f07528cb8c2e5c2d1f57e653a56765727dbac91258669ac7"
+    },
+    {
+      "path": "docs/16_FUTURE_ROADMAP.md",
+      "size_bytes": 1071,
+      "sha256": "5d2ace8227b3838411a09f160744e1028dd7dd8ad0918e907b1660af195bbec7"
+    },
+    {
+      "path": "docs/17_STAGE_GATE_AND_USER_APPROVAL.md",
+      "size_bytes": 13915,
+      "sha256": "020455cfa2905981e32b406451a6a874ffb179c5bd971f9eb2e2c84b5af8a1b9"
+    },
+    {
+      "path": "docs/18_MICRO_STAGE_DEVELOPMENT_PROCESS.md",
+      "size_bytes": 8787,
+      "sha256": "db8b6125bef9427da707cdd6e409bbb31a9bcb7cc5cc733e9bbefd6953bc2705"
+    },
+    {
+      "path": "docs/19_DETAILED_MICRO_WBS.md",
+      "size_bytes": 16622,
+      "sha256": "e298ea881cba8f6d3808bb6697c65e00b5b10ae60ebe2b16983784a92fa95c58"
+    },
+    {
+      "path": "docs/20_CODEX_STOP_AND_CONFIRMATION_RULES.md",
+      "size_bytes": 7215,
+      "sha256": "295ca8145552180bf4fb9677db2626a253a3f0b40e58a05ca79367b3900ca82c"
+    },
+    {
+      "path": "docs/21_TECH_STACK_AND_API_SCOPE.md",
+      "size_bytes": 9528,
+      "sha256": "1481f04bf2f9a49ec0694737ee1b2dd5888334cea2b8d30941b09daaf2257a11"
+    },
+    {
+      "path": "docs/22_PROJECT_SETUP_AND_USAGE_GUIDE.md",
+      "size_bytes": 7151,
+      "sha256": "2d9a7b87cf84ccd973eb944148dd962c190b167b55b7c3e50afd4135bb012034"
+    },
+    {
+      "path": "docs/23_LOCAL_ONLY_EXECUTION_POLICY.md",
+      "size_bytes": 3759,
+      "sha256": "c5f2c4b361593775b182ab1e10372438e2c16736243f1cbb6d1dd92d8a5fca17"
+    },
+    {
+      "path": "docs/24_FRONTEND_FRAMEWORK_DECISION.md",
+      "size_bytes": 5884,
+      "sha256": "9e3cd943f8e49b8cbff6e5d95cae02321d695112740f0c3b993e34b74d11dc70"
+    },
+    {
+      "path": "docs/25_CODEX_MULTI_SESSION_ROLE_PROCESS.md",
+      "size_bytes": 7586,
+      "sha256": "7fb99c3e75fcb3d06760cd72574187a152b8e1daa624e388dbcaa9d6bf4ce3e9"
+    },
+    {
+      "path": "docs/26_GITHUB_REPOSITORY_AND_COMMIT_POLICY.md",
+      "size_bytes": 10767,
+      "sha256": "2a17fc0ca7e0acab7bd0da0f3edf62b23ab7bd51753ef1462db16c97bdd2877e"
+    },
+    {
+      "path": "docs/27_ROLE_BASED_GIT_WORKFLOW.md",
+      "size_bytes": 9470,
+      "sha256": "676bdd895384feaace30b27ca08d12e39b357bdef5dc48650d7f0cacb4d17a12"
+    },
+    {
+      "path": "references/data_model_dictionary.md",
+      "size_bytes": 4658,
+      "sha256": "0fe4845980ada02510f1201e515797fb79e1adb54ad066e3fc845bb2100542bd"
+    },
+    {
+      "path": "references/endpoint_matrix.md",
+      "size_bytes": 2288,
+      "sha256": "1116424ace2e5a2e8d715ed3bf027312d6480751c635d46b6929869e6e1a32b0"
+    },
+    {
+      "path": "references/error_and_rate_limit_notes.md",
+      "size_bytes": 2366,
+      "sha256": "1ca779fdacc8009768331bcf3491c6b6e8f2f905505f855e16d23b9a01cb0241"
+    },
+    {
+      "path": "references/source_links.md",
+      "size_bytes": 1981,
+      "sha256": "dc5279a459897ba901fb4b8bcd5d0f9761d59cfb47048ada324203bc51ddfc15"
+    },
+    {
+      "path": "roles/00_ROLE_INDEX.md",
+      "size_bytes": 1427,
+      "sha256": "ee282b46186b4a86c37262846c616cb983ecfd0a463dda1f49171399f7985ef7"
+    },
+    {
+      "path": "roles/01_PM_INTEGRATOR_SESSION.md",
+      "size_bytes": 839,
+      "sha256": "7afcfc886fa7bbfd25a870edf476d478c07c95a04c77a1993be950d3e08d325c"
+    },
+    {
+      "path": "roles/02_BACKEND_API_CLIENT_SESSION.md",
+      "size_bytes": 1188,
+      "sha256": "1ade3df82d3e66b9377de5213045fddf00a887e1680b21389d450f52289fdf22"
+    },
+    {
+      "path": "roles/03_FRONTEND_UI_SESSION.md",
+      "size_bytes": 1627,
+      "sha256": "70ed2c765bec03b72f061caa48ea89bebdff0b86929006447676d976397f5951"
+    },
+    {
+      "path": "roles/04_DATA_DB_SESSION.md",
+      "size_bytes": 947,
+      "sha256": "3663b94bfb96f501b73a0f4e4bc55dc97ad2dce382e494c0547acc973efade1d"
+    },
+    {
+      "path": "roles/05_AI_RECOMMENDATION_SESSION.md",
+      "size_bytes": 1059,
+      "sha256": "d0fdd93837857cc178ac0c496215ae1fb0f797af4aff5b2b5ad54a1bf39c53e8"
+    },
+    {
+      "path": "roles/06_PAPER_TRADING_RISK_SESSION.md",
+      "size_bytes": 1275,
+      "sha256": "8ec4349970faf3986c0907587b93b6483753b6efb6b5ec492383b84af5a930a0"
+    },
+    {
+      "path": "roles/07_QA_TEST_LOGGING_SESSION.md",
+      "size_bytes": 1067,
+      "sha256": "33bd86237ebc69f8ca234bea932b4d88d8d25a4074c41159a3c6e393aa62970e"
+    },
+    {
+      "path": "roles/08_DOCS_GUIDE_SESSION.md",
+      "size_bytes": 814,
+      "sha256": "8c5a83af732496c040d7cefc64a3ea82d6a71ee7f68e0a3722a05791760643f6"
+    },
+    {
+      "path": "roles/09_GIT_VERSION_CONTROL_SESSION.md",
+      "size_bytes": 1797,
+      "sha256": "4f1df41363ae57dd712e01b0d50e4944940f7d50587b36e8afdb51655d13852f"
+    },
+    {
+      "path": "templates/.env.example.md",
+      "size_bytes": 466,
+      "sha256": "d4968e240f2be2e6b80bf160ea40e28056d094b137907f6cc5047744e0619e41"
+    },
+    {
+      "path": "templates/development_status_board_template.md",
+      "size_bytes": 968,
+      "sha256": "49e8a1a75cc1dc01c21946f3b09c12dd79e1a49e8df9e93242d89fe65a10135c"
+    },
+    {
+      "path": "templates/error_log_template.md",
+      "size_bytes": 340,
+      "sha256": "d3e0bdc21eee3ceadbfd8f686e213ae101375b66891e212fd0fa5452bc4896ae"
+    },
+    {
+      "path": "templates/git_commit_checklist_template.md",
+      "size_bytes": 2047,
+      "sha256": "4463a79f881522b27874ada700267d04bf5d5484cdf3d79fcc051f91dc9da1a9"
+    },
+    {
+      "path": "templates/git_push_approval_request_template.md",
+      "size_bytes": 848,
+      "sha256": "3dd6cdcfd4a341ae7e93acafb891110d32ecceb033073988f0ed020ad805e2ec"
+    },
+    {
+      "path": "templates/implementation_report_template.md",
+      "size_bytes": 474,
+      "sha256": "07261756a32ed4f6833347cefb9ab13a3c9f65c48e312dd0908e3062228f55bb"
+    },
+    {
+      "path": "templates/micro_stage_completion_checklist_template.md",
+      "size_bytes": 2607,
+      "sha256": "9728bc741889405c722c293176eecb2650951ee9c743c1605ba1c69a68307650"
+    },
+    {
+      "path": "templates/micro_stage_test_summary_template.md",
+      "size_bytes": 617,
+      "sha256": "52c4d0bd13f584acd99a0a86bfc957296385460571186ba9c3f2b8306c022d2a"
+    },
+    {
+      "path": "templates/session_handoff_template.md",
+      "size_bytes": 470,
+      "sha256": "fad9e7dfa19f14d6bed57ec0e8dbd31a1fdd66d7af628e8bc8f2229ca1d6b29b"
+    },
+    {
+      "path": "templates/stage_completion_checklist_template.md",
+      "size_bytes": 1359,
+      "sha256": "1c63f79424c50925159a226a2db3d3007f62c1bca37039628f72f3109b068367"
+    },
+    {
+      "path": "templates/test_result_template.md",
+      "size_bytes": 284,
+      "sha256": "282f1988da92b5a6d8ae0d2ef9955869c4e9078b8342f95581c092d6efb856b4"
+    },
+    {
+      "path": "templates/user_approval_request_template.md",
+      "size_bytes": 999,
+      "sha256": "bc581b5cdc619cec8c1c9030005976a51fa7308cea2d3642f7c46f540ce72078"
+    },
+    {
+      "path": "templates/user_input_request_template.md",
+      "size_bytes": 787,
+      "sha256": "ffa89ea6a32ca019292273bdc1529b94b16f8717f2026fdd85000829b1ddafbb"
+    }
+  ]
+}
