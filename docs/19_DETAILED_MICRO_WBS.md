@@ -54,7 +54,7 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 |---|---|---|---|---|
 | MS-00.01 | 공식 Source 위치 확인 | references/source_links.md | 링크/버전 기록 확인 | 최신 문서 기준 확인 |
 | MS-00.02 | 로컬 전용 Python 프로젝트 기본 구조 생성 | pyproject.toml, .gitignore, .env.example, src/, app/, tests/, scripts/, logs/, reports/ | `python -m compileall src tests`, package import | 로컬 전용 구조와 민감정보 제외 규칙 승인 |
-| MS-00.03 | Endpoint Matrix 재검증 | references/endpoint_matrix.md | path/method 누락 확인 | read-only/주문 API 구분 확인 |
+| MS-00.03 | 로컬 설정/환경변수 및 민감정보 마스킹 구조 구현 | .env.example, pyproject.toml, src/ai_stock/config/, src/ai_stock/utils/, tests/ | 설정 로딩, 마스킹, compileall, pytest | mock 기본값과 민감정보 비노출 승인 |
 | MS-00.04 | v0.1 범위 재확정 | docs/01_PRODUCT_REQUIREMENTS.md | 실주문 제외 여부 확인 | v0.1 범위 승인 |
 | MS-00.05 | M0 통합 체크 | reports/stage-gates/M0-completion-checklist.md | 문서 완성도 확인 | M1 진행 승인 대기 |
 
