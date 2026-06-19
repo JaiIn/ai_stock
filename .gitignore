@@ -1,0 +1,44 @@
+# Local secrets and environment overrides
+.env
+.env.local
+.env.*.local
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Build outputs
+build/
+dist/
+*.egg-info/
+
+# Local logs (retain the directory marker)
+logs/*
+!logs/.gitkeep
+*.log
+
+# Local databases
+data/local/*.db
+data/local/*.sqlite
+data/local/*.sqlite3
+*.db
+*.sqlite
+*.sqlite3
+
+# Potentially sensitive raw reports
+reports/**/raw-*.json
+reports/**/token*.json
+reports/**/account*.json
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
