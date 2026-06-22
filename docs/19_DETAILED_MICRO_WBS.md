@@ -65,7 +65,7 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 | Micro Stage | 작업 | 변경 범위 | 테스트/검증 | 사용자 확인 포인트 |
 |---|---|---|---|---|
 | MS-01.00 | GitHub repository clone/remote 확인 | git remote, branch | remote URL 확인 | origin이 JaiIn/ai_stock인지 확인 |
-| MS-01.01 | 프로젝트 디렉토리 생성 | src/, tests/, reports/, logs/, data/ | tree 구조 확인 | 구조 승인 |
+| MS-01.01 | Toss API Client 공통 기반, 예외, 응답 처리 | src/ai_stock/clients/, src/ai_stock/models/, tests/, reports/ | fake/httpx mock 응답, 상태별 예외, live 차단, 민감정보 비노출 | 실제 네트워크/OAuth/주문 미구현 확인 |
 | MS-01.02 | Python 패키지 파일 생성 | pyproject.toml, requirements*.txt | pip install dry run | 패키지 구성 확인 |
 | MS-01.03 | `.gitignore`/기본 README 생성 | .gitignore, README.md | Secret 포함 금지 확인 | 저장소 구성 확인 |
 | MS-01.04 | 설정 클래스 초안 | src/ai_stock/config/settings.py | settings unit test | 환경변수 이름 확인 |
