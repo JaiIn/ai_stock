@@ -83,7 +83,7 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 | Micro Stage | 작업 | 변경 범위 | 테스트/검증 | 사용자 확인 포인트 |
 |---|---|---|---|---|
 | MS-02.01 | Stock Info Client Mock 구조 구현 | src/ai_stock/clients/, src/ai_stock/models/, tests/, reports/ | getStocks/getStockWarnings 요청 정의, fake parsing, 무전송 테스트 | 실제 호출 없음 및 OpenAPI 응답 구조 재검증 필요 확인 |
-| MS-02.02 | HTTP client skeleton | src/ai_stock/toss_api/client.py | client init test | timeout/retry 기본값 확인 |
+| MS-02.02 | Market Data Client Mock 구조 구현 | src/ai_stock/clients/, src/ai_stock/models/, tests/, reports/ | 문서화된 요청 interface, price/candle fake parsing, 무전송 테스트 | 실제 호출 없음 및 미확정 schema 재검증 필요 확인 |
 | MS-02.03 | OAuth token 모델 | src/ai_stock/toss_api/auth_models.py | response parsing test | token 저장 방식 확인 |
 | MS-02.04 | OAuth token 발급 mock client | src/ai_stock/toss_api/auth.py | mock token test | 실제 Client ID/Secret 필요 여부 보고 |
 | MS-02.05 | Token cache/expiry 처리 | src/ai_stock/toss_api/token_store.py | expiry refresh test | 토큰 저장 위치 승인 |
