@@ -8,6 +8,7 @@ import httpx
 
 from ai_stock.clients.config import TossClientConfig
 from ai_stock.clients.exceptions import TossClientConfigError
+from ai_stock.clients.request_context import AuthenticatedRequestContext
 from ai_stock.utils.masking import sanitize_mapping
 
 
@@ -81,6 +82,31 @@ class TossClientFoundation:
             json=json,
             headers=request_headers,
             timeout=self._config.timeout_seconds,
+        )
+
+    def build_authenticated_request(
+        self,
+        context: AuthenticatedRequestContext,
+        method: str,
+        path: str,
+        *,
+        require_account: bool = False,
+        params: Mapping[str, Any] | None = None,
+        json: Any = None,
+        headers: Mapping[str, str] | None = None,
+    ) -> httpx.Request:
+        """Build, but never send, a request using an authenticated context."""
+
+        request_headers = dict(headers or {})
+        request_headers.update(
+            context.request_headers(require_account=require_account)
+        )
+        return self.build_request(
+            method,
+            path,
+            params=params,
+            json=json,
+            headers=request_headers,
         )
 
     @staticmethod

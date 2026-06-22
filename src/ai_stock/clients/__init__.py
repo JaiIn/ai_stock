@@ -10,11 +10,21 @@ from ai_stock.clients.exceptions import (
     TossServerError,
 )
 from ai_stock.clients.foundation import TossClientFoundation
+from ai_stock.clients.request_context import (
+    ACCOUNT_HEADER,
+    AUTHORIZATION_HEADER,
+    AuthenticatedRequestContext,
+    AuthenticatedRequestContextFactory,
+)
 from ai_stock.clients.response import extract_toss_result, raise_for_toss_status
 from ai_stock.clients.token_provider import LiveTokenProvider, MockTokenProvider, TokenProvider
 from ai_stock.clients.token_store import InMemoryTokenStore
 
 __all__ = [
+    "ACCOUNT_HEADER",
+    "AUTHORIZATION_HEADER",
+    "AuthenticatedRequestContext",
+    "AuthenticatedRequestContextFactory",
     "InMemoryTokenStore",
     "LiveTokenProvider",
     "MockTokenProvider",
