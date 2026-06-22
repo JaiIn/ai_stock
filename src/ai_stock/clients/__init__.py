@@ -11,6 +11,7 @@ from ai_stock.clients.exceptions import (
 )
 from ai_stock.clients.foundation import TossClientFoundation
 from ai_stock.clients.market_data import TossMarketDataClient
+from ai_stock.clients.market_info import TossMarketInfoClient
 from ai_stock.clients.request_context import (
     ACCOUNT_HEADER,
     AUTHORIZATION_HEADER,
@@ -37,6 +38,7 @@ __all__ = [
     "TossClientConfigError",
     "TossClientFoundation",
     "TossMarketDataClient",
+    "TossMarketInfoClient",
     "TossPermissionError",
     "TossRateLimitError",
     "TossServerError",
