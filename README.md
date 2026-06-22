@@ -301,6 +301,17 @@ ruff check .
 streamlit run app/streamlit_app.py --server.address 127.0.0.1 --server.port 8501
 ```
 
+---
+
+## 12. 로컬 검증 명령
+
+Windows PowerShell에서 가상환경을 활성화한 뒤 표준 검증을 실행한다.
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python scripts/dev_check.py
+```
+
 Windows PowerShell:
 
 ```powershell

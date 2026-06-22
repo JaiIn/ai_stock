@@ -24,6 +24,26 @@ coverage run -m pytest
 coverage report
 ```
 
+### 로컬 표준 검증 명령
+
+Windows PowerShell에서 프로젝트 로컬 가상환경을 사용한다.
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python scripts/dev_check.py
+```
+
+`scripts/dev_check.py`는 저장소 루트에서 아래 명령을 순서대로 실행한다.
+
+```text
+python -m compileall -q src tests
+python -m unittest discover -s tests
+python -m pytest
+git diff --check
+```
+
+각 단계는 콘솔에 `PASS` 또는 `FAIL`을 출력한다. 하나라도 실패하면 전체 명령은 non-zero exit code로 종료한다. pytest 캐시는 통합 검증 중 생성하지 않으며 실제 API는 호출하지 않는다.
+
 ## 3. 테스트 결과 파일
 
 Codex는 구현 완료 후 반드시 아래 파일을 생성한다.
