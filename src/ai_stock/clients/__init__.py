@@ -17,6 +17,7 @@ from ai_stock.clients.request_context import (
     AuthenticatedRequestContextFactory,
 )
 from ai_stock.clients.response import extract_toss_result, raise_for_toss_status
+from ai_stock.clients.stock_info import TossStockInfoClient
 from ai_stock.clients.token_provider import LiveTokenProvider, MockTokenProvider, TokenProvider
 from ai_stock.clients.token_store import InMemoryTokenStore
 
@@ -37,6 +38,7 @@ __all__ = [
     "TossPermissionError",
     "TossRateLimitError",
     "TossServerError",
+    "TossStockInfoClient",
     "extract_toss_result",
     "raise_for_toss_status",
 ]
