@@ -9,6 +9,11 @@ from ai_stock.paper_trading.models import (
     PaperPortfolio,
     PaperTrade,
 )
+from ai_stock.paper_trading.validation import (
+    PaperOrderValidationError,
+    PaperOrderValidationResult,
+    PaperOrderValidationService,
+)
 
 __all__ = [
     "PaperHolding",
@@ -16,6 +21,9 @@ __all__ = [
     "PaperOrderSide",
     "PaperOrderStatus",
     "PaperOrderType",
+    "PaperOrderValidationError",
+    "PaperOrderValidationResult",
+    "PaperOrderValidationService",
     "PaperPortfolio",
     "PaperTrade",
 ]
