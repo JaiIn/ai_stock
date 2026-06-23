@@ -1,174 +1,173 @@
-# 02. 토스증권 Open API 레퍼런스 요약
+# 02. Toss Open API reference
 
-## 1. 공통 정보
+MS-05.01에서 공식 Toss OpenAPI 문서를 read-only로 재확인한 기준 문서입니다.
 
-| 항목 | 값 |
+- 공식 OpenAPI: `https://openapi.tossinvest.com/openapi-docs/latest/openapi.json`
+- 개발자 문서: `https://developers.tossinvest.com/`
+- 확인 기준일: 2026-06-23
+- 공식 문서 버전: OpenAPI 3.1.0 / API version 1.1.1
+- 이번 단계 금지 사항: 실제 API 호출, 실제 OAuth token 발급, 실제 Client ID / Client Secret / Access Token / accountSeq 요청
+
+## 1. 프로젝트 지원 범위
+
+현재 프로젝트의 우선 범위는 로컬 전용, mock 기반, read-only 데이터 흐름입니다.
+
+지원 또는 후보 범위:
+
+- Auth/OAuth: token request/response model, mock token provider, live token request 차단
+- Stock Info: `getStocks`, `getStockWarnings`
+- Market Data: `getPrices`, `getCandles`, 그리고 후속 검토 대상 `getOrderbook`, `getTrades`, `getPriceLimit`
+- Market Info: `getExchangeRate`
+- Account/Asset/Order History/Order Info: read-only라도 accountSeq 또는 계좌 정보가 필요하므로 별도 승인 전까지 구현하지 않음
+
+명시적 금지 범위:
+
+- 실제 주문 생성, 정정, 취소 API
+- 실계좌 주문 전송 함수
+- 실주문/실체결/실잔고/실계좌 자동화
+- API Key, token, client secret, accountSeq 저장
+
+## 2. 공통 인증 및 응답 구조
+
+| 항목 | 공식 재검증 결과 |
 |---|---|
 | Base URL | `https://openapi.tossinvest.com` |
-| 인증 | OAuth 2.0 Client Credentials Grant |
-| Token endpoint | `POST /oauth2/token` |
-| 공통 인증 헤더 | `Authorization: Bearer {access_token}` |
-| 계좌 API 추가 헤더 | `X-Tossinvest-Account: {accountSeq}` |
-| 성공 envelope | `{ "result": ... }` |
-| 실패 envelope | `{ "error": { "requestId", "code", "message", "data"? } }` |
+| Auth 방식 | OAuth 2.0 Client Credentials |
+| API 인증 header | `Authorization: Bearer <access_token>` |
+| account-scoped API header | `X-Tossinvest-Account: <accountSeq>` |
+| 일반 API 성공 envelope | `{ "result": ... }` |
+| 일반 API 실패 envelope | `{ "error": { "requestId", "code", "message", "data"? } }` |
+| OAuth token endpoint envelope | OAuth 표준 response이며 일반 `result` envelope가 아님 |
 
-## 2. 인증
+## 3. Auth / OAuth
 
 ### `POST /oauth2/token`
 
-- 목적: access token 발급
-- 인증 헤더: 없음
+- 목적: OAuth access token 발급
+- 인증 header: 없음
 - Content-Type: `application/x-www-form-urlencoded`
 - Body:
   - `grant_type=client_credentials`
   - `client_id`
   - `client_secret`
-- 응답:
+- Response:
   - `access_token`
-  - `token_type=Bearer`
+  - `token_type`
   - `expires_in`
+- OAuth error:
+  - `error`
+  - `error_description`
 
-주의:
+프로젝트 현재 상태:
 
-- refresh token은 제공되지 않는 것으로 설계한다.
-- 만료 전 자동 갱신한다.
-- token 재발급 시 이전 token이 무효화될 수 있으므로 다중 프로세스에서는 token cache lock이 필요하다.
-
-## 3. Market Data
-
-| Method | Path | Operation | 주요 파라미터 | 용도 |
-|---|---|---|---|---|
-| GET | `/api/v1/orderbook` | `getOrderbook` | `symbol` | 호가 조회 |
-| GET | `/api/v1/prices` | `getPrices` | `symbols` 최대 200개 | 현재가 다건 조회 |
-| GET | `/api/v1/trades` | `getTrades` | `symbol`, `count<=50` | 최근 체결 조회 |
-| GET | `/api/v1/price-limits` | `getPriceLimit` | `symbol` | 상/하한가 조회 |
-| GET | `/api/v1/candles` | `getCandles` | `symbol`, `interval`, `count`, `before`, `adjusted` | 캔들 조회 |
-
-### Candles
-
-- `interval`: 문서상 `1m`, `1d` 중심으로 확인
-- `count`: 최대 200
-- `before`: exclusive timestamp, pagination에 사용
-- `nextBefore`: 다음 페이지 커서
+- token model과 mock provider만 구현되어 있습니다.
+- 실제 token 발급 HTTP 호출은 구현하지 않았고, `ALLOW_LIVE_API=false` 상태에서 live token request를 차단합니다.
+- MS-05.01에서 실제 OAuth token 발급은 수행하지 않았습니다.
 
 ## 4. Stock Info
 
-| Method | Path | Operation | 주요 파라미터 | 용도 |
-|---|---|---|---|---|
-| GET | `/api/v1/stocks` | `getStocks` | `symbols` 최대 200개 | 종목 기본 정보 |
-| GET | `/api/v1/stocks/{symbol}/warnings` | `getStockWarnings` | `symbol` | 매수 유의사항/VI/투자경고 |
+| Operation | Method | Path | 주요 parameter | 공식 response 요약 | 현재 상태 |
+|---|---|---|---|---|---|
+| getStocks | GET | `/api/v1/stocks` | `symbols` comma-separated, max 200 | `result` array; `symbol`, `name`, `market`, `currency`, `englishName`, `isinCode`, `securityType`, `status` 등 | Mock request/parsing 구현됨; optional field 확장 후보 |
+| getStockWarnings | GET | `/api/v1/stocks/{symbol}/warnings` | path `symbol` | `result` array; `warningType`, `exchange`, `startDate`, `endDate`; 경고 없음은 empty array | Mock request/parsing 구현됨 |
 
-주의:
+재검증 메모:
 
-- `symbols`는 콤마 구분.
-- KRX는 6자리 숫자, US는 ticker.
-- warning이 없으면 빈 배열이 정상 응답이다.
-- 종목이 없으면 `404 stock-not-found` 가능.
+- 공식 필드명은 `symbol` 중심입니다.
+- `stockCode` 같은 별도 필드명은 현재 확인 범위에서 기본 필드로 두지 않습니다.
+- 현재 프로젝트 모델은 최소 필드 위주이며, 모든 optional official field를 아직 반영하지 않았습니다.
 
-## 5. Market Info
+## 5. Market Data
 
-| Method | Path | Operation | 주요 파라미터 | 용도 |
-|---|---|---|---|---|
-| GET | `/api/v1/exchange-rate` | `getExchangeRate` | `baseCurrency`, `quoteCurrency`, `dateTime?` | KRW/USD 환율 |
-| GET | `/api/v1/market-calendar/KR` | `getKrMarketCalendar` | `date?` | 국내 장 운영 정보 |
-| GET | `/api/v1/market-calendar/US` | `getUsMarketCalendar` | `date?` | 미국 장 운영 정보 |
+| Operation | Method | Path | 주요 parameter | 공식 response 요약 | 현재 상태 |
+|---|---|---|---|---|---|
+| getOrderbook | GET | `/api/v1/orderbook` | `symbol` | `timestamp`, `currency`, `asks[]`, `bids[]`; level은 `price`, `volume` | Request definition 후보; parser/model 후속 |
+| getPrices | GET | `/api/v1/prices` | `symbols` comma-separated, max 200 | `result` array; `symbol`, `timestamp`, `lastPrice`, `currency` | Mock request/parsing 구현됨 |
+| getTrades | GET | `/api/v1/trades` | `symbol`, optional `count` max 50 | `result` array; `price`, `volume`, `timestamp`, `currency` | Request definition 후보; parser/model 후속 |
+| getPriceLimit | GET | `/api/v1/price-limits` | `symbol` | `timestamp`, `upperLimitPrice`, `lowerLimitPrice`, `currency` | Request definition 후보; parser/model 후속 |
+| getCandles | GET | `/api/v1/candles` | `symbol`, `interval`, optional `count`, `before`, `adjusted` | `result` object; `candles[]`, `nextBefore` | Request definition 구현됨; parser schema alignment 필요 |
 
-주의:
+재검증 메모:
 
-- 환율은 표시/참고용이며 실제 주문 환율과 다를 수 있다.
-- KR 장은 KRX/NXT 통합 세션 구조를 고려한다.
-- US 장은 데이마켓/프리/정규/애프터마켓 구조를 고려한다.
+- `getCandles`의 공식 response root는 배열이 아니라 object입니다.
+- `candles[]` 내부에는 `timestamp`, `openPrice`, `highPrice`, `lowPrice`, `closePrice`, `volume` 등이 포함됩니다.
+- timestamp/dateTime 표시와 numeric string 처리 정책은 모델별 후속 검증이 필요합니다.
 
-## 6. Account / Asset
+## 6. Market Info / Exchange Rate
 
-| Method | Path | Operation | 추가 헤더 | 용도 |
-|---|---|---|---|---|
-| GET | `/api/v1/accounts` | `getAccounts` | 없음 | 계좌 목록 조회 |
-| GET | `/api/v1/holdings` | `getHoldings` | `X-Tossinvest-Account` | 보유 주식 조회 |
+### `GET /api/v1/exchange-rate`
 
-`GET /api/v1/accounts` 응답의 `accountSeq`를 이후 계좌 관련 API의 `X-Tossinvest-Account` 헤더로 사용한다.
+공식 재검증 결과:
 
-## 7. Order History
+- Auth required: Yes
+- accountSeq required: No
+- Query:
+  - optional `dateTime`
+- Response result:
+  - `baseCurrency`
+  - `quoteCurrency`
+  - `rate`
+  - `validFrom`
+  - `validUntil`
 
-| Method | Path | Operation | 주요 파라미터 | 용도 |
-|---|---|---|---|---|
-| GET | `/api/v1/orders` | `getOrders` | `status`, `symbol?`, `from?`, `to?`, `cursor?`, `limit?` | 주문 목록 조회 |
-| GET | `/api/v1/orders/{orderId}` | `getOrder` | `orderId` | 주문 상세 조회 |
+현재 프로젝트 가정과 차이:
 
-주의:
+- 현재 mock client는 `baseCurrency`, `quoteCurrency`, `dateTime` query를 구성합니다.
+- 공식 OpenAPI 기준 query는 optional `dateTime`만 확인되었습니다.
+- 현재 model/parser는 `exchangeRate`, `dateTime` 필드를 가정합니다.
+- 공식 response는 `rate`, `validFrom`, `validUntil`을 사용합니다.
 
-- `status=OPEN`은 진행 중 주문.
-- `status=CLOSED` 지원 여부는 스펙 버전별로 달라질 수 있으므로 최신 OpenAPI로 검증한다.
+MS-05.02 이후 `getExchangeRate` request/query/model/parser alignment가 필요합니다.
 
-## 8. Order Info
+## 7. Account / Asset / Order 계열 분리
 
-| Method | Path | Operation | 주요 파라미터 | 용도 |
-|---|---|---|---|---|
-| GET | `/api/v1/buying-power` | `getBuyingPower` | `currency` | 매수 가능 금액 |
-| GET | `/api/v1/sellable-quantity` | `getSellableQuantity` | `symbol` | 판매 가능 수량 |
-| GET | `/api/v1/commissions` | `getCommissions` | 없음 | 매매 수수료율 |
+Account/Asset/Order History/Order Info API에는 read-only endpoint가 포함되어 있지만, 대부분 accountSeq 또는 계좌 정보를 필요로 합니다.
 
-주의:
+현재 정책:
 
-- 일부 사용자 문서 URL은 `order-info#getbuyingpower` 형태이지만 실제 path는 OpenAPI JSON으로 최종 확인한다.
-- 모든 endpoint에 `X-Tossinvest-Account`가 필요하다.
+- `GET /api/v1/accounts`는 read-only지만 `accountSeq`를 반환하므로 별도 승인 전까지 구현하지 않습니다.
+- `GET /api/v1/holdings`, `GET /api/v1/orders`, `GET /api/v1/orders/{orderId}`, `GET /api/v1/buying-power`, `GET /api/v1/sellable-quantity`, `GET /api/v1/commissions`는 account-scoped read-only 후보로만 문서화합니다.
+- 주문 생성/정정/취소 endpoint는 write/order denylist에 유지합니다.
 
-## 9. Order mutation — v0.1 구현 금지
+Write/order denylist:
 
-| Method | Path | Operation | 설명 |
-|---|---|---|---|
-| POST | `/api/v1/orders` | `createOrder` | 주문 생성 |
-| POST | `/api/v1/orders/{orderId}/modify` | `modifyOrder` | 주문 정정 |
-| POST | `/api/v1/orders/{orderId}/cancel` | `cancelOrder` | 주문 취소 |
+- `POST /api/v1/orders`
+- `POST /api/v1/orders/{orderId}/modify`
+- `POST /api/v1/orders/{orderId}/cancel`
 
-v0.1에서는 client 메서드를 만들더라도 `ENABLE_LIVE_TRADING=false`면 무조건 예외를 발생시켜야 한다.
+## 8. Read-only allowlist 후보
 
-## 10. 주요 enum
+현재 code alignment 후보:
 
-### Currency
+- `/api/v1/stocks`
+- `/api/v1/stocks/{symbol}/warnings`
+- `/api/v1/prices`
+- `/api/v1/candles`
+- `/api/v1/exchange-rate`
 
-- `KRW`
-- `USD`
+후속 read-only 후보:
 
-### MarketCountry
+- `/api/v1/orderbook`
+- `/api/v1/trades`
+- `/api/v1/price-limits`
+- `/api/v1/market-calendar/KR`
+- `/api/v1/market-calendar/US`
 
-- `KR`
-- `US`
+별도 사용자 승인 전까지 보류할 account-scoped 후보:
 
-### Side
+- `/api/v1/accounts`
+- `/api/v1/holdings`
+- `/api/v1/orders` GET
+- `/api/v1/orders/{orderId}` GET
+- `/api/v1/buying-power`
+- `/api/v1/sellable-quantity`
+- `/api/v1/commissions`
 
-- `BUY`
-- `SELL`
+## 9. MS-05.02 이후 작업 후보
 
-### OrderType
-
-- `LIMIT`
-- `MARKET`
-
-### TimeInForce
-
-- `DAY`
-- `CLS`
-
-### OrderStatus
-
-- `PENDING`
-- `PENDING_CANCEL`
-- `PENDING_REPLACE`
-- `PARTIAL_FILLED`
-- `FILLED`
-- `CANCELED`
-- `REJECTED`
-- `CANCEL_REJECTED`
-- `REPLACE_REJECTED`
-- `REPLACED`
-
-## 11. 설계상 필수 구현
-
-- token refresh
-- 401 발생 시 1회 token 재발급 후 재시도
-- 429 발생 시 `Retry-After` 기반 대기 후 재시도
-- 모든 응답의 `X-Request-Id` 또는 `error.requestId` 저장
-- unknown enum 허용
-- Decimal 파싱
-- Secret masking
+1. `getExchangeRate` query와 response model/parser를 공식 schema에 맞게 수정합니다.
+2. `getCandles` parser가 `result.candles`와 `result.nextBefore`를 처리하도록 수정합니다.
+3. `orderbook`, `trades`, `price-limits`의 최소 response model/parser 구현 여부를 결정합니다.
+4. `StockInfo` optional official fields 확장 범위를 결정합니다.
+5. Account/Asset/Order History/Order Info read-only API는 accountSeq 요구 여부와 안전 정책을 재확인한 뒤 별도 Micro Stage로만 다룹니다.
+6. Order Mutation API는 계속 denylist에 둡니다.

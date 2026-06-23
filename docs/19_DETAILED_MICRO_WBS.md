@@ -150,7 +150,7 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 
 | Micro Stage | 작업 | 변경 범위 | 테스트/검증 | 사용자 확인 포인트 |
 |---|---|---|---|---|
-| MS-05.01 | 추천 입력 DTO | src/ai_stock/recommendation/schemas.py | schema test | 입력 데이터 범위 확인 |
+| MS-05.01 | Toss OpenAPI schema 재검증 및 endpoint matrix 정리 | docs/02_TOSS_OPEN_API_REFERENCE.md, references/endpoint_matrix.md, reports/MS-05.01_toss_openapi_schema_recheck_report.md | 공식 OpenAPI read-only 확인, mock client 가정과 schema 차이 문서화, src/tests/pyproject.toml 변경 없음 검증 | MS-05.02 이후 code alignment 범위 승인 |
 | MS-05.02 | 기술지표 계산 1차 | src/ai_stock/recommendation/indicators.py | MA/return test | 지표 범위 확인 |
 | MS-05.03 | 기술지표 계산 2차 | src/ai_stock/recommendation/indicators.py | RSI/volatility test | 지표 추가 승인 |
 | MS-05.04 | Rule-based scoring | src/ai_stock/recommendation/scoring.py | score test | 점수 기준 확인 |
