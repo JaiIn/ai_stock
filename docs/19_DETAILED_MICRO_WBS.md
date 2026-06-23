@@ -136,7 +136,7 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 
 | Micro Stage | 작업 | 변경 범위 | 테스트/검증 | 사용자 확인 포인트 |
 |---|---|---|---|---|
-| MS-04.01 | 관심종목 수집 서비스 | src/ai_stock/services/watchlist_service.py | CRUD service test | 관심종목 입력 방식 확인 |
+| MS-04.01 | 모의투자 도메인 모델과 safety guard | src/ai_stock/paper_trading/, src/ai_stock/risk/, tests/, reports/ | PaperPortfolio/PaperHolding/PaperOrder/PaperTrade 검증, paper-only safety guard 테스트 | 실제 주문/API/httpx/OAuth/accountSeq/DB 저장소 미구현 확인 |
 | MS-04.02 | 시세 조회 service | src/ai_stock/services/market_data_service.py | mock client test | API 호출 범위 확인 |
 | MS-04.03 | 캔들 조회 service | src/ai_stock/services/candle_service.py | fixture test | timeframe 확인 |
 | MS-04.04 | 종목 경고 조회 service | src/ai_stock/services/stock_warning_service.py | warning filter test | 경고 종목 제외 기준 확인 |
