@@ -19,15 +19,25 @@ from ai_stock.paper_trading.validation import (
     PaperOrderValidationResult,
     PaperOrderValidationService,
 )
+from ai_stock.paper_trading.valuation import (
+    PaperHoldingValuation,
+    PaperPortfolioValuationError,
+    PaperPortfolioValuationResult,
+    PaperPortfolioValuationService,
+)
 
 __all__ = [
     "PaperExecutionError",
     "PaperExecutionResult",
+    "PaperHoldingValuation",
     "PaperHolding",
     "PaperOrder",
     "PaperOrderSide",
     "PaperOrderStatus",
     "PaperOrderType",
+    "PaperPortfolioValuationError",
+    "PaperPortfolioValuationResult",
+    "PaperPortfolioValuationService",
     "PaperOrderValidationError",
     "PaperOrderValidationResult",
     "PaperOrderValidationService",
