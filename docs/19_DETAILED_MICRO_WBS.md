@@ -138,7 +138,7 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 |---|---|---|---|---|
 | MS-04.01 | 모의투자 도메인 모델과 safety guard | src/ai_stock/paper_trading/, src/ai_stock/risk/, tests/, reports/ | PaperPortfolio/PaperHolding/PaperOrder/PaperTrade 검증, paper-only safety guard 테스트 | 실제 주문/API/httpx/OAuth/accountSeq/DB 저장소 미구현 확인 |
 | MS-04.02 | 모의투자 주문 검증 서비스 | src/ai_stock/paper_trading/, src/ai_stock/risk/, tests/, reports/ | PaperOrder가 PaperPortfolio 기준으로 유효한지 검증, buy/sell/status/live flag 테스트 | 포트폴리오 변경·실제 주문/API/httpx/OAuth/accountSeq/DB 저장소 미구현 확인 |
-| MS-04.03 | 캔들 조회 service | src/ai_stock/services/candle_service.py | fixture test | timeframe 확인 |
+| MS-04.03 | 모의투자 체결 서비스 | src/ai_stock/paper_trading/, tests/, reports/ | 검증된 PaperOrder를 명시적 simulated execution price로 체결, buy/sell/status/live flag 테스트 | 실제 주문/API/httpx/OAuth/accountSeq/DB 저장소 미구현 확인 |
 | MS-04.04 | 종목 경고 조회 service | src/ai_stock/services/stock_warning_service.py | warning filter test | 경고 종목 제외 기준 확인 |
 | MS-04.05 | 환율/시장 정보 service | src/ai_stock/services/market_info_service.py | fixture test | 국내/미국 구분 확인 |
 | MS-04.06 | Snapshot 저장 job | src/ai_stock/jobs/snapshot_job.py | job dry run | 자동 실행 여부 확인 |
