@@ -115,7 +115,7 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 | Micro Stage | 작업 | 변경 범위 | 테스트/검증 | 사용자 확인 포인트 |
 |---|---|---|---|---|
 | MS-03.01 | 로컬 SQLite 저장소 기반 구조 | src/ai_stock/repositories/, tests/, reports/ | sqlite3 schema, 임시 DB repository CRUD, Decimal TEXT, 무전송 테스트 | 기본 경로와 금지 테이블·민감정보 미저장 확인 |
-| MS-03.02 | Base Model/metadata | src/ai_stock/db/base.py | metadata create test | naming convention 확인 |
+| MS-03.02 | 로컬 데이터 저장 서비스 계층 | src/ai_stock/services/, src/ai_stock/repositories/, tests/, reports/ | 이미 파싱된 StockInfo/PriceSnapshot/Candle/ExchangeRate 모델을 repository에 저장하는 in-memory SQLite 통합 테스트 | 실제 API 호출·실제 DB 파일·민감정보 저장 없음 확인 |
 | MS-03.03 | Watchlist 모델 | src/ai_stock/db/models/watchlist.py | table create test | 관심종목 필드 확인 |
 | MS-03.04 | Market Snapshot 모델 | src/ai_stock/db/models/market.py | insert/select test | 저장 주기 확인 |
 | MS-03.05 | Candle 모델 | src/ai_stock/db/models/candle.py | unique key test | timeframe 저장 방식 확인 |
