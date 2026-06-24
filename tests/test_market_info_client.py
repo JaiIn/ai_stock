@@ -48,15 +48,13 @@ class TossMarketInfoClientTests(unittest.TestCase):
 
     def test_get_exchange_rate_builds_documented_request_without_send(self) -> None:
         request = self.client.get_exchange_rate(
-            "USD",
-            "KRW",
             date_time="2026-01-01T00:00:00Z",
         )
 
         self.assertEqual(request.method, "GET")
         self.assertEqual(request.url.path, "/api/v1/exchange-rate")
-        self.assertEqual(request.url.params["baseCurrency"], "USD")
-        self.assertEqual(request.url.params["quoteCurrency"], "KRW")
+        self.assertNotIn("baseCurrency", request.url.params)
+        self.assertNotIn("quoteCurrency", request.url.params)
         self.assertEqual(request.url.params["dateTime"], "2026-01-01T00:00:00Z")
         self.assertNotIn("X-Tossinvest-Account", request.headers)
         self.assertNotIn(
@@ -66,23 +64,25 @@ class TossMarketInfoClientTests(unittest.TestCase):
         self.assertFalse(self.network_called)
 
     def test_optional_date_time_is_omitted(self) -> None:
-        request = self.client.get_exchange_rate("USD", "KRW")
+        request = self.client.get_exchange_rate()
 
         self.assertNotIn("dateTime", request.url.params)
+        self.assertEqual(request.url.query, b"")
         self.assertFalse(self.network_called)
 
-    def test_missing_currency_is_rejected(self) -> None:
+    def test_blank_date_time_is_rejected(self) -> None:
         with self.assertRaises(TossClientConfigError):
-            self.client.get_exchange_rate("", "KRW")
+            self.client.get_exchange_rate(date_time=" ")
 
     def test_fake_exchange_rate_response_is_parsed_as_decimal(self) -> None:
         rate = self.client.parse_exchange_rate_response(
-            "USD",
-            "KRW",
             _fake_response(
                 {
-                    "exchangeRate": "1375.25",
-                    "dateTime": "2026-01-01T00:00:00Z",
+                    "baseCurrency": "USD",
+                    "quoteCurrency": "KRW",
+                    "rate": "1375.25",
+                    "validFrom": "2026-01-01T00:00:00Z",
+                    "validUntil": "2026-01-01T00:05:00Z",
                 }
             ),
         )
@@ -90,24 +90,29 @@ class TossMarketInfoClientTests(unittest.TestCase):
         self.assertEqual(rate.base_currency, "USD")
         self.assertEqual(rate.quote_currency, "KRW")
         self.assertEqual(rate.exchange_rate, Decimal("1375.25"))
-        self.assertEqual(rate.date_time, "2026-01-01T00:00:00Z")
+        self.assertEqual(rate.rate, Decimal("1375.25"))
+        self.assertEqual(rate.valid_from, "2026-01-01T00:00:00Z")
+        self.assertEqual(rate.valid_until, "2026-01-01T00:05:00Z")
 
-    def test_optional_response_date_time_is_supported(self) -> None:
+    def test_optional_validity_fields_are_supported(self) -> None:
         rate = self.client.parse_exchange_rate_response(
-            "USD",
-            "KRW",
-            _fake_response({"exchangeRate": "1375.25"}),
+            _fake_response(
+                {
+                    "baseCurrency": "USD",
+                    "quoteCurrency": "KRW",
+                    "rate": "1375.25",
+                }
+            ),
         )
 
-        self.assertIsNone(rate.date_time)
+        self.assertIsNone(rate.valid_from)
+        self.assertIsNone(rate.valid_until)
 
     def test_invalid_result_shape_raises_safe_error(self) -> None:
         sensitive_text = self.token
 
         with self.assertRaises(TossApiError) as raised:
             self.client.parse_exchange_rate_response(
-                "USD",
-                "KRW",
                 _fake_response([{"unexpected": sensitive_text}]),
             )
 

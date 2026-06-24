@@ -115,26 +115,36 @@ class TossMarketDataClientTests(unittest.TestCase):
         self.assertEqual(prices[0].price, Decimal("70123.45"))
         self.assertEqual(prices[0].currency, "KRW")
 
-    def test_parse_candles_uses_decimal_ohlcv_fields(self) -> None:
-        candles = self.client.parse_candles_response(
+    def test_parse_candles_uses_official_result_object(self) -> None:
+        page = self.client.parse_candles_response(
             _fake_response(
-                [
-                    {
-                        "timestamp": "2026-01-01T00:00:00Z",
-                        "openPrice": "100.1",
-                        "highPrice": "110.2",
-                        "lowPrice": "90.3",
-                        "closePrice": "105.4",
-                        "volume": "12345",
-                        "currency": "USD",
-                    }
-                ]
+                {
+                    "candles": [
+                        {
+                            "timestamp": "2026-01-01T00:00:00Z",
+                            "openPrice": "100.1",
+                            "highPrice": "110.2",
+                            "lowPrice": "90.3",
+                            "closePrice": "105.4",
+                            "volume": "12345",
+                            "currency": "USD",
+                        }
+                    ],
+                    "nextBefore": "2025-12-31T23:59:00Z",
+                }
             )
         )
 
-        self.assertEqual(candles[0].open, Decimal("100.1"))
-        self.assertEqual(candles[0].close, Decimal("105.4"))
-        self.assertEqual(candles[0].volume, Decimal("12345"))
+        self.assertEqual(page.candles[0].open, Decimal("100.1"))
+        self.assertEqual(page.candles[0].close, Decimal("105.4"))
+        self.assertEqual(page.candles[0].volume, Decimal("12345"))
+        self.assertEqual(page.next_before, "2025-12-31T23:59:00Z")
+
+    def test_parse_candles_supports_missing_next_before(self) -> None:
+        page = self.client.parse_candles_response(_fake_response({"candles": []}))
+
+        self.assertEqual(page.candles, ())
+        self.assertIsNone(page.next_before)
 
     def test_invalid_result_shape_raises_safe_error(self) -> None:
         sensitive_text = self.token

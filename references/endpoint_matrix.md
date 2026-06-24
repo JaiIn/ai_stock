@@ -1,6 +1,6 @@
 # Endpoint Matrix
 
-MS-05.01 기준 재검증 문서입니다.
+MS-05.01 공식 schema 재검증과 MS-05.02 read-only mock alignment를 반영한 문서입니다.
 
 - 공식 확인 출처: `https://openapi.tossinvest.com/openapi-docs/latest/openapi.json`
 - 공식 문서 버전: OpenAPI 3.1.0 / API version 1.1.1
@@ -24,8 +24,8 @@ MS-05.01 기준 재검증 문서입니다.
 | Market Data | getPrices | GET | `/api/v1/prices` | Yes | No | Yes | Supported mock/request-definition scope | Mock client request definition and response parsing exist | High | Query `symbols` is comma-separated and limited to 200; result is an array of price snapshots | Official OpenAPI `/api/v1/prices` |
 | Market Data | getTrades | GET | `/api/v1/trades` | Yes | No | Yes | Candidate read-only support | Request definition exists; parser/model not fully implemented | Medium | Query `symbol`; optional `count` max 50; result is recent trade array | Official OpenAPI `/api/v1/trades` |
 | Market Data | getPriceLimit | GET | `/api/v1/price-limits` | Yes | No | Yes | Candidate read-only support | Request definition exists; parser/model not fully implemented | Medium | Result includes timestamp, upperLimitPrice, lowerLimitPrice, currency; US limit fields can be null | Official OpenAPI `/api/v1/price-limits` |
-| Market Data | getCandles | GET | `/api/v1/candles` | Yes | No | Yes | Supported mock/request-definition scope with parser follow-up | Request definition exists; parser requires schema alignment | Medium | Official result root is an object with `candles` and `nextBefore`; current parser assumption must be rechecked/aligned | Official OpenAPI `/api/v1/candles` |
-| Market Info | getExchangeRate | GET | `/api/v1/exchange-rate` | Yes | No | Yes | Supported mock/request-definition scope with required correction | Request/model assumptions require schema alignment | Medium | Official query only has optional `dateTime`; result fields include `baseCurrency`, `quoteCurrency`, `rate`, `validFrom`, `validUntil` | Official OpenAPI `/api/v1/exchange-rate` |
+| Market Data | getCandles | GET | `/api/v1/candles` | Yes | No | Yes | Supported mock/request-definition scope | Request definition and object-root parser aligned; `CandlePage` preserves `candles` and optional `nextBefore` | High | Fake official payload tests cover populated and missing `nextBefore`; no network transmission | Official OpenAPI `/api/v1/candles` |
+| Market Info | getExchangeRate | GET | `/api/v1/exchange-rate` | Yes | No | Yes | Supported mock/request-definition scope | Optional `dateTime` request and official response fields aligned | High | Parser maps `baseCurrency`, `quoteCurrency`, `rate`, optional `validFrom`/`validUntil`; internal `exchange_rate` retained for storage compatibility | Official OpenAPI `/api/v1/exchange-rate` |
 | Market Info | getKrMarketCalendar | GET | `/api/v1/market-calendar/KR` | Yes | No | Yes | Future read-only candidate | Not implemented | Low | Calendar support is outside current mock clients; keep as future read-only candidate | Official OpenAPI `/api/v1/market-calendar/KR` |
 | Market Info | getUsMarketCalendar | GET | `/api/v1/market-calendar/US` | Yes | No | Yes | Future read-only candidate | Not implemented | Low | Calendar support is outside current mock clients; keep as future read-only candidate | Official OpenAPI `/api/v1/market-calendar/US` |
 | Account | getAccounts | GET | `/api/v1/accounts` | Yes | No | Yes | Future approval required | Not implemented | Low | Read-only but returns `accountSeq`; not part of current local/mock-only implementation | Official OpenAPI `/api/v1/accounts` |
@@ -39,10 +39,10 @@ MS-05.01 기준 재검증 문서입니다.
 | Order Mutation | modifyOrder | POST | `/api/v1/orders/{orderId}/modify` | Yes | Yes | No | Denylisted | Not implemented | High | Real order mutation; must remain blocked unless explicitly re-scoped by user | Official OpenAPI `/api/v1/orders/{orderId}/modify` |
 | Order Mutation | cancelOrder | POST | `/api/v1/orders/{orderId}/cancel` | Yes | Yes | No | Denylisted | Not implemented | High | Real order mutation; must remain blocked unless explicitly re-scoped by user | Official OpenAPI `/api/v1/orders/{orderId}/cancel` |
 
-## MS-05.02 이후 code alignment 후보
+## MS-05.02 alignment 결과와 후속 후보
 
-1. `getExchangeRate` request/query와 response model/parser를 공식 schema에 맞게 정렬합니다.
-2. `getCandles` parser가 공식 result object의 `candles`와 `nextBefore`를 처리하도록 보완합니다.
+1. `getExchangeRate` request/query와 response model/parser 정렬을 완료했습니다.
+2. `getCandles` parser의 `candles`와 optional `nextBefore` object-root 처리를 완료했습니다.
 3. `orderbook`, `trades`, `price-limits` response model/parser 지원 여부를 별도 Micro Stage에서 결정합니다.
 4. `stocks` optional fields 확장 여부를 별도 Micro Stage에서 결정합니다.
 5. Account/Asset/Order History/Order Info read-only endpoint는 accountSeq와 계좌 정보가 필요하므로 별도 사용자 승인 전까지 구현하지 않습니다.

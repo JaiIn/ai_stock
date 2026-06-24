@@ -76,3 +76,23 @@ class Candle:
             volume=_required_decimal(payload, "volume"),
             currency=_optional_text(payload, "currency"),
         )
+
+
+@dataclass(frozen=True, slots=True)
+class CandlePage:
+    """Official getCandles result object with optional pagination cursor."""
+
+    candles: tuple[Candle, ...]
+    next_before: str | None = None
+
+    @classmethod
+    def from_mapping(cls, payload: Mapping[str, Any]) -> "CandlePage":
+        items = payload.get("candles")
+        if not isinstance(items, list) or not all(
+            isinstance(item, Mapping) for item in items
+        ):
+            raise ValueError("Response field 'candles' must be an array of objects.")
+        return cls(
+            candles=tuple(Candle.from_mapping(item) for item in items),
+            next_before=_optional_text(payload, "nextBefore"),
+        )

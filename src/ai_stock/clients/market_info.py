@@ -24,23 +24,17 @@ class TossMarketInfoClient:
 
     def get_exchange_rate(
         self,
-        base_currency: str,
-        quote_currency: str,
         *,
         date_time: str | None = None,
     ) -> httpx.Request:
         """Build the documented getExchangeRate request without sending it."""
 
-        base = base_currency.strip()
-        quote = quote_currency.strip()
-        if not base or not quote:
-            raise TossClientConfigError("Base and quote currencies are required.")
-        params = {
-            "baseCurrency": base,
-            "quoteCurrency": quote,
-        }
+        params: dict[str, str] = {}
         if date_time is not None:
-            params["dateTime"] = date_time
+            normalized_date_time = date_time.strip()
+            if not normalized_date_time:
+                raise TossClientConfigError("dateTime must not be blank.")
+            params["dateTime"] = normalized_date_time
         return self._foundation.build_authenticated_request(
             self._context,
             "GET",
@@ -50,8 +44,6 @@ class TossMarketInfoClient:
 
     @staticmethod
     def parse_exchange_rate_response(
-        base_currency: str,
-        quote_currency: str,
         response: httpx.Response,
     ) -> ExchangeRate:
         """Parse a fake getExchangeRate result object."""
@@ -60,11 +52,7 @@ class TossMarketInfoClient:
         if not isinstance(result, Mapping):
             raise TossApiError("getExchangeRate result must be an object.")
         try:
-            return ExchangeRate.from_mapping(
-                base_currency,
-                quote_currency,
-                result,
-            )
+            return ExchangeRate.from_mapping(result)
         except ValueError as error:
             raise TossApiError(
                 "getExchangeRate result contained invalid exchange-rate data."

@@ -32,25 +32,61 @@ def _optional_text(payload: Mapping[str, Any], field_name: str) -> str | None:
 
 @dataclass(frozen=True, slots=True)
 class ExchangeRate:
-    """Minimal reference exchange rate for one requested currency pair."""
+    """Official exchange-rate result with a storage-compatible rate field."""
 
     base_currency: str
     quote_currency: str
     exchange_rate: Decimal
+    valid_from: str | None = None
+    valid_until: str | None = None
     date_time: str | None = None
+
+    @property
+    def rate(self) -> Decimal:
+        """Expose the official `rate` field name without breaking storage callers."""
+
+        return self.exchange_rate
 
     @classmethod
     def from_mapping(
         cls,
-        base_currency: str,
-        quote_currency: str,
-        payload: Mapping[str, Any],
+        payload_or_base_currency: Mapping[str, Any] | str,
+        quote_currency: str | None = None,
+        legacy_payload: Mapping[str, Any] | None = None,
     ) -> "ExchangeRate":
-        if not base_currency or not quote_currency:
-            raise ValueError("Exchange rate currencies are required.")
+        """Parse official fields while retaining legacy local-ingestion compatibility."""
+
+        if isinstance(payload_or_base_currency, Mapping):
+            payload = payload_or_base_currency
+            base_currency = _required_text(payload, "baseCurrency")
+            parsed_quote_currency = _required_text(payload, "quoteCurrency")
+            rate = _required_decimal(payload, "rate")
+            date_time = None
+        else:
+            base_currency = payload_or_base_currency
+            parsed_quote_currency = quote_currency
+            payload = legacy_payload
+            if (
+                not base_currency
+                or not parsed_quote_currency
+                or not isinstance(payload, Mapping)
+            ):
+                raise ValueError("Exchange rate currencies and payload are required.")
+            rate = _required_decimal(payload, "exchangeRate")
+            date_time = _optional_text(payload, "dateTime")
+
         return cls(
             base_currency=base_currency,
-            quote_currency=quote_currency,
-            exchange_rate=_required_decimal(payload, "exchangeRate"),
-            date_time=_optional_text(payload, "dateTime"),
+            quote_currency=parsed_quote_currency,
+            exchange_rate=rate,
+            valid_from=_optional_text(payload, "validFrom"),
+            valid_until=_optional_text(payload, "validUntil"),
+            date_time=date_time,
         )
+
+
+def _required_text(payload: Mapping[str, Any], field_name: str) -> str:
+    value = payload.get(field_name)
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"Response field '{field_name}' is required.")
+    return value

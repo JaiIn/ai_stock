@@ -9,7 +9,7 @@ from ai_stock.clients.exceptions import TossApiError, TossClientConfigError
 from ai_stock.clients.foundation import TossClientFoundation
 from ai_stock.clients.request_context import AuthenticatedRequestContext
 from ai_stock.clients.response import extract_toss_result
-from ai_stock.models.market_data import Candle, PriceSnapshot
+from ai_stock.models.market_data import CandlePage, PriceSnapshot
 
 
 class TossMarketDataClient:
@@ -84,11 +84,12 @@ class TossMarketDataClient:
             raise TossApiError("getPrices result contained invalid price data.") from error
 
     @staticmethod
-    def parse_candles_response(response: httpx.Response) -> list[Candle]:
+    def parse_candles_response(response: httpx.Response) -> CandlePage:
         result = extract_toss_result(response)
-        items = _result_items(result, operation="getCandles")
+        if not isinstance(result, Mapping):
+            raise TossApiError("getCandles result must be an object.")
         try:
-            return [Candle.from_mapping(item) for item in items]
+            return CandlePage.from_mapping(result)
         except ValueError as error:
             raise TossApiError("getCandles result contained invalid candle data.") from error
 
