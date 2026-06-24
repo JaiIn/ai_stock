@@ -4,6 +4,33 @@
 
 v0.1은 실주문 금지다. 주문 API는 학습/문서화/미래 확장을 위해 정리하지만, 실제 호출은 코드와 테스트로 차단한다.
 
+## 1.1 Live API Safety Gate
+
+`LiveApiSafetyGate`는 미래의 실제 전송 경로 앞에서 endpoint metadata만 검사하는
+fail-closed 정책입니다. 현재 단계에서는 network client, token, authenticated
+request context 또는 send 기능과 연결하지 않습니다.
+
+허용 조건:
+
+- 공식 확인된 read-only allowlist의 `GET` endpoint
+- accountSeq 불필요
+- `ALLOW_LIVE_API=true`
+- `ALLOW_REAL_ORDER=false`
+- `DRY_RUN_ONLY=true`에서는 send 요청이 아닌 metadata 평가만 허용
+
+항상 차단:
+
+- `POST /api/v1/orders`
+- `POST /api/v1/orders/{orderId}/modify`
+- `POST /api/v1/orders/{orderId}/cancel`
+- `order`, `write`, `trading`, `mutation` category
+- 주문 또는 계좌 변경 성격의 `POST`, `PUT`, `PATCH`, `DELETE`
+- accountSeq 필요 endpoint
+- unknown 또는 pending endpoint
+- `ALLOW_REAL_ORDER=true`
+
+주문 API는 설정값이나 dry-run 여부와 무관하게 차단합니다.
+
 ## 2. 미래 v0.2+ 실주문을 고려할 때 필요한 조건
 
 실주문 기능은 다음 조건이 모두 충족될 때만 고려한다.

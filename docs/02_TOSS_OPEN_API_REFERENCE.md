@@ -139,25 +139,28 @@ Write/order denylist:
 - `POST /api/v1/orders/{orderId}/modify`
 - `POST /api/v1/orders/{orderId}/cancel`
 
-## 8. Read-only allowlist 후보
+## 8. MS-05.03 Live API Safety Gate
 
-현재 code alignment 후보:
+Safety gate는 실제 request나 인증 context를 만들지 않고 method, path, category,
+auth/account 요구 여부와 설정 flag만 검사합니다.
 
-- `/api/v1/stocks`
-- `/api/v1/stocks/{symbol}/warnings`
-- `/api/v1/prices`
-- `/api/v1/candles`
-- `/api/v1/exchange-rate`
+Dry-run 평가 allowlist:
 
-후속 read-only 후보:
+- `GET /api/v1/stocks`
+- `GET /api/v1/stocks/{symbol}/warnings`
+- `GET /api/v1/prices`
+- `GET /api/v1/candles`
+- `GET /api/v1/exchange-rate`
 
-- `/api/v1/orderbook`
-- `/api/v1/trades`
-- `/api/v1/price-limits`
-- `/api/v1/market-calendar/KR`
-- `/api/v1/market-calendar/US`
+Pending 상태로 기본 차단:
 
-별도 사용자 승인 전까지 보류할 account-scoped 후보:
+- `GET /api/v1/orderbook`
+- `GET /api/v1/trades`
+- `GET /api/v1/price-limits`
+- market calendar 계열
+- unknown endpoint
+
+Account-scoped API는 read-only 여부와 무관하게 별도 승인 전까지 차단합니다.
 
 - `/api/v1/accounts`
 - `/api/v1/holdings`
@@ -167,7 +170,22 @@ Write/order denylist:
 - `/api/v1/sellable-quantity`
 - `/api/v1/commissions`
 
-## 9. MS-05.02 alignment 이후 작업 후보
+Write/order denylist는 설정과 무관하게 항상 차단합니다.
+
+- `POST /api/v1/orders`
+- `POST /api/v1/orders/{orderId}/modify`
+- `POST /api/v1/orders/{orderId}/cancel`
+- category가 `order`, `write`, `trading`, `mutation`인 endpoint
+- `POST`, `PUT`, `PATCH`, `DELETE` method 후보
+
+설정 정책:
+
+- `ALLOW_LIVE_API=false`: live 후보 차단
+- `ALLOW_REAL_ORDER=true`: critical 위험 상태로 차단
+- `DRY_RUN_ONLY=true`: metadata 평가만 허용하고 send 후보 차단
+- 이번 단계에서는 실제 API 호출, OAuth token 발급, 인증 요청을 수행하지 않습니다.
+
+## 9. MS-05.03 이후 작업 후보
 
 1. `orderbook`, `trades`, `price-limits`의 최소 response model/parser 구현 여부를 결정합니다.
 2. `StockInfo` optional official fields 확장 범위를 결정합니다.

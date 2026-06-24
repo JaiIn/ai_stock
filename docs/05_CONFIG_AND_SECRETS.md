@@ -71,6 +71,21 @@ SENSITIVE_HEADERS = {'authorization', 'x-tossinvest-account'}
 - `logs/`는 개인 PC 외부 공유 금지.
 - Secret이 유출되면 즉시 토스증권 앱/콘솔에서 재발급.
 
+## 5. MS-05.03 credential 비요구 원칙
+
+MS-05.03 Live API Safety Gate는 request metadata와 아래 boolean 설정만 검사합니다.
+
+- `ALLOW_LIVE_API`
+- `ALLOW_REAL_ORDER`
+- `DRY_RUN_ONLY`
+
+이번 단계에서는 API KEY, SECRET KEY, Client ID, Client Secret, Access Token,
+accountSeq가 필요하지 않습니다. `.env.local`도 생성하지 않습니다.
+
+실제 credential은 MS-05.04 또는 사용자가 별도로 승인한 OAuth token 테스트
+Micro Stage에서만 로컬 파일에 직접 입력하도록 안내합니다. 채팅, 로그, report에는
+원문을 기록하지 않습니다.
+
 
 ## 사용자 입력이 필요한 Secret 처리
 
