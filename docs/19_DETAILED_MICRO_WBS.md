@@ -155,7 +155,7 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 | MS-05.03 | Live API Safety Gate 및 endpoint allowlist/denylist 구현 | src/ai_stock/risk/, tests/, docs/, references/, reports/ | metadata-only decision, read-only dry-run 허용, order/write/account/unknown 차단, no-network 테스트 | 실제 API/OAuth/credential 미사용과 fail-closed 정책 승인 |
 | MS-05.04 | OAuth token live smoke test 준비 및 제한 실행 | src/ai_stock/clients/, scripts/, tests/, docs/, references/, reports/ | form request mock contract, token masking, safety flag 차단, credential 존재 시 OAuth endpoint 단일 live smoke | credential 로컬 입력 및 masked 결과 승인 |
 | MS-05.05 | 최초 read-only live API smoke test (`getExchangeRate`) | src/ai_stock/clients/, scripts/, tests/, docs/, references/, reports/ | OAuth→Safety Gate→환율 GET fake flow, 응답 Decimal parsing, phase/status safe diagnostics, 실제 제한 smoke | 최초 실패 기록, 진단 보강 중 live 재시도 없음, 별도 재시도 승인 필요 |
-| MS-05.06 | 추천 결과 ranking | src/ai_stock/recommendation/ranking.py | ranking test | top N 확인 |
+| MS-05.06 | Exchange Rate live retry diagnostics | reports/MS-05.06_exchange_rate_live_retry_diagnostics_report.md, references/endpoint_matrix.md | 사전 전체 검증 후 OAuth 1회와 `GET /api/v1/exchange-rate` 1회만 실행, safe phase/status 기록 | `readonly_exchange_rate`, HTTP 400, `invalid-request` 결과와 추가 재시도 없음 확인 |
 | MS-05.07 | LLM prompt template | src/ai_stock/recommendation/prompts.py | prompt snapshot test | 문구/면책 표현 확인 |
 | MS-05.08 | LLM provider abstraction | src/ai_stock/llm/provider.py | fake provider test | 실제 LLM API Key 필요 여부 확인 |
 | MS-05.09 | AI 설명 생성 | src/ai_stock/recommendation/explainer.py | fake explanation test | 설명 톤 확인 |
