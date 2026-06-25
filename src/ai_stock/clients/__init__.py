@@ -13,6 +13,11 @@ from ai_stock.clients.foundation import TossClientFoundation
 from ai_stock.clients.market_data import TossMarketDataClient
 from ai_stock.clients.market_info import TossMarketInfoClient
 from ai_stock.clients.oauth import OAUTH_TOKEN_PATH, TossOAuthTokenProvider
+from ai_stock.clients.readonly_smoke import (
+    EXCHANGE_RATE_PATH,
+    ReadOnlySmokeResult,
+    TossReadOnlySmokeClient,
+)
 from ai_stock.clients.request_context import (
     ACCOUNT_HEADER,
     AUTHORIZATION_HEADER,
@@ -29,10 +34,12 @@ __all__ = [
     "AUTHORIZATION_HEADER",
     "AuthenticatedRequestContext",
     "AuthenticatedRequestContextFactory",
+    "EXCHANGE_RATE_PATH",
     "InMemoryTokenStore",
     "LiveTokenProvider",
     "MockTokenProvider",
     "OAUTH_TOKEN_PATH",
+    "ReadOnlySmokeResult",
     "TokenProvider",
     "TossApiError",
     "TossAuthenticationError",
@@ -42,6 +49,7 @@ __all__ = [
     "TossMarketDataClient",
     "TossMarketInfoClient",
     "TossOAuthTokenProvider",
+    "TossReadOnlySmokeClient",
     "TossPermissionError",
     "TossRateLimitError",
     "TossServerError",

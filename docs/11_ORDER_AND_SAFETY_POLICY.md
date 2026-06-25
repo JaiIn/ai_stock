@@ -46,6 +46,31 @@ MS-05.04의 `POST /oauth2/token`은 주문·업무 API가 아닌 인증 endpoint
 
 이 제한 예외는 MS-05.03의 업무 API allowlist를 확장하지 않습니다.
 
+## 1.3 최초 read-only live smoke 제한
+
+MS-05.05에서는 사용자 승인에 따라 아래 두 호출만 허용합니다.
+
+1. `POST /oauth2/token`
+2. `GET /api/v1/exchange-rate`
+
+환율 호출 전에 `LiveApiSafetyGate`가 아래 고정 metadata를 평가해야 합니다.
+
+- method: `GET`
+- path: `/api/v1/exchange-rate`
+- category: `market_info`
+- requires auth: true
+- requires accountSeq: false
+
+`DRY_RUN_ONLY=true`는 유지하며 전용 smoke client의 명시적 승인 flag가 있을 때만
+이 단일 GET을 허용합니다. 다른 업무 endpoint, account-scoped endpoint와 주문
+mutation은 계속 차단합니다.
+
+실패 진단에는 phase, 성공 여부, HTTP status, 고정된 safe error type/message,
+endpoint와 method만 포함할 수 있습니다. Token, credential, Authorization header,
+request body와 raw response는 진단 객체·출력·보고서에 포함하지 않습니다. 진단
+경로 보강 자체는 live 재시도를 허용하지 않으며 재시도에는 별도 사용자 승인이
+필요합니다.
+
 ## 2. 미래 v0.2+ 실주문을 고려할 때 필요한 조건
 
 실주문 기능은 다음 조건이 모두 충족될 때만 고려한다.

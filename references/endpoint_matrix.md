@@ -26,7 +26,7 @@ MS-05.01 공식 schema 재검증, MS-05.02 mock alignment, MS-05.03 safety gate
 | Market Data | getTrades | GET | `/api/v1/trades` | Yes | No | Yes | Candidate read-only support | Request definition exists; parser/model not fully implemented | Medium | Query `symbol`; optional `count` max 50; result is recent trade array | Official OpenAPI `/api/v1/trades` |
 | Market Data | getPriceLimit | GET | `/api/v1/price-limits` | Yes | No | Yes | Candidate read-only support | Request definition exists; parser/model not fully implemented | Medium | Result includes timestamp, upperLimitPrice, lowerLimitPrice, currency; US limit fields can be null | Official OpenAPI `/api/v1/price-limits` |
 | Market Data | getCandles | GET | `/api/v1/candles` | Yes | No | Yes | Supported mock/request-definition scope | Request definition and object-root parser aligned; `CandlePage` preserves `candles` and optional `nextBefore` | High | Fake official payload tests cover populated and missing `nextBefore`; no network transmission | Official OpenAPI `/api/v1/candles` |
-| Market Info | getExchangeRate | GET | `/api/v1/exchange-rate` | Yes | No | Yes | Supported mock/request-definition scope | Optional `dateTime` request and official response fields aligned | High | Parser maps `baseCurrency`, `quoteCurrency`, `rate`, optional `validFrom`/`validUntil`; internal `exchange_rate` retained for storage compatibility | Official OpenAPI `/api/v1/exchange-rate` |
+| Market Info | getExchangeRate | GET | `/api/v1/exchange-rate` | Yes | No | Yes | MS-05.05 approved single live smoke endpoint | Schema-aligned parser, safety-gated smoke client, and safe phase/status diagnostics implemented | High | Initial live attempt failed without phase/status; diagnostics added without retry or raw response/token storage | Official OpenAPI `/api/v1/exchange-rate` |
 | Market Info | getKrMarketCalendar | GET | `/api/v1/market-calendar/KR` | Yes | No | Yes | Future read-only candidate | Not implemented | Low | Calendar support is outside current mock clients; keep as future read-only candidate | Official OpenAPI `/api/v1/market-calendar/KR` |
 | Market Info | getUsMarketCalendar | GET | `/api/v1/market-calendar/US` | Yes | No | Yes | Future read-only candidate | Not implemented | Low | Calendar support is outside current mock clients; keep as future read-only candidate | Official OpenAPI `/api/v1/market-calendar/US` |
 | Account | getAccounts | GET | `/api/v1/accounts` | Yes | No | Yes | Future approval required | Not implemented | Low | Read-only but returns `accountSeq`; not part of current local/mock-only implementation | Official OpenAPI `/api/v1/accounts` |
@@ -71,3 +71,10 @@ metadata-only dry-run decision 범위입니다.
 
 OAuth token endpoint는 업무 API allowlist와 분리된 MS-05.04 제한 경로입니다.
 실제 호출은 `/oauth2/token` 한 번만 허용하며 credential이 없으면 실행하지 않습니다.
+
+MS-05.05에서 실제 업무 API 호출 후보는 `GET /api/v1/exchange-rate` 한 개로
+제한합니다. 기존 allowlist의 다른 GET endpoint는 이 smoke script에서 호출할 수
+없으며 account-scoped 및 order/write endpoint는 계속 차단합니다.
+
+최초 live 시도 실패 후 phase/status 진단만 보강했으며 추가 live 호출은 수행하지
+않았습니다. 재시도는 별도 사용자 승인이 있어야 합니다.

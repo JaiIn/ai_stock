@@ -76,6 +76,21 @@ MS-05.01에서 공식 Toss OpenAPI 문서를 read-only로 재확인하고, MS-05
 - 실행 전 `ALLOW_LIVE_API=true`, `ALLOW_REAL_ORDER=false`, `DRY_RUN_ONLY=true`를 확인합니다.
 - Credential이 없는 경우 live smoke test를 수행하지 않습니다.
 
+### MS-05.05 최초 read-only 업무 API smoke test
+
+- 허용 업무 endpoint는 `GET /api/v1/exchange-rate` 하나뿐입니다.
+- 실제 호출 순서는 OAuth token 발급 → Live API Safety Gate 평가 → 환율 GET입니다.
+- Safety metadata는 `market_info`, auth 필요, accountSeq 불필요로 고정합니다.
+- 응답은 기존 `ExchangeRate` parser로 처리하고 `rate`는 `Decimal`로 유지합니다.
+- 실제 응답 전체, Authorization header, token, credential은 출력하거나 저장하지 않습니다.
+- 보고 가능한 항목은 HTTP status, 통화 코드, rate 존재 여부, validity field 존재 여부뿐입니다.
+- 다른 read-only, 시세, 계좌, 자산, 잔고, 체결, 주문 endpoint는 호출하지 않습니다.
+- 실패 진단은 `config_validation`, `oauth_token`, `safety_gate`,
+  `readonly_exchange_rate`, `response_parse`, `unknown` phase로 구분합니다.
+- 진단에는 HTTP status와 고정된 safe error summary만 보존하며 raw request/response는
+  포함하지 않습니다.
+- 최초 live 시도는 실패했으며 진단 보강 중 추가 live 재시도는 수행하지 않았습니다.
+
 ## 4. Stock Info
 
 | Operation | Method | Path | 주요 parameter | 공식 response 요약 | 현재 상태 |
