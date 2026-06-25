@@ -26,6 +26,13 @@ from ai_stock.clients.request_context import (
 )
 from ai_stock.clients.response import extract_toss_result, raise_for_toss_status
 from ai_stock.clients.stock_info import TossStockInfoClient
+from ai_stock.clients.stock_info_smoke import (
+    DEFAULT_STOCK_SYMBOL,
+    STOCKS_PATH,
+    StockInfoSmokeDiagnosticResult,
+    StockInfoSmokeResult,
+    TossStockInfoSmokeClient,
+)
 from ai_stock.clients.token_provider import LiveTokenProvider, MockTokenProvider, TokenProvider
 from ai_stock.clients.token_store import InMemoryTokenStore
 
@@ -34,12 +41,16 @@ __all__ = [
     "AUTHORIZATION_HEADER",
     "AuthenticatedRequestContext",
     "AuthenticatedRequestContextFactory",
+    "DEFAULT_STOCK_SYMBOL",
     "EXCHANGE_RATE_PATH",
     "InMemoryTokenStore",
     "LiveTokenProvider",
     "MockTokenProvider",
     "OAUTH_TOKEN_PATH",
     "ReadOnlySmokeResult",
+    "STOCKS_PATH",
+    "StockInfoSmokeDiagnosticResult",
+    "StockInfoSmokeResult",
     "TokenProvider",
     "TossApiError",
     "TossAuthenticationError",
@@ -54,6 +65,7 @@ __all__ = [
     "TossRateLimitError",
     "TossServerError",
     "TossStockInfoClient",
+    "TossStockInfoSmokeClient",
     "extract_toss_result",
     "raise_for_toss_status",
 ]
