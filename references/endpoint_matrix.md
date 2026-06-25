@@ -18,7 +18,7 @@ MS-05.01 공식 schema 재검증, MS-05.02 mock alignment, MS-05.03 safety gate
 
 | API category | Endpoint name | Method | Path | Auth required | accountSeq required | Read-only | Project support status | Current implementation status | Schema confidence | Recheck notes | Source reference |
 |---|---|---:|---|---|---|---|---|---|---|---|---|
-| Auth / OAuth | issueOAuth2Token | POST | `/oauth2/token` | No | No | No token mutation only | Mock only | Token request/response model and mock provider exist; live token request blocked | High | Form body uses `grant_type`, `client_id`, `client_secret`; response uses OAuth fields, not common `result` envelope | Official OpenAPI `/oauth2/token` |
+| Auth / OAuth | issueOAuth2Token | POST | `/oauth2/token` | No | No | No; auth token issuance only | Approved smoke-test-only path | Fixed endpoint provider and offline contract tests implemented; live execution requires local credentials and safety flags | High | Form body uses `grant_type`, `client_id`, `client_secret`; token remains memory-only and output is masked | Official OpenAPI `/oauth2/token` |
 | Stock Info | getStocks | GET | `/api/v1/stocks` | Yes | No | Yes | Supported mock/request-definition scope | Mock client request definition and response parsing exist | High | Query `symbols` is comma-separated and limited to 200; current model covers minimal required/optional fields only | Official OpenAPI `/api/v1/stocks` |
 | Stock Info | getStockWarnings | GET | `/api/v1/stocks/{symbol}/warnings` | Yes | No | Yes | Supported mock/request-definition scope | Mock client request definition and response parsing exist | High | Response is an array; no warning returns an empty array; missing stock can return 404 | Official OpenAPI `/api/v1/stocks/{symbol}/warnings` |
 | Market Data | getOrderbook | GET | `/api/v1/orderbook` | Yes | No | Yes | Candidate read-only support | Request definition exists; parser/model not fully implemented | Medium | Result object includes timestamp, currency, asks, bids; each level has price and volume | Official OpenAPI `/api/v1/orderbook` |
@@ -68,3 +68,6 @@ MS-05.01 공식 schema 재검증, MS-05.02 mock alignment, MS-05.03 safety gate
 `ALLOW_LIVE_API=false`, `ALLOW_REAL_ORDER=true`, 또는 `DRY_RUN_ONLY=true` 상태의
 send 후보는 차단합니다. 이 표의 allowlist는 실제 network send 승인이 아니라
 metadata-only dry-run decision 범위입니다.
+
+OAuth token endpoint는 업무 API allowlist와 분리된 MS-05.04 제한 경로입니다.
+실제 호출은 `/oauth2/token` 한 번만 허용하며 credential이 없으면 실행하지 않습니다.

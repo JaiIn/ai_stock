@@ -65,6 +65,17 @@ MS-05.01에서 공식 Toss OpenAPI 문서를 read-only로 재확인하고, MS-05
 - 실제 token 발급 HTTP 호출은 구현하지 않았고, `ALLOW_LIVE_API=false` 상태에서 live token request를 차단합니다.
 - MS-05.01에서 실제 OAuth token 발급은 수행하지 않았습니다.
 
+### MS-05.04 OAuth token smoke test 경로
+
+- 실제 호출 허용 대상은 `POST /oauth2/token` 하나뿐입니다.
+- Content-Type은 `application/x-www-form-urlencoded`입니다.
+- Form field는 `grant_type`, `client_id`, `client_secret`입니다.
+- Response의 `access_token`, `token_type`, `expires_in`만 메모리 모델로 처리합니다.
+- Access Token은 파일로 저장하거나 원문 출력하지 않습니다.
+- 실제 업무, read-only, 주문, 계좌, 자산, 잔고, 체결 endpoint는 호출하지 않습니다.
+- 실행 전 `ALLOW_LIVE_API=true`, `ALLOW_REAL_ORDER=false`, `DRY_RUN_ONLY=true`를 확인합니다.
+- Credential이 없는 경우 live smoke test를 수행하지 않습니다.
+
 ## 4. Stock Info
 
 | Operation | Method | Path | 주요 parameter | 공식 response 요약 | 현재 상태 |

@@ -31,6 +31,21 @@ request context 또는 send 기능과 연결하지 않습니다.
 
 주문 API는 설정값이나 dry-run 여부와 무관하게 차단합니다.
 
+## 1.2 OAuth token endpoint 제한 예외
+
+MS-05.04의 `POST /oauth2/token`은 주문·업무 API가 아닌 인증 endpoint이며,
+사용자가 명시적으로 승인한 smoke test에서만 단일 호출할 수 있습니다.
+
+- OAuth endpoint 외 Toss endpoint 호출 금지
+- `ALLOW_LIVE_API=true` 필수
+- `ALLOW_REAL_ORDER=false` 필수
+- `DRY_RUN_ONLY=true` 필수
+- accountSeq 사용 금지
+- token 원문 출력·파일 저장 금지
+- 주문, 계좌, 자산, 잔고, 체결, 시세 endpoint 호출 금지
+
+이 제한 예외는 MS-05.03의 업무 API allowlist를 확장하지 않습니다.
+
 ## 2. 미래 v0.2+ 실주문을 고려할 때 필요한 조건
 
 실주문 기능은 다음 조건이 모두 충족될 때만 고려한다.

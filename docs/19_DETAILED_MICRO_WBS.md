@@ -153,7 +153,7 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 | MS-05.01 | Toss OpenAPI schema 재검증 및 endpoint matrix 정리 | docs/02_TOSS_OPEN_API_REFERENCE.md, references/endpoint_matrix.md, reports/MS-05.01_toss_openapi_schema_recheck_report.md | 공식 OpenAPI read-only 확인, mock client 가정과 schema 차이 문서화, src/tests/pyproject.toml 변경 없음 검증 | MS-05.02 이후 code alignment 범위 승인 |
 | MS-05.02 | Toss read-only schema alignment (`getExchangeRate`, `getCandles`) | src/ai_stock/clients/, src/ai_stock/models/, tests/, docs/, references/, reports/ | optional `dateTime` request, 공식 환율 field Decimal parsing, candle object root/`nextBefore` parsing, 전체 회귀 테스트 | 실제 API/OAuth 호출 없음과 mock schema 정렬 결과 승인 |
 | MS-05.03 | Live API Safety Gate 및 endpoint allowlist/denylist 구현 | src/ai_stock/risk/, tests/, docs/, references/, reports/ | metadata-only decision, read-only dry-run 허용, order/write/account/unknown 차단, no-network 테스트 | 실제 API/OAuth/credential 미사용과 fail-closed 정책 승인 |
-| MS-05.04 | Rule-based scoring | src/ai_stock/recommendation/scoring.py | score test | 점수 기준 확인 |
+| MS-05.04 | OAuth token live smoke test 준비 및 제한 실행 | src/ai_stock/clients/, scripts/, tests/, docs/, references/, reports/ | form request mock contract, token masking, safety flag 차단, credential 존재 시 OAuth endpoint 단일 live smoke | credential 로컬 입력 및 masked 결과 승인 |
 | MS-05.05 | Risk penalty | src/ai_stock/recommendation/risk_filter.py | warning penalty test | 경고 종목 처리 확인 |
 | MS-05.06 | 추천 결과 ranking | src/ai_stock/recommendation/ranking.py | ranking test | top N 확인 |
 | MS-05.07 | LLM prompt template | src/ai_stock/recommendation/prompts.py | prompt snapshot test | 문구/면책 표현 확인 |
