@@ -157,7 +157,7 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 | MS-05.05 | 최초 read-only live API smoke test (`getExchangeRate`) | src/ai_stock/clients/, scripts/, tests/, docs/, references/, reports/ | OAuth→Safety Gate→환율 GET fake flow, 응답 Decimal parsing, phase/status safe diagnostics, 실제 제한 smoke | 최초 실패 기록, 진단 보강 중 live 재시도 없음, 별도 재시도 승인 필요 |
 | MS-05.06 | Exchange Rate live retry diagnostics | reports/MS-05.06_exchange_rate_live_retry_diagnostics_report.md, references/endpoint_matrix.md | 사전 전체 검증 후 OAuth 1회와 `GET /api/v1/exchange-rate` 1회만 실행, safe phase/status 기록 | `readonly_exchange_rate`, HTTP 400, `invalid-request` 결과와 추가 재시도 없음 확인 |
 | MS-05.07 | Exchange Rate schema realignment | src/ai_stock/clients/market_info.py, src/ai_stock/clients/readonly_smoke.py, src/ai_stock/models/market_info.py, tests/, docs/, references/, reports/ | 공식 OpenAPI 정적 확인, required currency query, full response Decimal parsing, safe error schema fake tests | 실제 API/OAuth/.env.local 미사용과 HTTP 400 원인 정렬 확인 |
-| MS-05.08 | LLM provider abstraction | src/ai_stock/llm/provider.py | fake provider test | 실제 LLM API Key 필요 여부 확인 |
+| MS-05.08 | Exchange Rate USD/KRW live retry | reports/MS-05.08_exchange_rate_usd_krw_live_retry_report.md, references/endpoint_matrix.md | 사전 전체 검증 후 OAuth 1회와 `GET /api/v1/exchange-rate?baseCurrency=USD&quoteCurrency=KRW` 1회만 실행, safe diagnostics 기록 | HTTP 200과 공식 응답 field parsing 성공, 추가 호출 없음 확인 |
 | MS-05.09 | AI 설명 생성 | src/ai_stock/recommendation/explainer.py | fake explanation test | 설명 톤 확인 |
 | MS-05.10 | 금지 표현 guardrail | src/ai_stock/recommendation/guardrails.py | banned phrase test | 투자 조언 오해 방지 확인 |
 | MS-05.11 | 추천 이력 저장 | src/ai_stock/services/recommendation_service.py | DB save test | 이력 보관 확인 |

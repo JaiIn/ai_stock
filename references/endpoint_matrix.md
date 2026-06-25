@@ -90,3 +90,10 @@ KRW/USD이며 성공 응답에는 `rate`, `midRate`, `basisPoint`, `rateChangeTy
 `validFrom`, `validUntil`이 포함됩니다. MS-05.06 HTTP 400은 required currency
 query 누락이 원인일 가능성이 높습니다. 이번 정렬 단계에서는 실제 API와 OAuth
 endpoint를 호출하지 않았습니다.
+
+MS-05.08에서 별도 승인된 smoke script를 정확히 한 번 실행했습니다. OAuth token
+endpoint 1회와 `GET /api/v1/exchange-rate?baseCurrency=USD&quoteCurrency=KRW`
+1회만 호출했고 `dateTime`은 생략했습니다. 응답은 HTTP 200이었으며 USD/KRW,
+`rate`, `midRate`, `basisPoint`, `rateChangeType`, `validFrom`, `validUntil`을
+안전한 parser 결과로 확인했습니다. raw response와 credential/token/header
+원문은 저장하지 않았고 추가 업무 API 호출도 수행하지 않았습니다.
