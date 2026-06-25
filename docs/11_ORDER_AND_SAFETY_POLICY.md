@@ -71,6 +71,18 @@ request body와 raw response는 진단 객체·출력·보고서에 포함하지
 경로 보강 자체는 live 재시도를 허용하지 않으며 재시도에는 별도 사용자 승인이
 필요합니다.
 
+MS-05.07 공식 schema 재확인 이후 환율 read-only request에는 아래 query가
+필수입니다.
+
+- `baseCurrency`: `KRW` 또는 `USD`
+- `quoteCurrency`: `KRW` 또는 `USD`
+- 두 통화는 서로 달라야 함
+- `dateTime`: optional
+
+전용 smoke client는 다음 승인된 retry를 위해 `USD` → `KRW`를 기본 통화쌍으로
+준비합니다. 이 기본값은 allowlist를 확장하지 않으며 실제 호출에는 매번 별도
+사용자 승인이 필요합니다.
+
 ## 2. 미래 v0.2+ 실주문을 고려할 때 필요한 조건
 
 실주문 기능은 다음 조건이 모두 충족될 때만 고려한다.

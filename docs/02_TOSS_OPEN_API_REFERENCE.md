@@ -5,8 +5,8 @@ MS-05.01에서 공식 Toss OpenAPI 문서를 read-only로 재확인하고, MS-05
 
 - 공식 OpenAPI: `https://openapi.tossinvest.com/openapi-docs/latest/openapi.json`
 - 개발자 문서: `https://developers.tossinvest.com/`
-- 확인 기준일: 2026-06-24
-- 공식 문서 버전: OpenAPI 3.1.0 / API version 1.1.1
+- 확인 기준일: 2026-06-25
+- 공식 문서 버전: OpenAPI 3.1.0 / API version 1.1.5
 - 이번 단계 금지 사항: 실제 API 호출, 실제 OAuth token 발급, 실제 Client ID / Client Secret / Access Token / accountSeq 요청
 
 ## 1. 프로젝트 지원 범위
@@ -91,6 +91,18 @@ MS-05.01에서 공식 Toss OpenAPI 문서를 read-only로 재확인하고, MS-05
   포함하지 않습니다.
 - 최초 live 시도는 실패했으며 진단 보강 중 추가 live 재시도는 수행하지 않았습니다.
 
+### MS-05.07 exchange-rate schema 재정렬
+
+- 실제 API와 OAuth endpoint를 호출하지 않고 공식 OpenAPI JSON만 정적으로 확인했습니다.
+- `operationId`: `getExchangeRate`
+- Security: OAuth2 Client Credentials
+- required query: `baseCurrency`, `quoteCurrency`
+- optional query: `dateTime`
+- 공식 Currency enum: `KRW`, `USD`
+- 동일한 기준/표시 통화와 enum 밖 통화는 request 생성 전에 차단합니다.
+- 다음 live retry용 고정 통화쌍은 `USD` → `KRW`로 준비하되 이번 단계에서는
+  live smoke를 실행하지 않습니다.
+
 ## 4. Stock Info
 
 | Operation | Method | Path | 주요 parameter | 공식 response 요약 | 현재 상태 |
@@ -130,24 +142,45 @@ MS-05.01에서 공식 Toss OpenAPI 문서를 read-only로 재확인하고, MS-05
 - Auth required: Yes
 - accountSeq required: No
 - Query:
+  - required `baseCurrency`
+  - required `quoteCurrency`
   - optional `dateTime`
 - Response result:
   - `baseCurrency`
   - `quoteCurrency`
   - `rate`
+  - `midRate`
+  - `basisPoint`
+  - `rateChangeType`
   - `validFrom`
   - `validUntil`
 
-MS-05.02 alignment 결과:
+MS-05.02 alignment 이력과 MS-05.07 정정:
 
-- request builder는 optional `dateTime`만 query로 구성합니다.
-- `baseCurrency`, `quoteCurrency` query는 더 이상 요구하거나 전송하지 않습니다.
-- parser는 response의 `baseCurrency`, `quoteCurrency`, `rate`, `validFrom`, `validUntil`을 처리합니다.
+- MS-05.02에서는 optional `dateTime`만 query로 구성한다고 기록했으나,
+  MS-05.07의 공식 API version 1.1.5 재확인 결과 이는 잘못된 가정으로 정정합니다.
+- request builder는 required `baseCurrency`, `quoteCurrency`와 optional `dateTime`을 구성합니다.
+- parser는 `baseCurrency`, `quoteCurrency`, `rate`, `midRate`, `basisPoint`,
+  `rateChangeType`, `validFrom`, `validUntil`을 처리합니다.
 - 금융 숫자는 `Decimal`로 복원합니다.
 - 기존 SQLite 저장 계층 호환을 위해 내부 필드 `exchange_rate`를 유지하고 공식 이름 `rate` property를 제공합니다.
+- `mid_rate`, `basis_point`, `rate_change_type`은 기존 직접 생성/저장 호출의
+  호환성을 위해 모델에서는 optional이지만 공식 응답 parsing 경로에서는 필수입니다.
 - `valid_from`, `valid_until`은 optional field로 보존합니다.
-- 실제 API 호출과 OAuth token 발급은 구현하거나 수행하지 않았습니다.
-- 이 단계에서는 API KEY, SECRET KEY, Client ID, Client Secret, Access Token, accountSeq가 필요하지 않습니다.
+- 400 error의 `requestId`, `code`, `message`, `data.field`,
+  `data.allowedValues`만 별도 안전 모델로 추출하며 raw body는 저장하지 않습니다.
+
+공식 error response:
+
+- 400 `invalid-request`: unsupported currency, same currency
+- 404 `exchange-rate-not-found`
+- 429 `rate-limit-exceeded`
+- 500 `internal-error`
+
+MS-05.06의 HTTP 400 `invalid-request`는 request에서 required
+`baseCurrency`/`quoteCurrency`가 누락된 것이 원인일 가능성이 높습니다.
+OAuth 단계는 통과했으며 실제 환율 request 단계에서 400이 발생했습니다.
+MS-05.07에서는 실제 API 호출과 OAuth token 발급을 수행하지 않았습니다.
 
 ## 7. Account / Asset / Order 계열 분리
 

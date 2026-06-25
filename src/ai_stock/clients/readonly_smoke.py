@@ -7,7 +7,10 @@ import re
 import httpx
 
 from ai_stock.clients.exceptions import TossApiError, TossClientConfigError
-from ai_stock.clients.market_info import TossMarketInfoClient
+from ai_stock.clients.market_info import (
+    TossMarketInfoClient,
+    build_exchange_rate_params,
+)
 from ai_stock.clients.oauth import TossOAuthTokenProvider
 from ai_stock.models.auth import OAuthTokenResponse
 from ai_stock.models.auth import OAuthTokenRequest
@@ -16,6 +19,8 @@ from ai_stock.risk import LiveApiSafetyGate, TossEndpointMetadata
 
 EXCHANGE_RATE_PATH = "/api/v1/exchange-rate"
 OAUTH_TOKEN_ENDPOINT = "/oauth2/token"
+DEFAULT_BASE_CURRENCY = "USD"
+DEFAULT_QUOTE_CURRENCY = "KRW"
 
 
 class ReadOnlySmokePhase(str, Enum):
@@ -65,6 +70,17 @@ class ReadOnlySmokeDiagnosticResult:
                     "base_currency": self.exchange_rate.base_currency,
                     "quote_currency": self.exchange_rate.quote_currency,
                     "rate_present": self.exchange_rate.rate.is_finite(),
+                    "mid_rate_present": (
+                        self.exchange_rate.mid_rate is not None
+                        and self.exchange_rate.mid_rate.is_finite()
+                    ),
+                    "basis_point_present": (
+                        self.exchange_rate.basis_point is not None
+                        and self.exchange_rate.basis_point.is_finite()
+                    ),
+                    "rate_change_type_present": (
+                        self.exchange_rate.rate_change_type is not None
+                    ),
                     "valid_from_present": self.exchange_rate.valid_from is not None,
                     "valid_until_present": self.exchange_rate.valid_until is not None,
                 }
@@ -111,6 +127,9 @@ class TossReadOnlySmokeClient:
     def get_exchange_rate_once(
         self,
         token: OAuthTokenResponse,
+        *,
+        base_currency: str = DEFAULT_BASE_CURRENCY,
+        quote_currency: str = DEFAULT_QUOTE_CURRENCY,
     ) -> ReadOnlySmokeResult:
         """Perform the sole approved business GET without logging token or body."""
 
@@ -150,9 +169,14 @@ class TossReadOnlySmokeClient:
                 )
             )
 
+        params = build_exchange_rate_params(
+            base_currency=base_currency,
+            quote_currency=quote_currency,
+        )
         try:
             response = self._http_client.get(
                 EXCHANGE_RATE_PATH,
+                params=params,
                 headers=token.authorization_header(),
             )
         except httpx.HTTPError as error:
@@ -197,6 +221,8 @@ def execute_readonly_exchange_rate_smoke(
     allow_real_order: bool,
     dry_run_only: bool,
     read_only_live_smoke_allowed: bool,
+    base_currency: str = DEFAULT_BASE_CURRENCY,
+    quote_currency: str = DEFAULT_QUOTE_CURRENCY,
 ) -> ReadOnlySmokeDiagnosticResult:
     """Run the fixed OAuth and exchange-rate flow with safe failure diagnostics."""
 
@@ -231,7 +257,11 @@ def execute_readonly_exchange_rate_smoke(
             allow_real_order=allow_real_order,
             dry_run_only=dry_run_only,
             read_only_live_smoke_allowed=read_only_live_smoke_allowed,
-        ).get_exchange_rate_once(token)
+        ).get_exchange_rate_once(
+            token,
+            base_currency=base_currency,
+            quote_currency=quote_currency,
+        )
     except ReadOnlySmokeFailure as error:
         return error.diagnostic
     except (RuntimeError, ValueError):

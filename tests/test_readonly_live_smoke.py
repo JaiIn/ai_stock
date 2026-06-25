@@ -56,6 +56,8 @@ class ReadOnlyLiveSmokeTests(unittest.TestCase):
             if request.url.path == EXCHANGE_RATE_PATH:
                 self.events.append("exchange_rate")
                 self.assertEqual(request.method, "GET")
+                self.assertEqual(request.url.params["baseCurrency"], "USD")
+                self.assertEqual(request.url.params["quoteCurrency"], "KRW")
                 self.assertNotIn(self.raw_token, repr(request))
                 return httpx.Response(
                     200,
@@ -64,6 +66,9 @@ class ReadOnlyLiveSmokeTests(unittest.TestCase):
                             "baseCurrency": "USD",
                             "quoteCurrency": "KRW",
                             "rate": "1375.25",
+                            "midRate": "1370.00",
+                            "basisPoint": "38.3211678832",
+                            "rateChangeType": "UP",
                             "validFrom": "2026-06-25T00:00:00Z",
                             "validUntil": "2026-06-25T00:05:00Z",
                         }
@@ -96,6 +101,12 @@ class ReadOnlyLiveSmokeTests(unittest.TestCase):
         self.assertEqual(result.exchange_rate.base_currency, "USD")
         self.assertEqual(result.exchange_rate.quote_currency, "KRW")
         self.assertEqual(str(result.exchange_rate.rate), "1375.25")
+        self.assertEqual(str(result.exchange_rate.mid_rate), "1370.00")
+        self.assertEqual(str(result.exchange_rate.basis_point), "38.3211678832")
+        self.assertEqual(result.exchange_rate.rate_change_type, "UP")
+        self.assertTrue(result.safe_dict()["mid_rate_present"])
+        self.assertTrue(result.safe_dict()["basis_point_present"])
+        self.assertTrue(result.safe_dict()["rate_change_type_present"])
         self.assertNotIn(self.raw_token, repr(result))
 
     def test_explicit_smoke_approval_is_required_before_transport(self) -> None:
