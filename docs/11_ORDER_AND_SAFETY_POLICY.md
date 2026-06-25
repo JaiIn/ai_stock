@@ -83,6 +83,21 @@ MS-05.07 공식 schema 재확인 이후 환율 read-only request에는 아래 qu
 준비합니다. 이 기본값은 allowlist를 확장하지 않으며 실제 호출에는 매번 별도
 사용자 승인이 필요합니다.
 
+## 1.5 Stock Info read-only preflight
+
+MS-05.09에서 공식 schema를 다시 확인한 Stock Info endpoint는 다음과 같습니다.
+
+- `GET /api/v1/stocks`
+- `GET /api/v1/stocks/{symbol}/warnings`
+- OAuth2 인증 필요
+- accountSeq 불필요
+- read-only이며 order/write/mutation 범주가 아님
+
+Safety Gate는 위 path를 metadata-only dry-run allowlist로 유지합니다.
+`requires_account_seq=true` metadata가 전달되면 같은 path라도 차단합니다.
+다음 live smoke 후보는 단일 `GET /api/v1/stocks?symbols=005930`이지만, 이번
+단계에서는 실행하지 않으며 실제 호출에는 별도 사용자 승인이 필요합니다.
+
 ## 2. 미래 v0.2+ 실주문을 고려할 때 필요한 조건
 
 실주문 기능은 다음 조건이 모두 충족될 때만 고려한다.

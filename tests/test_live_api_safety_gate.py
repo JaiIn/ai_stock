@@ -71,6 +71,35 @@ class LiveApiSafetyGateTests(unittest.TestCase):
                 self.assertTrue(decision.dry_run_only)
                 self.assertEqual(decision.risk_level, LiveApiRiskLevel.LOW)
 
+    def test_stock_info_metadata_is_read_only_and_account_free(self) -> None:
+        endpoints = (
+            "/api/v1/stocks",
+            "/api/v1/stocks/005930/warnings",
+        )
+
+        for path in endpoints:
+            with self.subTest(path=path):
+                decision = self.evaluate_safe(
+                    _endpoint("GET", path, category="stock-info")
+                )
+                self.assertTrue(decision.allowed)
+                self.assertTrue(decision.is_read_only)
+                self.assertTrue(decision.requires_auth)
+                self.assertFalse(decision.requires_account_seq)
+
+    def test_stock_info_with_account_scope_is_blocked(self) -> None:
+        decision = self.evaluate_safe(
+            _endpoint(
+                "GET",
+                "/api/v1/stocks",
+                category="stock-info",
+                requires_account_seq=True,
+            )
+        )
+
+        self.assertFalse(decision.allowed)
+        self.assertTrue(decision.requires_account_seq)
+
     def test_allow_live_api_false_blocks_candidate(self) -> None:
         decision = self.evaluate_safe(
             _endpoint("GET", "/api/v1/prices"),

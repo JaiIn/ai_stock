@@ -19,8 +19,8 @@ MS-05.01 공식 schema 재검증, MS-05.02 mock alignment, MS-05.03 safety gate
 | API category | Endpoint name | Method | Path | Auth required | accountSeq required | Read-only | Project support status | Current implementation status | Schema confidence | Recheck notes | Source reference |
 |---|---|---:|---|---|---|---|---|---|---|---|---|
 | Auth / OAuth | issueOAuth2Token | POST | `/oauth2/token` | No | No | No; auth token issuance only | Approved smoke-test-only path | Fixed endpoint provider and offline contract tests implemented; live execution requires local credentials and safety flags | High | Form body uses `grant_type`, `client_id`, `client_secret`; token remains memory-only and output is masked | Official OpenAPI `/oauth2/token` |
-| Stock Info | getStocks | GET | `/api/v1/stocks` | Yes | No | Yes | Supported mock/request-definition scope | Mock client request definition and response parsing exist | High | Query `symbols` is comma-separated and limited to 200; current model covers minimal required/optional fields only | Official OpenAPI `/api/v1/stocks` |
-| Stock Info | getStockWarnings | GET | `/api/v1/stocks/{symbol}/warnings` | Yes | No | Yes | Supported mock/request-definition scope | Mock client request definition and response parsing exist | High | Response is an array; no warning returns an empty array; missing stock can return 404 | Official OpenAPI `/api/v1/stocks/{symbol}/warnings` |
+| Stock Info | getStocks | GET | `/api/v1/stocks` | Yes | No | Yes | Schema-aligned; future single live candidate | Required 1~200 symbols validation, full official StockInfo parser, safe error parser implemented | High | Symbol pattern allows letters, digits, `.`, `-`; next candidate is one official example `005930`, not executed in MS-05.09 | Official OpenAPI 1.1.5 `/api/v1/stocks` |
+| Stock Info | getStockWarnings | GET | `/api/v1/stocks/{symbol}/warnings` | Yes | No | Yes | Schema-aligned; not selected for next live smoke | Required path symbol validation, warning array/empty array parser, safe error parser implemented | High | 404 `stock-not-found`; warning fields other than warningType are nullable; no live execution in MS-05.09 | Official OpenAPI 1.1.5 `/api/v1/stocks/{symbol}/warnings` |
 | Market Data | getOrderbook | GET | `/api/v1/orderbook` | Yes | No | Yes | Candidate read-only support | Request definition exists; parser/model not fully implemented | Medium | Result object includes timestamp, currency, asks, bids; each level has price and volume | Official OpenAPI `/api/v1/orderbook` |
 | Market Data | getPrices | GET | `/api/v1/prices` | Yes | No | Yes | Supported mock/request-definition scope | Mock client request definition and response parsing exist | High | Query `symbols` is comma-separated and limited to 200; result is an array of price snapshots | Official OpenAPI `/api/v1/prices` |
 | Market Data | getTrades | GET | `/api/v1/trades` | Yes | No | Yes | Candidate read-only support | Request definition exists; parser/model not fully implemented | Medium | Query `symbol`; optional `count` max 50; result is recent trade array | Official OpenAPI `/api/v1/trades` |
@@ -97,3 +97,10 @@ endpoint 1회와 `GET /api/v1/exchange-rate?baseCurrency=USD&quoteCurrency=KRW`
 `rate`, `midRate`, `basisPoint`, `rateChangeType`, `validFrom`, `validUntil`을
 안전한 parser 결과로 확인했습니다. raw response와 credential/token/header
 원문은 저장하지 않았고 추가 업무 API 호출도 수행하지 않았습니다.
+
+MS-05.09에서 공식 OpenAPI 3.1.0 / API 1.1.5의 Stock Info schema를 정적으로
+재확인했습니다. `getStocks`의 `symbols`는 required 1~200개이고,
+`getStockWarnings`의 path `symbol`도 required입니다. 두 endpoint는 OAuth2
+read-only이며 accountSeq가 필요 없습니다. 다음 live smoke 후보는 공식 예시
+심볼 하나를 사용한 `GET /api/v1/stocks?symbols=005930`으로 제한했으며 이번
+단계에서는 OAuth와 업무 API를 실제 호출하지 않았습니다.

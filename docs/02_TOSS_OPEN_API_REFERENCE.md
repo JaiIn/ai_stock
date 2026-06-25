@@ -107,14 +107,27 @@ MS-05.01에서 공식 Toss OpenAPI 문서를 read-only로 재확인하고, MS-05
 
 | Operation | Method | Path | 주요 parameter | 공식 response 요약 | 현재 상태 |
 |---|---|---|---|---|---|
-| getStocks | GET | `/api/v1/stocks` | `symbols` comma-separated, max 200 | `result` array; `symbol`, `name`, `market`, `currency`, `englishName`, `isinCode`, `securityType`, `status` 등 | Mock request/parsing 구현됨; optional field 확장 후보 |
-| getStockWarnings | GET | `/api/v1/stocks/{symbol}/warnings` | path `symbol` | `result` array; `warningType`, `exchange`, `startDate`, `endDate`; 경고 없음은 empty array | Mock request/parsing 구현됨 |
+| getStocks | GET | `/api/v1/stocks` | required `symbols`, comma-separated 1~200 | `result` array; 공식 StockInfo 필드 전체 | Request validation, full parser, safe error metadata 정렬 완료 |
+| getStockWarnings | GET | `/api/v1/stocks/{symbol}/warnings` | required path `symbol` | `result` array; `warningType`, optional `exchange`, `startDate`, `endDate`; 경고 없음은 empty array | Path validation, parser, safe error metadata 정렬 완료 |
 
 재검증 메모:
 
-- 공식 필드명은 `symbol` 중심입니다.
-- `stockCode` 같은 별도 필드명은 현재 확인 범위에서 기본 필드로 두지 않습니다.
-- 현재 프로젝트 모델은 최소 필드 위주이며, 모든 optional official field를 아직 반영하지 않았습니다.
+- OpenAPI 3.1.0, API version 1.1.5에서 두 endpoint의 operationId는 각각
+  `getStocks`, `getStockWarnings`이며 OAuth2 인증이 필요합니다.
+- 두 endpoint 모두 accountSeq를 요구하지 않는 read-only Stock Info API입니다.
+- `getStocks.symbols`는 required이며 1~200개를 쉼표로 구분합니다. 개별 symbol은
+  영문 대/소문자, 숫자, `.`, `-`만 허용합니다.
+- warnings의 path `symbol`도 required이며 같은 문자 형식을 사용합니다.
+- StockInfo parser는 required `symbol`, `name`, `englishName`, `isinCode`,
+  `market`, `securityType`, `isCommonShare`, `status`, `currency`,
+  `sharesOutstanding`와 optional 날짜, leverage, 국내시장 상세 필드를 반영합니다.
+- `sharesOutstanding`와 `leverageFactor`는 Decimal로 처리합니다.
+- 400 `invalid-request`, 404 `stock-not-found`, 429 `rate-limit-exceeded`,
+  500 `internal-error`에서 requestId/code/message와 허용된 data hint만 추출합니다.
+- 다음 live smoke 후보는 공식 예시 심볼을 사용한
+  `GET /api/v1/stocks?symbols=005930` 단일 요청입니다. 실제 symbol과 호출 여부는
+  다음 Micro Stage에서 재확인하고 별도 승인을 받아야 합니다.
+- 이번 MS-05.09에서는 실제 API와 OAuth endpoint를 호출하지 않았습니다.
 
 ## 5. Market Data
 
