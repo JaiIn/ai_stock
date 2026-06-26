@@ -126,3 +126,9 @@ MS-05.12에서 공식 OpenAPI 3.1.0 / API 1.1.5의 `getPrices` schema를 실제 
 처리합니다. 400/404/429/500 error는 safe metadata만 추출합니다. Safety Gate의
 read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승인 대상인
 `GET /api/v1/prices?symbols=005930`입니다.
+
+## MS-06.01 Persistence Readiness
+
+| Stage | Scope | Persisted read-only data | Deferred data | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-06.01 | Read-only snapshot ingestion foundation | StockInfo, PriceSnapshot, Candle/CandlePage, ExchangeRate | StockWarnings | Fake/mock providers only; in-memory SQLite tests only; no live client, OAuth, `.env.local`, accountSeq, or real DB file |
