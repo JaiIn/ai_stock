@@ -111,3 +111,10 @@ OAuth token endpoint 1회와 `GET /api/v1/stocks?symbols=005930` 1회만
 symbol/name/market/currency/sharesOutstanding 필드 존재를 안전한 parser
 결과로 확인했습니다. warnings endpoint와 다른 업무 API는 호출하지 않았으며,
 raw response와 credential/token/header 원문은 저장하지 않았습니다.
+
+MS-05.11에서 별도 승인된 Stock Warnings smoke script를 정확히 한 번
+실행했습니다. OAuth token endpoint 1회와
+`GET /api/v1/stocks/005930/warnings` 1회만 호출했고 응답은 HTTP 200,
+warning 0건의 정상 빈 배열이었습니다. 빈 warning 배열과 optional field 처리
+경로가 정상 동작했으며 getStocks와 다른 업무 API는 호출하지 않았습니다.
+raw response와 credential/token/header 원문은 저장하지 않았습니다.
