@@ -98,13 +98,43 @@ class TossMarketDataClientTests(unittest.TestCase):
         self.assertEqual(request.url.params["adjusted"], "true")
         self.assertFalse(self.network_called)
 
+    def test_get_candles_accepts_official_optional_parameters_omitted(self) -> None:
+        request = self.client.get_candles("005930", interval="1m")
+
+        self.assertEqual(request.method, "GET")
+        self.assertEqual(request.url.path, "/api/v1/candles")
+        self.assertEqual(request.url.params["symbol"], "005930")
+        self.assertEqual(request.url.params["interval"], "1m")
+        self.assertNotIn("count", request.url.params)
+        self.assertNotIn("before", request.url.params)
+        self.assertNotIn("adjusted", request.url.params)
+        self.assertNotIn("X-Tossinvest-Account", request.headers)
+        self.assertFalse(self.network_called)
+
     def test_documented_count_limits_are_enforced(self) -> None:
         with self.assertRaises(TossClientConfigError):
             self.client.get_trades("005930", count=51)
         with self.assertRaises(TossClientConfigError):
+            self.client.get_candles("005930", interval="1d", count=0)
+        with self.assertRaises(TossClientConfigError):
             self.client.get_candles("005930", interval="1d", count=201)
         with self.assertRaises(TossClientConfigError):
             self.client.get_prices([f"FAKE{index}" for index in range(201)])
+
+    def test_get_candles_validates_official_symbol_and_options(self) -> None:
+        invalid_cases = (
+            {"symbol": "", "interval": "1d"},
+            {"symbol": "005930/invalid", "interval": "1d"},
+            {"symbol": "005930", "interval": "1h"},
+            {"symbol": "005930", "interval": "1d", "before": " "},
+            {"symbol": "005930", "interval": "1d", "adjusted": "true"},
+        )
+
+        for kwargs in invalid_cases:
+            with self.subTest(kwargs=kwargs):
+                with self.assertRaises(TossClientConfigError):
+                    self.client.get_candles(**kwargs)
+        self.assertFalse(self.network_called)
 
     def test_get_prices_requires_valid_official_symbols(self) -> None:
         invalid_symbol_sets = (
@@ -283,6 +313,122 @@ class TossMarketDataClientTests(unittest.TestCase):
 
         self.assertEqual(page.candles, ())
         self.assertIsNone(page.next_before)
+
+    def test_parse_candles_supports_null_next_before_and_requires_currency(self) -> None:
+        page = self.client.parse_candles_response(
+            _fake_response(
+                {
+                    "candles": [
+                        {
+                            "timestamp": "2026-03-25T09:00:00+09:00",
+                            "openPrice": "71600",
+                            "highPrice": "72300",
+                            "lowPrice": "71500",
+                            "closePrice": "72000",
+                            "volume": "3521000",
+                            "currency": "KRW",
+                        }
+                    ],
+                    "nextBefore": None,
+                }
+            )
+        )
+
+        self.assertEqual(page.candles[0].timestamp, "2026-03-25T09:00:00+09:00")
+        self.assertEqual(page.candles[0].currency, "KRW")
+        self.assertIsNone(page.next_before)
+        with self.assertRaises(TossApiError):
+            self.client.parse_candles_response(
+                _fake_response(
+                    {
+                        "candles": [
+                            {
+                                "timestamp": "2026-03-25T09:00:00+09:00",
+                                "openPrice": "71600",
+                                "highPrice": "72300",
+                                "lowPrice": "71500",
+                                "closePrice": "72000",
+                                "volume": "3521000",
+                            }
+                        ],
+                    }
+                )
+            )
+
+    def test_parse_candles_error_extracts_only_safe_official_metadata(self) -> None:
+        cases = (
+            (
+                400,
+                {
+                    "requestId": "request-400",
+                    "code": "invalid-request",
+                    "message": "Invalid interval.",
+                    "data": {
+                        "field": "interval",
+                        "allowedValues": ["1m", "1d"],
+                        "constraint": {"min": 1, "max": 200},
+                        "ignoredRawDetail": "must-not-be-retained",
+                    },
+                },
+            ),
+            (
+                404,
+                {
+                    "requestId": "request-404",
+                    "code": "stock-not-found",
+                    "message": "Stock not found.",
+                },
+            ),
+            (
+                429,
+                {
+                    "requestId": "request-429",
+                    "code": "rate-limit-exceeded",
+                    "message": "Rate limited.",
+                },
+            ),
+            (
+                500,
+                {
+                    "requestId": "request-500",
+                    "code": "internal-error",
+                    "message": "Server error.",
+                },
+            ),
+        )
+
+        for status_code, error_payload in cases:
+            with self.subTest(status_code=status_code):
+                response = httpx.Response(
+                    status_code,
+                    json={"error": error_payload},
+                    request=httpx.Request(
+                        "GET",
+                        "https://mock.invalid/api/v1/candles",
+                    ),
+                )
+                parsed = self.client.parse_candles_error_response(response)
+
+                self.assertEqual(parsed.request_id, error_payload["requestId"])
+                self.assertEqual(parsed.code, error_payload["code"])
+                self.assertEqual(parsed.message, error_payload["message"])
+                self.assertFalse(hasattr(parsed, "raw_response"))
+                self.assertFalse(hasattr(parsed, "authorization"))
+
+        invalid_request = self.client.parse_candles_error_response(
+            httpx.Response(
+                400,
+                json={"error": cases[0][1]},
+                request=httpx.Request(
+                    "GET",
+                    "https://mock.invalid/api/v1/candles",
+                ),
+            )
+        )
+        self.assertEqual(invalid_request.field, "interval")
+        self.assertEqual(invalid_request.allowed_values, ("1m", "1d"))
+        self.assertEqual(invalid_request.constraint_min, 1)
+        self.assertEqual(invalid_request.constraint_max, 200)
 
     def test_invalid_result_shape_raises_safe_error(self) -> None:
         sensitive_text = self.token

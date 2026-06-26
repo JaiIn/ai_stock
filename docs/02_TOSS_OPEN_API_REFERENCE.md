@@ -137,13 +137,34 @@ MS-05.01에서 공식 Toss OpenAPI 문서를 read-only로 재확인하고, MS-05
 | getPrices | GET | `/api/v1/prices` | required `symbols`, comma-separated 1~200 | `result` array; required `symbol`, `lastPrice`, `currency`; nullable `timestamp` | Official request validation, response parsing, and safe error metadata aligned in MS-05.12 |
 | getTrades | GET | `/api/v1/trades` | `symbol`, optional `count` max 50 | `result` array; `price`, `volume`, `timestamp`, `currency` | Request definition 후보; parser/model 후속 |
 | getPriceLimit | GET | `/api/v1/price-limits` | `symbol` | `timestamp`, `upperLimitPrice`, `lowerLimitPrice`, `currency` | Request definition 후보; parser/model 후속 |
-| getCandles | GET | `/api/v1/candles` | `symbol`, `interval`, optional `count`, `before`, `adjusted` | `result` object; `candles[]`, optional `nextBefore` | Mock request와 `CandlePage` parser 정렬 완료 |
+| getCandles | GET | `/api/v1/candles` | required `symbol`, required `interval`, optional `count`, `before`, `adjusted` | `result` object; required `candles[]`, optional/nullable `nextBefore` | Official request validation, response parsing, and safe error metadata aligned in MS-05.14 |
 
 재검증 메모:
 
 - `getCandles`의 공식 response root는 배열이 아니라 object입니다.
 - `candles[]` 내부에는 `timestamp`, `openPrice`, `highPrice`, `lowPrice`, `closePrice`, `volume` 등이 포함됩니다.
 - MS-05.02에서 `CandlePage.candles`와 `CandlePage.next_before`로 공식 root를 보존하도록 정렬했습니다.
+
+### MS-05.14 Candles schema preflight
+
+- Official document version: OpenAPI 3.1.0 / API version 1.1.5
+- `operationId`: `getCandles`
+- Security: OAuth2 Client Credentials
+- Account scope: not required; `accountSeq` and `X-Tossinvest-Account` are not used
+- Query `symbol` is required and accepts letters, digits, `.`, `-`
+- Query `interval` is required and accepts only `1m` or `1d`
+- Query `count` is optional, defaults to 100, and accepts 1 to 200
+- Query `before` is optional ISO 8601 date-time
+- Query `adjusted` is optional boolean and defaults to true
+- Response `result` is `CandlePageResponse` with required `candles` array and optional/nullable `nextBefore`
+- Each candle requires `timestamp`, `openPrice`, `highPrice`, `lowPrice`,
+  `closePrice`, `volume`, and `currency`
+- Decimal fields are parsed as finite `Decimal`
+- Safe Candles errors retain only `requestId`, `code`, `message`,
+  `data.field`, `data.allowedValues`, and `data.constraint.min/max`
+- Next live smoke candidate, subject to separate approval:
+  `GET /api/v1/candles?symbol=005930&interval=1d&count=1&adjusted=true`
+- MS-05.14 performs no OAuth or business API call and does not read `.env.local`
 - timestamp/dateTime 표시와 numeric string 처리 정책은 모델별 후속 검증이 필요합니다.
 
 ### MS-05.12 Prices schema preflight

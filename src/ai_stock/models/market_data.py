@@ -151,6 +151,49 @@ class PriceError:
 
 
 @dataclass(frozen=True, slots=True)
+class CandleError:
+    """Safe Candles error metadata without raw request or response bodies."""
+
+    request_id: str
+    code: str
+    message: str
+    field: str | None = None
+    allowed_values: tuple[str, ...] = ()
+    constraint_min: int | None = None
+    constraint_max: int | None = None
+
+    @classmethod
+    def from_mapping(cls, payload: Mapping[str, Any]) -> "CandleError":
+        data = payload.get("data")
+        field = None
+        allowed_values: tuple[str, ...] = ()
+        constraint_min = None
+        constraint_max = None
+        if data is not None:
+            if not isinstance(data, Mapping):
+                raise ValueError("Response field 'data' must be an object.")
+            field = _optional_text(data, "field")
+            allowed_values = _optional_text_tuple(data, "allowedValues")
+            constraint = data.get("constraint")
+            if constraint is not None:
+                if not isinstance(constraint, Mapping):
+                    raise ValueError(
+                        "Response field 'constraint' must be an object."
+                    )
+                constraint_min = _optional_int(constraint, "min")
+                constraint_max = _optional_int(constraint, "max")
+        return cls(
+            request_id=_required_text(payload, "requestId"),
+            code=_required_text(payload, "code"),
+            message=_required_text(payload, "message"),
+            field=field,
+            allowed_values=allowed_values,
+            constraint_min=constraint_min,
+            constraint_max=constraint_max,
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class Candle:
     """Minimal OHLCV candle using Decimal for every numeric value."""
 
@@ -174,6 +217,20 @@ class Candle:
             currency=_optional_text(payload, "currency"),
         )
 
+    @classmethod
+    def from_official_mapping(cls, payload: Mapping[str, Any]) -> "Candle":
+        """Parse the official Candle schema with required currency."""
+
+        return cls(
+            timestamp=_required_text(payload, "timestamp"),
+            open=_required_decimal(payload, "openPrice"),
+            high=_required_decimal(payload, "highPrice"),
+            low=_required_decimal(payload, "lowPrice"),
+            close=_required_decimal(payload, "closePrice"),
+            volume=_required_decimal(payload, "volume"),
+            currency=_required_text(payload, "currency"),
+        )
+
 
 @dataclass(frozen=True, slots=True)
 class CandlePage:
@@ -191,5 +248,19 @@ class CandlePage:
             raise ValueError("Response field 'candles' must be an array of objects.")
         return cls(
             candles=tuple(Candle.from_mapping(item) for item in items),
+            next_before=_optional_text(payload, "nextBefore"),
+        )
+
+    @classmethod
+    def from_official_mapping(cls, payload: Mapping[str, Any]) -> "CandlePage":
+        """Parse the official CandlePageResponse schema."""
+
+        items = payload.get("candles")
+        if not isinstance(items, list) or not all(
+            isinstance(item, Mapping) for item in items
+        ):
+            raise ValueError("Response field 'candles' must be an array of objects.")
+        return cls(
+            candles=tuple(Candle.from_official_mapping(item) for item in items),
             next_before=_optional_text(payload, "nextBefore"),
         )

@@ -10,10 +10,16 @@ from ai_stock.clients.exceptions import TossApiError, TossClientConfigError
 from ai_stock.clients.foundation import TossClientFoundation
 from ai_stock.clients.request_context import AuthenticatedRequestContext
 from ai_stock.clients.response import extract_toss_result
-from ai_stock.models.market_data import CandlePage, PriceError, PriceSnapshot
+from ai_stock.models.market_data import (
+    CandleError,
+    CandlePage,
+    PriceError,
+    PriceSnapshot,
+)
 
 MAX_PRICE_SYMBOLS = 200
-_PRICE_SYMBOL_PATTERN = re.compile(r"^[A-Za-z0-9.-]+$")
+_SYMBOL_PATTERN = re.compile(r"^[A-Za-z0-9.-]+$")
+_CANDLE_INTERVALS = frozenset({"1m", "1d"})
 
 
 class TossMarketDataClient:
@@ -56,21 +62,26 @@ class TossMarketDataClient:
         symbol: str,
         *,
         interval: str,
-        count: int,
+        count: int | None = None,
         before: str | None = None,
         adjusted: bool | None = None,
     ) -> httpx.Request:
-        if interval not in {"1m", "1d"}:
+        if interval not in _CANDLE_INTERVALS:
             raise TossClientConfigError("Candle interval must be '1m' or '1d'.")
-        if not 1 <= count <= 200:
-            raise TossClientConfigError("Candle count must be between 1 and 200.")
-        params: dict[str, str | int | bool] = {
-            "interval": interval,
-            "count": count,
-        }
+        params: dict[str, str | int | bool] = {"interval": interval}
+        if count is not None:
+            if isinstance(count, bool) or not 1 <= count <= 200:
+                raise TossClientConfigError(
+                    "Candle count must be between 1 and 200."
+                )
+            params["count"] = count
         if before is not None:
+            if not before.strip():
+                raise TossClientConfigError("Candle before must be a date-time string.")
             params["before"] = before
         if adjusted is not None:
+            if not isinstance(adjusted, bool):
+                raise TossClientConfigError("Candle adjusted must be a boolean.")
             params["adjusted"] = adjusted
         return self._single_symbol_request(
             "/api/v1/candles",
@@ -123,9 +134,39 @@ class TossMarketDataClient:
         if not isinstance(result, Mapping):
             raise TossApiError("getCandles result must be an object.")
         try:
-            return CandlePage.from_mapping(result)
+            return CandlePage.from_official_mapping(result)
         except ValueError as error:
             raise TossApiError("getCandles result contained invalid candle data.") from error
+
+    @staticmethod
+    def parse_candles_error_response(response: httpx.Response) -> CandleError:
+        """Extract only documented safe fields from Candles errors."""
+
+        try:
+            payload = response.json()
+        except ValueError as error:
+            raise TossApiError(
+                "getCandles error response was not valid JSON.",
+                status_code=response.status_code,
+            ) from error
+        if not isinstance(payload, Mapping):
+            raise TossApiError(
+                "getCandles error response must be an object.",
+                status_code=response.status_code,
+            )
+        error_payload = payload.get("error")
+        if not isinstance(error_payload, Mapping):
+            raise TossApiError(
+                "getCandles error response did not contain an error object.",
+                status_code=response.status_code,
+            )
+        try:
+            return CandleError.from_mapping(error_payload)
+        except ValueError as error:
+            raise TossApiError(
+                "getCandles error response contained invalid metadata.",
+                status_code=response.status_code,
+            ) from error
 
     def _single_symbol_request(
         self,
@@ -134,9 +175,7 @@ class TossMarketDataClient:
         *,
         extra_params: Mapping[str, str | int | bool] | None = None,
     ) -> httpx.Request:
-        normalized = symbol.strip()
-        if not normalized:
-            raise TossClientConfigError("A stock symbol is required.")
+        normalized = _normalize_symbol(symbol)
         params: dict[str, str | int | bool] = {"symbol": normalized}
         if extra_params:
             params.update(extra_params)
@@ -160,10 +199,14 @@ def _normalize_price_symbols(symbols: Sequence[str]) -> list[str]:
 
 
 def _normalize_price_symbol(symbol: str) -> str:
+    return _normalize_symbol(symbol)
+
+
+def _normalize_symbol(symbol: str) -> str:
     normalized = symbol.strip()
     if not normalized:
         raise TossClientConfigError("A stock symbol is required.")
-    if _PRICE_SYMBOL_PATTERN.fullmatch(normalized) is None:
+    if _SYMBOL_PATTERN.fullmatch(normalized) is None:
         raise TossClientConfigError(
             "Stock symbols may contain only letters, numbers, '.', and '-'."
         )
