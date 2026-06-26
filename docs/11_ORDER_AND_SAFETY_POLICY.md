@@ -98,6 +98,23 @@ Safety Gate는 위 path를 metadata-only dry-run allowlist로 유지합니다.
 다음 live smoke 후보는 단일 `GET /api/v1/stocks?symbols=005930`이지만, 이번
 단계에서는 실행하지 않으며 실제 호출에는 별도 사용자 승인이 필요합니다.
 
+## 1.6 Prices read-only preflight
+
+MS-05.12에서 `GET /api/v1/prices`는 공식 OpenAPI 기준 read-only endpoint로
+재확인했습니다.
+
+- OAuth2 인증 필요
+- `accountSeq` 불필요
+- `GET` 및 `market-data` category
+- 주문, write, trading, mutation endpoint가 아님
+- Live API Safety Gate의 기존 read-only allowlist 유지
+- `requires_account_seq=true` metadata가 전달되면 동일 endpoint도 차단
+- 다음 live 후보는 단일 query `symbols=005930`
+
+이 preflight는 metadata와 fake response만 검증합니다. 실제 OAuth token 발급,
+Prices 호출, 다른 업무 API 호출은 수행하지 않으며 다음 live smoke는 별도 사용자
+승인이 필요합니다.
+
 ## 2. 미래 v0.2+ 실주문을 고려할 때 필요한 조건
 
 실주문 기능은 다음 조건이 모두 충족될 때만 고려한다.

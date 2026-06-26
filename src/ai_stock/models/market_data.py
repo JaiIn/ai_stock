@@ -27,11 +27,37 @@ def _required_decimal(payload: Mapping[str, Any], field_name: str) -> Decimal:
     if not isinstance(value, str):
         raise ValueError(f"Response field '{field_name}' must be a decimal string.")
     try:
-        return Decimal(value)
+        parsed = Decimal(value)
     except InvalidOperation as error:
         raise ValueError(
             f"Response field '{field_name}' must be a decimal string."
         ) from error
+    if not parsed.is_finite():
+        raise ValueError(f"Response field '{field_name}' must be finite.")
+    return parsed
+
+
+def _optional_text_tuple(
+    payload: Mapping[str, Any],
+    field_name: str,
+) -> tuple[str, ...]:
+    value = payload.get(field_name)
+    if value is None:
+        return ()
+    if not isinstance(value, list) or not all(
+        isinstance(item, str) for item in value
+    ):
+        raise ValueError(f"Response field '{field_name}' must be a text array.")
+    return tuple(value)
+
+
+def _optional_int(payload: Mapping[str, Any], field_name: str) -> int | None:
+    value = payload.get(field_name)
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(f"Response field '{field_name}' must be an integer.")
+    return value
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,16 +66,87 @@ class PriceSnapshot:
 
     stock_code: str
     price: Decimal
-    timestamp: str
+    timestamp: str | None
     currency: str | None = None
+
+    @property
+    def symbol(self) -> str:
+        """Expose the official field name without breaking storage callers."""
+
+        return self.stock_code
+
+    @property
+    def last_price(self) -> Decimal:
+        """Expose the official field name without breaking storage callers."""
+
+        return self.price
 
     @classmethod
     def from_mapping(cls, payload: Mapping[str, Any]) -> "PriceSnapshot":
+        """Parse the legacy local payload shape used by existing storage tests."""
+
         return cls(
             stock_code=_required_text(payload, "symbol"),
             price=_required_decimal(payload, "lastPrice"),
             timestamp=_required_text(payload, "timestamp"),
             currency=_optional_text(payload, "currency"),
+        )
+
+    @classmethod
+    def from_official_mapping(
+        cls,
+        payload: Mapping[str, Any],
+    ) -> "PriceSnapshot":
+        """Parse the official PriceResponse schema."""
+
+        return cls(
+            stock_code=_required_text(payload, "symbol"),
+            price=_required_decimal(payload, "lastPrice"),
+            timestamp=_optional_text(payload, "timestamp"),
+            currency=_required_text(payload, "currency"),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class PriceError:
+    """Safe Prices error metadata without raw request or response bodies."""
+
+    request_id: str
+    code: str
+    message: str
+    field: str | None = None
+    allowed_values: tuple[str, ...] = ()
+    constraint_min: int | None = None
+    constraint_max: int | None = None
+
+    @classmethod
+    def from_mapping(cls, payload: Mapping[str, Any]) -> "PriceError":
+        data = payload.get("data")
+        field = None
+        allowed_values: tuple[str, ...] = ()
+        constraint_min = None
+        constraint_max = None
+        if data is not None:
+            if not isinstance(data, Mapping):
+                raise ValueError("Response field 'data' must be an object.")
+            field = _optional_text(data, "field")
+            allowed_values = _optional_text_tuple(data, "allowedValues")
+            constraint = data.get("constraint")
+            if constraint is not None:
+                if not isinstance(constraint, Mapping):
+                    raise ValueError(
+                        "Response field 'constraint' must be an object."
+                    )
+                constraint_min = _optional_int(constraint, "min")
+                constraint_max = _optional_int(constraint, "max")
+        return cls(
+            request_id=_required_text(payload, "requestId"),
+            code=_required_text(payload, "code"),
+            message=_required_text(payload, "message"),
+            field=field,
+            allowed_values=allowed_values,
+            constraint_min=constraint_min,
+            constraint_max=constraint_max,
         )
 
 

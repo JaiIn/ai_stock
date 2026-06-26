@@ -72,6 +72,15 @@ class TossMarketDataClientTests(unittest.TestCase):
         )
         self.assertFalse(self.network_called)
 
+    def test_get_prices_builds_single_symbol_request_without_account_scope(self) -> None:
+        request = self.client.get_prices(["005930"])
+
+        self.assertEqual(request.method, "GET")
+        self.assertEqual(request.url.path, "/api/v1/prices")
+        self.assertEqual(request.url.params["symbols"], "005930")
+        self.assertNotIn("X-Tossinvest-Account", request.headers)
+        self.assertFalse(self.network_called)
+
     def test_get_candles_builds_documented_query(self) -> None:
         request = self.client.get_candles(
             "005930",
@@ -97,6 +106,21 @@ class TossMarketDataClientTests(unittest.TestCase):
         with self.assertRaises(TossClientConfigError):
             self.client.get_prices([f"FAKE{index}" for index in range(201)])
 
+    def test_get_prices_requires_valid_official_symbols(self) -> None:
+        invalid_symbol_sets = (
+            [],
+            [""],
+            ["005930", " "],
+            ["005930/invalid"],
+            ["005930,AAPL"],
+        )
+
+        for symbols in invalid_symbol_sets:
+            with self.subTest(symbols=symbols):
+                with self.assertRaises(TossClientConfigError):
+                    self.client.get_prices(symbols)
+        self.assertFalse(self.network_called)
+
     def test_parse_prices_uses_decimal_and_minimal_documented_fields(self) -> None:
         prices = self.client.parse_prices_response(
             _fake_response(
@@ -112,8 +136,122 @@ class TossMarketDataClientTests(unittest.TestCase):
         )
 
         self.assertEqual(prices[0].stock_code, "005930")
+        self.assertEqual(prices[0].symbol, "005930")
         self.assertEqual(prices[0].price, Decimal("70123.45"))
+        self.assertEqual(prices[0].last_price, Decimal("70123.45"))
         self.assertEqual(prices[0].currency, "KRW")
+
+    def test_parse_prices_accepts_nullable_or_missing_timestamp(self) -> None:
+        prices = self.client.parse_prices_response(
+            _fake_response(
+                [
+                    {
+                        "symbol": "005930",
+                        "timestamp": None,
+                        "lastPrice": "72000",
+                        "currency": "KRW",
+                    },
+                    {
+                        "symbol": "AAPL",
+                        "lastPrice": "185.70",
+                        "currency": "USD",
+                    },
+                ]
+            )
+        )
+
+        self.assertIsNone(prices[0].timestamp)
+        self.assertIsNone(prices[1].timestamp)
+
+    def test_parse_prices_requires_official_currency_and_finite_decimal(self) -> None:
+        invalid_items = (
+            {"symbol": "005930", "lastPrice": "72000"},
+            {
+                "symbol": "005930",
+                "lastPrice": "NaN",
+                "currency": "KRW",
+            },
+        )
+
+        for item in invalid_items:
+            with self.subTest(item=item):
+                with self.assertRaises(TossApiError):
+                    self.client.parse_prices_response(_fake_response([item]))
+
+    def test_parse_prices_error_extracts_only_safe_official_metadata(self) -> None:
+        cases = (
+            (
+                400,
+                {
+                    "requestId": "request-400",
+                    "code": "invalid-request",
+                    "message": "Invalid symbols.",
+                    "data": {
+                        "field": "symbols",
+                        "allowedValues": ["005930", "AAPL"],
+                        "constraint": {"min": 1, "max": 200},
+                        "ignoredRawDetail": "must-not-be-retained",
+                    },
+                },
+            ),
+            (
+                404,
+                {
+                    "requestId": "request-404",
+                    "code": "stock-not-found",
+                    "message": "Stock not found.",
+                },
+            ),
+            (
+                429,
+                {
+                    "requestId": "request-429",
+                    "code": "rate-limit-exceeded",
+                    "message": "Rate limited.",
+                },
+            ),
+            (
+                500,
+                {
+                    "requestId": "request-500",
+                    "code": "internal-error",
+                    "message": "Server error.",
+                },
+            ),
+        )
+
+        for status_code, error_payload in cases:
+            with self.subTest(status_code=status_code):
+                response = httpx.Response(
+                    status_code,
+                    json={"error": error_payload},
+                    request=httpx.Request(
+                        "GET",
+                        "https://mock.invalid/api/v1/prices",
+                    ),
+                )
+                parsed = self.client.parse_prices_error_response(response)
+
+                self.assertEqual(parsed.request_id, error_payload["requestId"])
+                self.assertEqual(parsed.code, error_payload["code"])
+                self.assertEqual(parsed.message, error_payload["message"])
+                self.assertFalse(hasattr(parsed, "raw_response"))
+                self.assertFalse(hasattr(parsed, "authorization"))
+
+        invalid_request = self.client.parse_prices_error_response(
+            httpx.Response(
+                400,
+                json={"error": cases[0][1]},
+                request=httpx.Request(
+                    "GET",
+                    "https://mock.invalid/api/v1/prices",
+                ),
+            )
+        )
+        self.assertEqual(invalid_request.field, "symbols")
+        self.assertEqual(invalid_request.allowed_values, ("005930", "AAPL"))
+        self.assertEqual(invalid_request.constraint_min, 1)
+        self.assertEqual(invalid_request.constraint_max, 200)
 
     def test_parse_candles_uses_official_result_object(self) -> None:
         page = self.client.parse_candles_response(

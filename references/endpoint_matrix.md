@@ -22,7 +22,7 @@ MS-05.01 공식 schema 재검증, MS-05.02 mock alignment, MS-05.03 safety gate
 | Stock Info | getStocks | GET | `/api/v1/stocks` | Yes | No | Yes | Schema-aligned; future single live candidate | Required 1~200 symbols validation, full official StockInfo parser, safe error parser implemented | High | Symbol pattern allows letters, digits, `.`, `-`; next candidate is one official example `005930`, not executed in MS-05.09 | Official OpenAPI 1.1.5 `/api/v1/stocks` |
 | Stock Info | getStockWarnings | GET | `/api/v1/stocks/{symbol}/warnings` | Yes | No | Yes | Schema-aligned; not selected for next live smoke | Required path symbol validation, warning array/empty array parser, safe error parser implemented | High | 404 `stock-not-found`; warning fields other than warningType are nullable; no live execution in MS-05.09 | Official OpenAPI 1.1.5 `/api/v1/stocks/{symbol}/warnings` |
 | Market Data | getOrderbook | GET | `/api/v1/orderbook` | Yes | No | Yes | Candidate read-only support | Request definition exists; parser/model not fully implemented | Medium | Result object includes timestamp, currency, asks, bids; each level has price and volume | Official OpenAPI `/api/v1/orderbook` |
-| Market Data | getPrices | GET | `/api/v1/prices` | Yes | No | Yes | Supported mock/request-definition scope | Mock client request definition and response parsing exist | High | Query `symbols` is comma-separated and limited to 200; result is an array of price snapshots | Official OpenAPI `/api/v1/prices` |
+| Market Data | getPrices | GET | `/api/v1/prices` | Yes | No | Yes | MS-05.12 schema-aligned; future single live candidate | Required 1~200 symbol validation, official PriceResponse parser, and safe error metadata implemented | High | Required `symbols`; symbol characters are letters, digits, `.`, `-`; nullable timestamp; Decimal lastPrice; next candidate is `symbols=005930` and was not executed in MS-05.12 | Official OpenAPI 1.1.5 `/api/v1/prices` |
 | Market Data | getTrades | GET | `/api/v1/trades` | Yes | No | Yes | Candidate read-only support | Request definition exists; parser/model not fully implemented | Medium | Query `symbol`; optional `count` max 50; result is recent trade array | Official OpenAPI `/api/v1/trades` |
 | Market Data | getPriceLimit | GET | `/api/v1/price-limits` | Yes | No | Yes | Candidate read-only support | Request definition exists; parser/model not fully implemented | Medium | Result includes timestamp, upperLimitPrice, lowerLimitPrice, currency; US limit fields can be null | Official OpenAPI `/api/v1/price-limits` |
 | Market Data | getCandles | GET | `/api/v1/candles` | Yes | No | Yes | Supported mock/request-definition scope | Request definition and object-root parser aligned; `CandlePage` preserves `candles` and optional `nextBefore` | High | Fake official payload tests cover populated and missing `nextBefore`; no network transmission | Official OpenAPI `/api/v1/candles` |
@@ -118,3 +118,11 @@ MS-05.11에서 별도 승인된 Stock Warnings smoke script를 정확히 한 번
 warning 0건의 정상 빈 배열이었습니다. 빈 warning 배열과 optional field 처리
 경로가 정상 동작했으며 getStocks와 다른 업무 API는 호출하지 않았습니다.
 raw response와 credential/token/header 원문은 저장하지 않았습니다.
+
+MS-05.12에서 공식 OpenAPI 3.1.0 / API 1.1.5의 `getPrices` schema를 실제 API
+호출 없이 재검증했습니다. `symbols`는 required 1~200개이고 각 symbol은 영문,
+숫자, `.`, `-`만 허용합니다. 성공 응답은 required `symbol`, `lastPrice`,
+`currency`와 nullable `timestamp`를 가진 배열이며 `lastPrice`는 `Decimal`로
+처리합니다. 400/404/429/500 error는 safe metadata만 추출합니다. Safety Gate의
+read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승인 대상인
+`GET /api/v1/prices?symbols=005930`입니다.

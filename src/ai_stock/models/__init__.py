@@ -1,7 +1,7 @@
 """Shared API and domain models."""
 
 from ai_stock.models.auth import OAuthTokenRequest, OAuthTokenResponse
-from ai_stock.models.market_data import Candle, CandlePage, PriceSnapshot
+from ai_stock.models.market_data import Candle, CandlePage, PriceError, PriceSnapshot
 from ai_stock.models.market_info import ExchangeRate, ExchangeRateError
 from ai_stock.models.stock_info import (
     KoreanMarketDetail,
@@ -18,6 +18,7 @@ __all__ = [
     "ExchangeRateError",
     "OAuthTokenRequest",
     "OAuthTokenResponse",
+    "PriceError",
     "PriceSnapshot",
     "KoreanMarketDetail",
     "StockInfo",

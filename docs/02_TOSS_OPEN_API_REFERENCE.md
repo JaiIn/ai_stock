@@ -134,7 +134,7 @@ MS-05.01에서 공식 Toss OpenAPI 문서를 read-only로 재확인하고, MS-05
 | Operation | Method | Path | 주요 parameter | 공식 response 요약 | 현재 상태 |
 |---|---|---|---|---|---|
 | getOrderbook | GET | `/api/v1/orderbook` | `symbol` | `timestamp`, `currency`, `asks[]`, `bids[]`; level은 `price`, `volume` | Request definition 후보; parser/model 후속 |
-| getPrices | GET | `/api/v1/prices` | `symbols` comma-separated, max 200 | `result` array; `symbol`, `timestamp`, `lastPrice`, `currency` | Mock request/parsing 구현됨 |
+| getPrices | GET | `/api/v1/prices` | required `symbols`, comma-separated 1~200 | `result` array; required `symbol`, `lastPrice`, `currency`; nullable `timestamp` | Official request validation, response parsing, and safe error metadata aligned in MS-05.12 |
 | getTrades | GET | `/api/v1/trades` | `symbol`, optional `count` max 50 | `result` array; `price`, `volume`, `timestamp`, `currency` | Request definition 후보; parser/model 후속 |
 | getPriceLimit | GET | `/api/v1/price-limits` | `symbol` | `timestamp`, `upperLimitPrice`, `lowerLimitPrice`, `currency` | Request definition 후보; parser/model 후속 |
 | getCandles | GET | `/api/v1/candles` | `symbol`, `interval`, optional `count`, `before`, `adjusted` | `result` object; `candles[]`, optional `nextBefore` | Mock request와 `CandlePage` parser 정렬 완료 |
@@ -145,6 +145,27 @@ MS-05.01에서 공식 Toss OpenAPI 문서를 read-only로 재확인하고, MS-05
 - `candles[]` 내부에는 `timestamp`, `openPrice`, `highPrice`, `lowPrice`, `closePrice`, `volume` 등이 포함됩니다.
 - MS-05.02에서 `CandlePage.candles`와 `CandlePage.next_before`로 공식 root를 보존하도록 정렬했습니다.
 - timestamp/dateTime 표시와 numeric string 처리 정책은 모델별 후속 검증이 필요합니다.
+
+### MS-05.12 Prices schema preflight
+
+- Official document version: OpenAPI 3.1.0 / API version 1.1.5
+- `operationId`: `getPrices`
+- Security: OAuth2 Client Credentials
+- Account scope: not required; `accountSeq` and `X-Tossinvest-Account` are not used
+- Query `symbols` is required and accepts 1 to 200 comma-separated symbols
+- Each symbol permits English letters, digits, `.`, and `-`
+- Success `result` is an array of `PriceResponse`
+- Required result fields are `symbol`, `lastPrice`, and `currency`
+- `timestamp` may be missing or `null`
+- `lastPrice` is parsed as `Decimal`
+- Currency currently documents `KRW` and `USD`, while clients must tolerate future unknown values
+- The 400 invalid batch-size example exposes only safe metadata:
+  `requestId`, `code`, `message`, `data.field`, and `data.constraint.min/max`
+- 404, 429, and 500 responses use the common safe error envelope
+- No raw request or response body is retained
+- The next proposed live smoke candidate is
+  `GET /api/v1/prices?symbols=005930`, subject to separate user approval
+- MS-05.12 performs no OAuth or business API call and does not read `.env.local`
 
 ## 6. Market Info / Exchange Rate
 
