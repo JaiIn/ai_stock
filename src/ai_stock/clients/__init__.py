@@ -13,6 +13,13 @@ from ai_stock.clients.foundation import TossClientFoundation
 from ai_stock.clients.market_data import TossMarketDataClient
 from ai_stock.clients.market_info import TossMarketInfoClient
 from ai_stock.clients.oauth import OAUTH_TOKEN_PATH, TossOAuthTokenProvider
+from ai_stock.clients.prices_smoke import (
+    DEFAULT_PRICE_SYMBOL,
+    PRICES_PATH,
+    PricesSmokeDiagnosticResult,
+    PricesSmokeResult,
+    TossPricesSmokeClient,
+)
 from ai_stock.clients.readonly_smoke import (
     EXCHANGE_RATE_PATH,
     ReadOnlySmokeResult,
@@ -47,6 +54,7 @@ __all__ = [
     "AUTHORIZATION_HEADER",
     "AuthenticatedRequestContext",
     "AuthenticatedRequestContextFactory",
+    "DEFAULT_PRICE_SYMBOL",
     "DEFAULT_STOCK_SYMBOL",
     "DEFAULT_WARNING_SYMBOL",
     "EXCHANGE_RATE_PATH",
@@ -54,6 +62,9 @@ __all__ = [
     "LiveTokenProvider",
     "MockTokenProvider",
     "OAUTH_TOKEN_PATH",
+    "PRICES_PATH",
+    "PricesSmokeDiagnosticResult",
+    "PricesSmokeResult",
     "ReadOnlySmokeResult",
     "STOCKS_PATH",
     "StockInfoSmokeDiagnosticResult",
@@ -69,6 +80,7 @@ __all__ = [
     "TossMarketDataClient",
     "TossMarketInfoClient",
     "TossOAuthTokenProvider",
+    "TossPricesSmokeClient",
     "TossReadOnlySmokeClient",
     "TossPermissionError",
     "TossRateLimitError",
