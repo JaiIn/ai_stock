@@ -1,6 +1,16 @@
 """Toss API client foundation without live endpoint implementations."""
 
 from ai_stock.clients.config import TossClientConfig
+from ai_stock.clients.candles_smoke import (
+    CANDLES_PATH,
+    CandlesSmokeDiagnosticResult,
+    CandlesSmokeResult,
+    DEFAULT_CANDLE_ADJUSTED,
+    DEFAULT_CANDLE_COUNT,
+    DEFAULT_CANDLE_INTERVAL,
+    DEFAULT_CANDLE_SYMBOL,
+    TossCandlesSmokeClient,
+)
 from ai_stock.clients.exceptions import (
     TossApiError,
     TossAuthenticationError,
@@ -54,6 +64,13 @@ __all__ = [
     "AUTHORIZATION_HEADER",
     "AuthenticatedRequestContext",
     "AuthenticatedRequestContextFactory",
+    "CANDLES_PATH",
+    "CandlesSmokeDiagnosticResult",
+    "CandlesSmokeResult",
+    "DEFAULT_CANDLE_ADJUSTED",
+    "DEFAULT_CANDLE_COUNT",
+    "DEFAULT_CANDLE_INTERVAL",
+    "DEFAULT_CANDLE_SYMBOL",
     "DEFAULT_PRICE_SYMBOL",
     "DEFAULT_STOCK_SYMBOL",
     "DEFAULT_WARNING_SYMBOL",
@@ -74,6 +91,7 @@ __all__ = [
     "TokenProvider",
     "TossApiError",
     "TossAuthenticationError",
+    "TossCandlesSmokeClient",
     "TossClientConfig",
     "TossClientConfigError",
     "TossClientFoundation",
