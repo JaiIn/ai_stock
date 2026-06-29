@@ -144,3 +144,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Future approved call plan | Persistence plan | Scope exclusions | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-06.03 | OAuth token 1 call; Stocks, Prices, Candles, Exchange Rate 1 call each; expected total 5 | `create_connection(":memory:")`; StockInfo, PriceSnapshot, Candle/CandlePage, ExchangeRate only | StockWarnings, account/assets/balance/fills/order/write/mutation endpoints | Metadata-only dry run; four business endpoints are read-only, authenticated, and account-free; no API/OAuth/storage operation is performed in this stage |
+
+## MS-06.04 Live Ingestion Smoke Result
+
+| Stage | Actual call result | Persisted counts | Round-trip result | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-06.04 | OAuth 1 + business GET 4 = total 5; all HTTP 200 | StockInfo 1, PriceSnapshot 1, Candle 1, ExchangeRate 1 | Repository counts, Decimal, timestamp, currency, and OHLCV verified | In-memory SQLite only; StockWarnings deferred; no retry, accountSeq, order/account endpoint, raw response storage, or DB file |
