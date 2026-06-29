@@ -132,3 +132,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Scope | Persisted read-only data | Deferred data | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-06.01 | Read-only snapshot ingestion foundation | StockInfo, PriceSnapshot, Candle/CandlePage, ExchangeRate | StockWarnings | Fake/mock providers only; in-memory SQLite tests only; no live client, OAuth, `.env.local`, accountSeq, or real DB file |
+
+## MS-06.02 Fake Ingestion E2E Status
+
+| Stage | Scope | Stored counts | Round-trip checks | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-06.02 | Fake read-only snapshot ingestion E2E smoke | StockInfo 1, PriceSnapshot 1, Candle 1, ExchangeRate 1 | Repository counts, Decimal values, and timestamp values preserved; StockWarnings deferred | `actual_network_call_performed=false`, `oauth_token_endpoint_called=false`, `actual_db_file_created=false`; in-memory SQLite and fake providers only |
