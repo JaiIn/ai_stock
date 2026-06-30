@@ -168,3 +168,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Local target | Stored and reopened | Git state | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-06.07 | `data/local/ai_stock.sqlite3` | StockInfo 1, PriceSnapshot 1, Candle 1, ExchangeRate 1; Decimal, timestamp, currency, and OHLCV preserved | DB file and `data/` are untracked; target is ignored by Git | Fake providers only; StockWarnings deferred; no API/OAuth/live smoke/env/accountSeq/order operation |
+
+## MS-06.08 Live Snapshot Local DB File Preflight
+
+| Stage | Future call plan | Existing DB and write policy | Persist/verify policy | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-06.08 | OAuth token 1; Stocks, Prices, Candles, Exchange Rate GET 1 each; expected total 5 | Keep `data/local/ai_stock.sqlite3`; no delete/overwrite; idempotent schema required | StockInfo upsert; PriceSnapshot/Candle/ExchangeRate insert; repository count delta or minimum presence plus timestamp summary | Metadata-only no-I/O plan; current-stage DB write/API/OAuth/live smoke/env/accountSeq/order disabled; StockWarnings deferred and DB/data stay untracked |
