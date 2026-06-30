@@ -156,3 +156,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Planned local target | Required ignore policy | Current readiness | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-06.05 | `data/local/ai_stock.sqlite3` | `data/`, `*.sqlite`, `*.sqlite3`, `*.db` | File creation remains disabled; global SQLite extension rules exist, but exact `.gitignore` `data/` rule must be added under separate approval before a file DB stage | Metadata-only immutable plan; no DB/API/OAuth/live smoke/env/accountSeq/order operation and `actual_db_file_created=false` |
+
+## MS-06.06 Local Snapshot DB Git Ignore Hardening
+
+| Stage | Ignore hardening | Preflight revalidation | File DB state | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-06.06 | Exact `data/` plus global `*.sqlite`, `*.sqlite3`, `*.db` rules are present | Repository patterns satisfy MS-06.05 requirements with no missing patterns and a valid preflight contract | `data/` and DB files remain absent; `db_file_creation_allowed_this_stage=false`, `actual_db_file_created=false` | No API/OAuth/live smoke/env/accountSeq/order operation; actual file DB creation still requires a separate stage |

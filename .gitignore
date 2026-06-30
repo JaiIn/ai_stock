@@ -25,6 +25,7 @@ logs/*
 *.log
 
 # Local databases
+data/
 data/local/*.db
 data/local/*.sqlite
 data/local/*.sqlite3

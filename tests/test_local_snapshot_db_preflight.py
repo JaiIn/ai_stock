@@ -138,7 +138,7 @@ class LocalSnapshotDbFilePreflightTests(unittest.TestCase):
                 self.assertFalse(result.preflight_contract_valid)
                 self.assertFalse(result.ready_for_file_db_creation)
 
-    def test_current_repository_rules_expose_data_directory_guard_gap(self) -> None:
+    def test_current_repository_rules_satisfy_required_ignore_policy(self) -> None:
         plan = build_local_snapshot_db_file_preflight()
         gitignore_patterns = {
             line.strip()
@@ -155,9 +155,10 @@ class LocalSnapshotDbFilePreflightTests(unittest.TestCase):
         self.assertIn("*.sqlite", gitignore_patterns)
         self.assertIn("*.sqlite3", gitignore_patterns)
         self.assertIn("*.db", gitignore_patterns)
-        self.assertNotIn("data/", gitignore_patterns)
-        self.assertEqual(result.missing_ignore_patterns, ("data/",))
-        self.assertFalse(result.git_ignore_policy_satisfied)
+        self.assertIn("data/", gitignore_patterns)
+        self.assertEqual(result.missing_ignore_patterns, ())
+        self.assertTrue(result.git_ignore_policy_satisfied)
+        self.assertTrue(result.preflight_contract_valid)
         self.assertFalse(result.ready_for_file_db_creation)
 
     def test_builder_and_validator_perform_no_file_db_env_or_network_io(self) -> None:
