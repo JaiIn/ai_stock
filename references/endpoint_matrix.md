@@ -162,3 +162,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Ignore hardening | Preflight revalidation | File DB state | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-06.06 | Exact `data/` plus global `*.sqlite`, `*.sqlite3`, `*.db` rules are present | Repository patterns satisfy MS-06.05 requirements with no missing patterns and a valid preflight contract | `data/` and DB files remain absent; `db_file_creation_allowed_this_stage=false`, `actual_db_file_created=false` | No API/OAuth/live smoke/env/accountSeq/order operation; actual file DB creation still requires a separate stage |
+
+## MS-06.07 Fake Snapshot Local DB File Smoke
+
+| Stage | Local target | Stored and reopened | Git state | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-06.07 | `data/local/ai_stock.sqlite3` | StockInfo 1, PriceSnapshot 1, Candle 1, ExchangeRate 1; Decimal, timestamp, currency, and OHLCV preserved | DB file and `data/` are untracked; target is ignored by Git | Fake providers only; StockWarnings deferred; no API/OAuth/live smoke/env/accountSeq/order operation |

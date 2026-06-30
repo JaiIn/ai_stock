@@ -237,7 +237,7 @@ class LocalSnapshotDbFilePreflightTests(unittest.TestCase):
         ):
             self.assertNotIn(forbidden_call, source)
 
-    def test_preflight_does_not_change_pyproject_or_create_data_or_db_files(
+    def test_preflight_uses_observations_without_changing_workspace(
         self,
     ) -> None:
         pyproject = Path("pyproject.toml")
@@ -247,13 +247,24 @@ class LocalSnapshotDbFilePreflightTests(unittest.TestCase):
         db_files_before = _workspace_db_files()
 
         plan = build_local_snapshot_db_file_preflight()
-        result = validate_local_snapshot_db_file_preflight(
+        absent_observation = validate_local_snapshot_db_file_preflight(
             plan,
             observed_ignore_patterns=REQUIRED_IGNORE_PATTERNS,
-            actual_db_file_exists=candidate_existed,
+            actual_db_file_exists=False,
+        )
+        present_observation = validate_local_snapshot_db_file_preflight(
+            plan,
+            observed_ignore_patterns=REQUIRED_IGNORE_PATTERNS,
+            actual_db_file_exists=True,
         )
 
-        self.assertTrue(result.preflight_contract_valid)
+        self.assertFalse(plan.db_file_creation_allowed_this_stage)
+        self.assertFalse(plan.actual_db_file_created)
+        self.assertTrue(absent_observation.preflight_contract_valid)
+        self.assertFalse(absent_observation.actual_db_file_created)
+        self.assertFalse(present_observation.preflight_contract_valid)
+        self.assertTrue(present_observation.actual_db_file_created)
+        self.assertFalse(present_observation.ready_for_file_db_creation)
         self.assertEqual(pyproject.read_bytes(), pyproject_before)
         self.assertEqual(Path("data").exists(), data_existed)
         self.assertEqual(
