@@ -150,3 +150,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Actual call result | Persisted counts | Round-trip result | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-06.04 | OAuth 1 + business GET 4 = total 5; all HTTP 200 | StockInfo 1, PriceSnapshot 1, Candle 1, ExchangeRate 1 | Repository counts, Decimal, timestamp, currency, and OHLCV verified | In-memory SQLite only; StockWarnings deferred; no retry, accountSeq, order/account endpoint, raw response storage, or DB file |
+
+## MS-06.05 Local Snapshot DB File Preflight
+
+| Stage | Planned local target | Required ignore policy | Current readiness | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-06.05 | `data/local/ai_stock.sqlite3` | `data/`, `*.sqlite`, `*.sqlite3`, `*.db` | File creation remains disabled; global SQLite extension rules exist, but exact `.gitignore` `data/` rule must be added under separate approval before a file DB stage | Metadata-only immutable plan; no DB/API/OAuth/live smoke/env/accountSeq/order operation and `actual_db_file_created=false` |
