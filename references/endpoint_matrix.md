@@ -180,3 +180,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Actual call result | Repository counts before → after | File result | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-06.09 | OAuth 1 + Stocks/Prices/Candles/Exchange Rate GET 1 each; total 5; all HTTP 200 | stocks 1→1; price snapshots 1→2; candles 1→2; exchange rates 1→2 | Existing `data/local/ai_stock.sqlite3` modified in place; size 45056→45056; Git ignored/untracked | StockWarnings deferred; no retry, before, account/order call, credential/token/header/raw-body storage, delete, or overwrite |
+
+## MS-06.10 Local Snapshot DB Read-Only Audit
+
+| Stage | Network scope | DB access | Safe observed state | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-06.10 | None | Existing `data/local/ai_stock.sqlite3` opened with SQLite URI `mode=ro` and `query_only`; aggregate SELECTs only | stocks 1, price snapshots 2, candles 2, exchange rates 2; symbol `005930` and pair `USD/KRW` present | Minimum-count validation passed; StockWarnings deferred; no API/OAuth/smoke/env/accountSeq/order operation, row output, write SQL, schema initialization, DB modification, or Git tracking |
