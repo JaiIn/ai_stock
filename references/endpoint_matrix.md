@@ -192,3 +192,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Network scope | Latest selection policy | Safe read model result | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-06.11 | None | Stock by symbol; price and 1d candle by timestamp then id descending; USD/KRW rate by date_time then id descending | Immutable DTO with Decimal-preserving summaries, source counts, and per-component completeness flags; current DB is complete | Existing DB opened with SQLite URI `mode=ro` and `query_only`; no API/OAuth/smoke/env/accountSeq/order operation, write SQL, schema initialization, raw-row output, or DB metadata change |
+
+## MS-06.12 Latest Read Model Actual Local DB Smoke
+
+| Stage | Network scope | Actual execution | Safe result | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-06.12 | None | Existing latest read model CLI executed exactly once for `005930`, `USD/KRW`, and `data/local/ai_stock.sqlite3` | success; source counts stocks 1, price snapshots 2, candles 2, exchange rates 2; all completeness, timestamps, currencies, Decimal string conversion, and OHLCV checks pass | SQLite URI `mode=ro` plus `query_only`; file size/mtime unchanged; no API/OAuth/other smoke/env/accountSeq/order operation, raw-row output, secret output, code change, or Git tracking |
