@@ -176,6 +176,7 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 | MS-06.10 | Local snapshot SQLite DB read-only audit | scripts/local_snapshot_db_readonly_audit.py, src/ai_stock/storage/local_snapshot_db_audit.py, tests/test_local_snapshot_db_readonly_audit.py, reports/ | Opens the existing DB with SQLite URI `mode=ro`, enables `query_only`, and returns aggregate counts, safe timestamp ranges, and minimum-state checks | No schema initialization, write SQL, API/OAuth/smoke/env/accountSeq/order operation, row output, secret output, or DB metadata change; DB/data remain Git-ignored/untracked |
 | MS-06.11 | Local snapshot latest read model | scripts/local_snapshot_latest_read_model.py, src/ai_stock/storage/local_snapshot_latest_read_model.py, tests/test_local_snapshot_latest_read_model.py, reports/ | Builds immutable StockInfo, latest PriceSnapshot, latest 1d Candle, latest USD/KRW ExchangeRate, source-count, and completeness DTOs using SQLite URI `mode=ro` and `query_only` | Decimal values remain Decimal internally and become strings only in safe JSON; partial data is explicit, with no write SQL, API/OAuth/smoke/env/accountSeq/order operation, row output, or DB metadata change |
 | MS-06.12 | Latest read model actual local DB smoke | reports/MS-06.12_latest_read_model_local_db_smoke_report.md, docs/, references/ | Runs the existing latest read model CLI exactly once against `data/local/ai_stock.sqlite3`; source counts 1/2/2/2 and every completeness flag pass | Read-only URI and `query_only` preserve identical file size/mtime; no code change, API/OAuth/other smoke/env/accountSeq/order operation, raw-row output, secret output, or Git tracking |
+| MS-07.01 | Read-only Streamlit snapshot dashboard preflight | src/ai_stock/ui/readonly_snapshot_dashboard_preflight.py, tests/test_readonly_streamlit_snapshot_dashboard_preflight.py, reports/ | Immutable no-I/O plan fixes the latest-read-model data source, safe sections/fields, local read-only actions, and denied live/write/order/AI actions | Full Streamlit UI remains deferred; no API/OAuth/smoke/env/DB access/accountSeq/order/AI operation, row or secret output, or DB metadata change |
 
 ---
 
@@ -199,7 +200,7 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 
 | Micro Stage | 작업 | 변경 범위 | 테스트/검증 | 사용자 확인 포인트 |
 |---|---|---|---|---|
-| MS-07.01 | Streamlit shell | app.py | app import test | UI 방식 확인 |
+| MS-07.01 | Read-only snapshot dashboard preflight | src/ai_stock/ui/readonly_snapshot_dashboard_preflight.py, tests/test_readonly_streamlit_snapshot_dashboard_preflight.py | immutable no-I/O policy contract | Full UI 구현 전 sections/actions/sensitive-field 경계 확인 |
 | MS-07.02 | Sidebar/settings 화면 | src/ai_stock/ui/settings_page.py | render smoke test | 민감값 표시 금지 확인 |
 | MS-07.03 | 관심종목 화면 | src/ai_stock/ui/watchlist_page.py | service mock test | 입력 UX 확인 |
 | MS-07.04 | 시세 화면 | src/ai_stock/ui/market_page.py | mock render test | 표시 컬럼 확인 |

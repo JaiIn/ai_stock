@@ -198,3 +198,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Network scope | Actual execution | Safe result | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-06.12 | None | Existing latest read model CLI executed exactly once for `005930`, `USD/KRW`, and `data/local/ai_stock.sqlite3` | success; source counts stocks 1, price snapshots 2, candles 2, exchange rates 2; all completeness, timestamps, currencies, Decimal string conversion, and OHLCV checks pass | SQLite URI `mode=ro` plus `query_only`; file size/mtime unchanged; no API/OAuth/other smoke/env/accountSeq/order operation, raw-row output, secret output, code change, or Git tracking |
+
+## MS-07.01 Read-Only Streamlit Snapshot Dashboard Preflight
+
+| Stage | Network and storage scope | Planned data source | UI policy | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-07.01 | No network, OAuth, env, or DB I/O in this stage | `local_snapshot_latest_read_model` with future default `data/local/ai_stock.sqlite3`, symbol `005930`, pair `USD/KRW` | Immutable safe sections/fields and local read-only actions only; full Streamlit UI remains disabled | Live refresh, OAuth, DB write/migration/schema init, account/order data, order controls, AI recommendations, raw rows, and secret fields are denied |
