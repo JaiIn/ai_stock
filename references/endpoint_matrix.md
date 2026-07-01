@@ -186,3 +186,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Network scope | DB access | Safe observed state | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-06.10 | None | Existing `data/local/ai_stock.sqlite3` opened with SQLite URI `mode=ro` and `query_only`; aggregate SELECTs only | stocks 1, price snapshots 2, candles 2, exchange rates 2; symbol `005930` and pair `USD/KRW` present | Minimum-count validation passed; StockWarnings deferred; no API/OAuth/smoke/env/accountSeq/order operation, row output, write SQL, schema initialization, DB modification, or Git tracking |
+
+## MS-06.11 Local Snapshot Latest Read Model
+
+| Stage | Network scope | Latest selection policy | Safe read model result | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-06.11 | None | Stock by symbol; price and 1d candle by timestamp then id descending; USD/KRW rate by date_time then id descending | Immutable DTO with Decimal-preserving summaries, source counts, and per-component completeness flags; current DB is complete | Existing DB opened with SQLite URI `mode=ro` and `query_only`; no API/OAuth/smoke/env/accountSeq/order operation, write SQL, schema initialization, raw-row output, or DB metadata change |
