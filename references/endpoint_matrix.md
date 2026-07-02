@@ -204,3 +204,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Network and storage scope | Planned data source | UI policy | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-07.01 | No network, OAuth, env, or DB I/O in this stage | `local_snapshot_latest_read_model` with future default `data/local/ai_stock.sqlite3`, symbol `005930`, pair `USD/KRW` | Immutable safe sections/fields and local read-only actions only; full Streamlit UI remains disabled | Live refresh, OAuth, DB write/migration/schema init, account/order data, order controls, AI recommendations, raw rows, and secret fields are denied |
+
+## MS-07.02 Minimal Read-Only Streamlit Snapshot Dashboard
+
+| Stage | Network scope | Storage and data source | Display scope | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-07.02 | None; no Toss API or OAuth execution | `local_snapshot_latest_read_model` only; default `data/local/ai_stock.sqlite3`, symbol `005930`, pair `USD/KRW`; SQLite URI `mode=ro` plus `query_only` | StockInfo, latest price, latest 1d candle, USD/KRW rate, completeness, source counts, file metadata, and read-only diagnostics | Missing DB is not created; no write/migration/schema init, env/credential access, account/order feature, AI recommendation, raw row, or secret field |
