@@ -3,14 +3,19 @@
 from pathlib import Path
 import sqlite3
 import unittest
+from unittest.mock import patch
 from uuid import uuid4
 
 from ai_stock.ui.readonly_snapshot_dashboard import (
+    DEFAULT_BASE_CURRENCY,
     DATA_SOURCE,
     DEFAULT_DB_RELATIVE_PATH,
     DEFAULT_EXCHANGE_PAIR,
+    DEFAULT_QUOTE_CURRENCY,
+    DEFAULT_SYMBOL,
     DISPLAYED_SECTIONS,
     build_readonly_snapshot_dashboard,
+    validate_dashboard_selection,
 )
 
 
@@ -75,6 +80,22 @@ class ReadonlySnapshotDashboardTests(unittest.TestCase):
             INSERT INTO exchange_rates(
                 base_currency, quote_currency, exchange_rate, date_time
             ) VALUES('USD', 'KRW', '1310.20', '2026-01-02T00:00:00Z');
+
+            INSERT INTO stocks VALUES(
+                'AAPL', 'Safe US Stock', 'NASDAQ', 'USD',
+                '2026-01-03T00:00:00Z'
+            );
+            INSERT INTO price_snapshots(symbol, timestamp, price, currency)
+            VALUES('AAPL', '2026-01-03T00:00:00Z', '202.40', 'USD');
+            INSERT INTO candles(
+                symbol, interval, timestamp, open, high, low, close, volume, currency
+            ) VALUES(
+                'AAPL', '1d', '2026-01-03T00:00:00Z',
+                '200.00', '204.00', '199.00', '202.00', '2200', 'USD'
+            );
+            INSERT INTO exchange_rates(
+                base_currency, quote_currency, exchange_rate, date_time
+            ) VALUES('EUR', 'USD', '1.08', '2026-01-03T00:00:00Z');
             """
         )
         connection.close()
@@ -96,6 +117,64 @@ class ReadonlySnapshotDashboardTests(unittest.TestCase):
         self.assertFalse(view.credential_required_this_stage)
         self.assertFalse(view.ai_recommendation_allowed_this_stage)
         self.assertFalse(view.real_order_related_call_allowed)
+
+    def test_selector_defaults_trim_and_normalize_without_io(self) -> None:
+        defaulted = validate_dashboard_selection(
+            symbol="   ",
+            base_currency=" usd ",
+            quote_currency=" krw ",
+        )
+
+        self.assertTrue(defaulted.valid)
+        self.assertEqual(defaulted.symbol, DEFAULT_SYMBOL)
+        self.assertEqual(defaulted.base_currency, DEFAULT_BASE_CURRENCY)
+        self.assertEqual(defaulted.quote_currency, DEFAULT_QUOTE_CURRENCY)
+        self.assertEqual(defaulted.exchange_pair, DEFAULT_EXCHANGE_PAIR)
+
+    def test_valid_selector_values_reach_read_model_request(self) -> None:
+        view = build_readonly_snapshot_dashboard(
+            self.path,
+            symbol=" AAPL ",
+            base_currency=" eur ",
+            quote_currency=" usd ",
+        )
+
+        self.assertTrue(view.success)
+        self.assertEqual(view.symbol, "AAPL")
+        self.assertEqual(view.exchange_pair, "EUR/USD")
+        self.assertEqual(view.stock_info["display_name"], "Safe US Stock")
+        self.assertEqual(view.price_snapshot["price"], "202.40")
+        self.assertEqual(view.exchange_rate["exchange_rate"], "1.08")
+
+    def test_invalid_selector_fails_safely_without_opening_database(self) -> None:
+        with patch(
+            "ai_stock.ui.readonly_snapshot_dashboard."
+            "build_local_snapshot_latest_read_model"
+        ) as build_model:
+            view = build_readonly_snapshot_dashboard(
+                self.path,
+                symbol="005930",
+                base_currency="US",
+                quote_currency="KRW",
+            )
+
+        build_model.assert_not_called()
+        self.assertFalse(view.success)
+        self.assertEqual(view.status_level, "warning")
+        self.assertEqual(view.safe_error_type, "invalid_selector")
+        self.assertFalse(view.actual_db_file_modified_this_stage)
+        self.assertEqual(view.source_counts["stocks"], 0)
+
+    def test_invalid_symbol_fails_safely(self) -> None:
+        selection = validate_dashboard_selection(
+            symbol="unsafe symbol",
+            base_currency="USD",
+            quote_currency="KRW",
+        )
+
+        self.assertFalse(selection.valid)
+        self.assertEqual(selection.symbol, DEFAULT_SYMBOL)
+        self.assertIsNotNone(selection.safe_error_message)
 
     def test_complete_safe_summary_preserves_database_metadata(self) -> None:
         before = self.path.stat()
@@ -209,6 +288,7 @@ class ReadonlySnapshotDashboardTests(unittest.TestCase):
 
         self.assertIn("set_page_config", source)
         self.assertIn("build_readonly_snapshot_dashboard", source)
+        self.assertIn("text_input", source)
         self.assertNotIn("import streamlit", source)
         for forbidden in (
             "dotenv",
@@ -221,6 +301,8 @@ class ReadonlySnapshotDashboardTests(unittest.TestCase):
             "buy button",
             "sell button",
             "submit order",
+            "initialize_schema",
+            "migration",
         ):
             self.assertNotIn(forbidden, source)
 

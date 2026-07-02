@@ -216,3 +216,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Network scope | Execution result | Render result | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-07.03 | Localhost only; root HTTP 200 and `/_stcore/health` 200 `ok` | Existing Streamlit app started exactly once on port 8501 and was terminated after verification | AppTest reported no exceptions and rendered title, data source, `005930`, `USD/KRW`, four snapshot sections, all completeness flags, source counts 1/2/2/2, and read-only diagnostics | Browser manual check unavailable; no Toss API/OAuth/env/write/account/order/AI action, credential input, forbidden button, raw-row output, secret output, Git tracking, or DB metadata change |
+
+## MS-07.04 Read-Only Dashboard Symbol/Pair Selector
+
+| Stage | Network scope | Selector contract | Data access | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-07.04 | None; no localhost server, Toss API, or OAuth execution | Symbol is trimmed and blank falls back to `005930`; base/quote codes are trimmed, uppercased, and require exactly three ASCII letters; defaults remain `USD/KRW` | Only valid selectors are passed to `local_snapshot_latest_read_model`; invalid input returns `invalid_selector` before SQLite open; existing `mode=ro` and `query_only` policy remains | No env/credential input, live refresh, write/migration/schema init, account/order/AI action, raw-row output, secret output, Git tracking, or DB metadata change |

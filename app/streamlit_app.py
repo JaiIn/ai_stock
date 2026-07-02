@@ -12,12 +12,17 @@ from streamlit import (
     set_page_config,
     subheader,
     success,
+    text_input,
     title,
     warning,
     write,
 )
 
 from ai_stock.ui.readonly_snapshot_dashboard import (
+    DASHBOARD_TITLE,
+    DEFAULT_BASE_CURRENCY,
+    DEFAULT_QUOTE_CURRENCY,
+    DEFAULT_SYMBOL,
     build_readonly_snapshot_dashboard,
 )
 
@@ -49,10 +54,33 @@ def main() -> None:
         page_icon="📊",
         layout="wide",
     )
-    view = build_readonly_snapshot_dashboard()
 
-    title(view.title)
+    title(DASHBOARD_TITLE)
     caption("Local SQLite snapshot summary · read-only")
+
+    subheader("Local read-only selection")
+    selector_columns = columns(3)
+    with selector_columns[0]:
+        selected_symbol = text_input("Symbol", value=DEFAULT_SYMBOL)
+    with selector_columns[1]:
+        selected_base_currency = text_input(
+            "Base currency",
+            value=DEFAULT_BASE_CURRENCY,
+            max_chars=3,
+        )
+    with selector_columns[2]:
+        selected_quote_currency = text_input(
+            "Quote currency",
+            value=DEFAULT_QUOTE_CURRENCY,
+            max_chars=3,
+        )
+
+    view = build_readonly_snapshot_dashboard(
+        symbol=selected_symbol,
+        base_currency=selected_base_currency,
+        quote_currency=selected_quote_currency,
+    )
+
     _render_status(view.status_level, view.status_message)
 
     subheader("Data source")
