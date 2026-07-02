@@ -210,3 +210,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Network scope | Storage and data source | Display scope | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-07.02 | None; no Toss API or OAuth execution | `local_snapshot_latest_read_model` only; default `data/local/ai_stock.sqlite3`, symbol `005930`, pair `USD/KRW`; SQLite URI `mode=ro` plus `query_only` | StockInfo, latest price, latest 1d candle, USD/KRW rate, completeness, source counts, file metadata, and read-only diagnostics | Missing DB is not created; no write/migration/schema init, env/credential access, account/order feature, AI recommendation, raw row, or secret field |
+
+## MS-07.03 Read-Only Streamlit Dashboard Local Smoke
+
+| Stage | Network scope | Execution result | Render result | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-07.03 | Localhost only; root HTTP 200 and `/_stcore/health` 200 `ok` | Existing Streamlit app started exactly once on port 8501 and was terminated after verification | AppTest reported no exceptions and rendered title, data source, `005930`, `USD/KRW`, four snapshot sections, all completeness flags, source counts 1/2/2/2, and read-only diagnostics | Browser manual check unavailable; no Toss API/OAuth/env/write/account/order/AI action, credential input, forbidden button, raw-row output, secret output, Git tracking, or DB metadata change |
