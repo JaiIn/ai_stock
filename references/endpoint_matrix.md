@@ -222,3 +222,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Network scope | Selector contract | Data access | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-07.04 | None; no localhost server, Toss API, or OAuth execution | Symbol is trimmed and blank falls back to `005930`; base/quote codes are trimmed, uppercased, and require exactly three ASCII letters; defaults remain `USD/KRW` | Only valid selectors are passed to `local_snapshot_latest_read_model`; invalid input returns `invalid_selector` before SQLite open; existing `mode=ro` and `query_only` policy remains | No env/credential input, live refresh, write/migration/schema init, account/order/AI action, raw-row output, secret output, Git tracking, or DB metadata change |
+
+## MS-07.05 Read-Only Dashboard Selector Local Smoke
+
+| Stage | Network scope | AppTest result | Selector result | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-07.05 | None; Streamlit server, HTTP, browser, Toss API, and OAuth are not executed | One AppTest session, five render runs, zero render exceptions; symbol/base/quote inputs, safe sections, completeness, source counts, and diagnostics render | Defaults `005930`/`USD`/`KRW`; lowercase pair normalizes; valid missing pair returns completeness warning; blank symbol falls back; invalid currency/symbol return safe validation warnings | Buttons, credential/accountSeq inputs, API/OAuth/order/account/AI controls are absent; SQLite remains `mode=ro` plus `query_only`; file size/mtime are unchanged and DB/data stay untracked |
