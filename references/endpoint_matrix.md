@@ -234,3 +234,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Network scope | Server and HTTP result | Selector render result | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-07.06 | Localhost only; one Streamlit launch on `127.0.0.1:8501`; no external, Toss API, or OAuth request | Root HTTP 200 and `/_stcore/health` HTTP 200/`ok`; server PID stopped; listener count 0 and health unreachable after stop | One auxiliary AppTest render reports zero exceptions, three selector inputs, defaults `005930`/`USD`/`KRW`, and zero buttons; safe sections remain covered by the existing source/test contract | SQLite remains `mode=ro` plus `query_only`; DB size/mtime are unchanged; no env/credential/account/order/AI control, raw-row output, secret output, Git tracking, or code change |
+
+## MS-07.07 Read-Only Dashboard Local Runbook
+
+| Stage | Runtime scope | Documented operation | Data and selector contract | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-07.07 | Documentation only; no Streamlit server, HTTP, AppTest, browser, Toss API, or OAuth execution | Local preflight, exact Streamlit command, `Ctrl+C` shutdown, listener cleanup, screen checklist, warnings, and troubleshooting | `local_snapshot_latest_read_model`; default DB `data/local/ai_stock.sqlite3`, symbol `005930`, pair `USD/KRW`; valid selectors reach only parameterized read-only queries; missing/partial data returns safe warnings | SQLite `mode=ro` plus `query_only`; no env/credential/accountSeq requirement, DB write/init/migration, account/order/AI control, raw-row/response output, secret output, Git tracking, or code change |
