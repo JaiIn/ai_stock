@@ -240,3 +240,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Runtime scope | Documented operation | Data and selector contract | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-07.07 | Documentation only; no Streamlit server, HTTP, AppTest, browser, Toss API, or OAuth execution | Local preflight, exact Streamlit command, `Ctrl+C` shutdown, listener cleanup, screen checklist, warnings, and troubleshooting | `local_snapshot_latest_read_model`; default DB `data/local/ai_stock.sqlite3`, symbol `005930`, pair `USD/KRW`; valid selectors reach only parameterized read-only queries; missing/partial data returns safe warnings | SQLite `mode=ro` plus `query_only`; no env/credential/accountSeq requirement, DB write/init/migration, account/order/AI control, raw-row/response output, secret output, Git tracking, or code change |
+
+## MS-07.08 Read-Only Dashboard Final Checkpoint
+
+| Stage | Runtime scope | Completed scope | Deferred or separately approved scope | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-07.08 | Documentation-only audit; no Streamlit server, HTTP, AppTest, browser, Toss API, OAuth, env, or DB execution | MS-07.01~07.07 preflight, minimal dashboard, local/server smoke evidence, symbol/pair selectors, validation, and local runbook; `local_snapshot_latest_read_model`, default DB `data/local/ai_stock.sqlite3`, symbol `005930`, pair `USD/KRW`, SQLite `mode=ro` plus `query_only` | Live API refresh, OAuth token issue, real account/asset/balance/fill access, real orders, real portfolio valuation, and live AI recommendations require separate stages and explicit approval | No code/runbook change, credential/accountSeq requirement, DB write/init/migration, account/order/AI control, raw-row/response output, secret output, Git tracking, or DB metadata change |
