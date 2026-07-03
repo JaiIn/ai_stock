@@ -228,3 +228,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Network scope | AppTest result | Selector result | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-07.05 | None; Streamlit server, HTTP, browser, Toss API, and OAuth are not executed | One AppTest session, five render runs, zero render exceptions; symbol/base/quote inputs, safe sections, completeness, source counts, and diagnostics render | Defaults `005930`/`USD`/`KRW`; lowercase pair normalizes; valid missing pair returns completeness warning; blank symbol falls back; invalid currency/symbol return safe validation warnings | Buttons, credential/accountSeq inputs, API/OAuth/order/account/AI controls are absent; SQLite remains `mode=ro` plus `query_only`; file size/mtime are unchanged and DB/data stay untracked |
+
+## MS-07.06 Read-Only Dashboard Selector Server Smoke
+
+| Stage | Network scope | Server and HTTP result | Selector render result | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-07.06 | Localhost only; one Streamlit launch on `127.0.0.1:8501`; no external, Toss API, or OAuth request | Root HTTP 200 and `/_stcore/health` HTTP 200/`ok`; server PID stopped; listener count 0 and health unreachable after stop | One auxiliary AppTest render reports zero exceptions, three selector inputs, defaults `005930`/`USD`/`KRW`, and zero buttons; safe sections remain covered by the existing source/test contract | SQLite remains `mode=ro` plus `query_only`; DB size/mtime are unchanged; no env/credential/account/order/AI control, raw-row output, secret output, Git tracking, or code change |
