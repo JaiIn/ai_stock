@@ -252,3 +252,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Endpoint scope | AI scope | Credential scope | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-08.01 | No endpoint use; no OAuth, Toss API, order, account, asset, balance, fill, or accountSeq request | No recommendation generation and no AI/LLM external API; both real and mock recommendation generation are disabled in this stage | OpenAI and Toss API keys, Toss secret, token, authorization header, and accountSeq are not required or used | Pure no-I/O policy only; no environment read, DB write, Streamlit change, live market refresh, account access, order execution, or real trade |
+
+## MS-08.02 Mock-Only Recommendation Policy Model
+
+| Stage | Endpoint scope | Input and model scope | Credential scope | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-08.02 | No endpoint use; no OAuth, Toss API, OpenAI/LLM API, order, account, asset, balance, fill, or accountSeq request | Deterministic pure policy model uses only caller-supplied mock/local snapshot summary flags; it performs no DB read, read-model call, API refresh, or external model call | OpenAI and Toss API keys, Toss secret, token, authorization header, and accountSeq are not required or used | Mock-only non-directive labels and explanation language; no DB write, environment read, Streamlit change, investment advice, direct buy/sell/hold directive, order execution, or real trade |
