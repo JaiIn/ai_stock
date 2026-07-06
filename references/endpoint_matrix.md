@@ -246,3 +246,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Runtime scope | Completed scope | Deferred or separately approved scope | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-07.08 | Documentation-only audit; no Streamlit server, HTTP, AppTest, browser, Toss API, OAuth, env, or DB execution | MS-07.01~07.07 preflight, minimal dashboard, local/server smoke evidence, symbol/pair selectors, validation, and local runbook; `local_snapshot_latest_read_model`, default DB `data/local/ai_stock.sqlite3`, symbol `005930`, pair `USD/KRW`, SQLite `mode=ro` plus `query_only` | Live API refresh, OAuth token issue, real account/asset/balance/fill access, real orders, real portfolio valuation, and live AI recommendations require separate stages and explicit approval | No code/runbook change, credential/accountSeq requirement, DB write/init/migration, account/order/AI control, raw-row/response output, secret output, Git tracking, or DB metadata change |
+
+## MS-08.01 AI Recommendation Safety Preflight
+
+| Stage | Endpoint scope | AI scope | Credential scope | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-08.01 | No endpoint use; no OAuth, Toss API, order, account, asset, balance, fill, or accountSeq request | No recommendation generation and no AI/LLM external API; both real and mock recommendation generation are disabled in this stage | OpenAI and Toss API keys, Toss secret, token, authorization header, and accountSeq are not required or used | Pure no-I/O policy only; no environment read, DB write, Streamlit change, live market refresh, account access, order execution, or real trade |
