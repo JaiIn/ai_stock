@@ -264,3 +264,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Endpoint scope | Input and UI contract scope | Credential scope | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-08.03 | No endpoint use; no OAuth, Toss API, OpenAI/LLM API, order, account, asset, balance, fill, or accountSeq request | Deterministic pure no-I/O explanation UI contract uses only an already caller-supplied MS-08.02 mock result; it performs no DB read, read-model call, API refresh, mock recommendation recalculation, or Streamlit UI change | OpenAI and Toss API keys, Toss secret, token, authorization header, credential input, and accountSeq are not required or used | Safe sections and forbidden sections are defined for a future panel only; no DB write, environment read, Streamlit app change, investment advice, direct buy/sell/hold directive, order execution, real trade, account data display, raw API response, or raw DB row display |
+
+## MS-08.04 Mock-Only Recommendation Panel UI Integration
+
+| Stage | Endpoint scope | Input and UI scope | Credential scope | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-08.04 | No endpoint use; no OAuth, Toss API, OpenAI/LLM API, order, account, asset, balance, fill, or accountSeq request | Streamlit UI display only; existing local read-only snapshot dashboard flow supplies safe summary fields, MS-08.02 builds a mock-only result, and MS-08.03 validates the display ViewModel before rendering | OpenAI and Toss API keys, Toss secret, token, authorization header, credential input, and accountSeq are not required or used | Existing local read-only snapshot flow only; no DB write, environment read, API refresh, live refresh, real recommendation, investment advice, direct buy/sell/hold directive, order execution, real trade, account data display, raw API response, raw DB row display, or real order control |

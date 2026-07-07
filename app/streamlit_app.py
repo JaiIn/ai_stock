@@ -18,11 +18,24 @@ from streamlit import (
     write,
 )
 
+from ai_stock.recommendation.explanation_ui_preflight import (
+    RecommendationExplanationViewModel,
+    build_default_recommendation_explanation_ui_policy,
+    build_recommendation_explanation_view_model,
+    validate_recommendation_explanation_view_model,
+)
+from ai_stock.recommendation.mock_policy_model import (
+    MockRecommendationInput,
+    build_default_mock_recommendation_policy,
+    build_mock_recommendation_result,
+    validate_mock_recommendation_result,
+)
 from ai_stock.ui.readonly_snapshot_dashboard import (
     DASHBOARD_TITLE,
     DEFAULT_BASE_CURRENCY,
     DEFAULT_QUOTE_CURRENCY,
     DEFAULT_SYMBOL,
+    ReadonlySnapshotDashboardView,
     build_readonly_snapshot_dashboard,
 )
 
@@ -46,6 +59,97 @@ def _render_optional_section(
             return
         for label, value in values.items():
             write(f"**{label.replace('_', ' ').title()}:** {value}")
+
+
+def _build_mock_recommendation_input(
+    view: ReadonlySnapshotDashboardView,
+) -> MockRecommendationInput:
+    completeness_flags = tuple(
+        f"{name}_missing"
+        for name, complete in view.completeness.items()
+        if name != "all_components_present" and not complete
+    )
+    observation_notes = (
+        "local_readonly_dashboard_summary",
+        f"status_level={view.status_level}",
+        f"stock_warnings_deferred={view.stock_warnings_deferred}",
+    )
+    return MockRecommendationInput(
+        symbol=view.symbol,
+        has_stock_info=view.stock_info is not None,
+        has_price_snapshot=view.price_snapshot is not None,
+        has_candle=view.candle is not None,
+        has_exchange_rate=view.exchange_rate is not None,
+        completeness_flags=completeness_flags,
+        risk_flags=(),
+        observation_notes=observation_notes,
+    )
+
+
+def _build_recommendation_explanation_view_model(
+    view: ReadonlySnapshotDashboardView,
+) -> RecommendationExplanationViewModel | None:
+    mock_policy = build_default_mock_recommendation_policy()
+    mock_result = build_mock_recommendation_result(
+        _build_mock_recommendation_input(view),
+        mock_policy,
+    )
+    mock_validation = validate_mock_recommendation_result(
+        mock_result,
+        mock_policy,
+    )
+    if not mock_validation.passed:
+        return None
+
+    ui_policy = build_default_recommendation_explanation_ui_policy()
+    view_model = build_recommendation_explanation_view_model(
+        mock_result,
+        ui_policy,
+    )
+    ui_validation = validate_recommendation_explanation_view_model(
+        view_model,
+        ui_policy,
+    )
+    if not ui_validation.passed:
+        return None
+    return view_model
+
+
+def _render_recommendation_explanation_panel(
+    view: ReadonlySnapshotDashboardView,
+) -> None:
+    view_model = _build_recommendation_explanation_view_model(view)
+
+    subheader("Mock Recommendation Explanation")
+    caption("mock-only / observation-only / not investment advice")
+    info(
+        "mock-only | observation-only | not investment advice | "
+        "no real recommendation | no order execution | no account access | "
+        "no live API access | no credential required"
+    )
+
+    if view_model is None:
+        warning(
+            "The mock-only explanation panel is unavailable because safe "
+            "ViewModel validation did not pass."
+        )
+        return
+
+    summary_columns = columns(3)
+    summary_columns[0].metric("Stage", view_model.stage_name)
+    summary_columns[1].metric("Label", view_model.label)
+    summary_columns[2].metric("Action allowed", "False")
+
+    with expander("Safe summary", expanded=True):
+        for line in view_model.safe_summary:
+            write(line)
+
+    for section in view_model.safe_sections:
+        if section.name == "summary":
+            continue
+        with expander(section.heading, expanded=False):
+            for line in section.lines:
+                write(line)
 
 
 def main() -> None:
@@ -82,6 +186,8 @@ def main() -> None:
     )
 
     _render_status(view.status_level, view.status_message)
+
+    _render_recommendation_explanation_panel(view)
 
     subheader("Data source")
     source_columns = columns(4)
