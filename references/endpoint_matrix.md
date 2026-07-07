@@ -270,3 +270,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Endpoint scope | Input and UI scope | Credential scope | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-08.04 | No endpoint use; no OAuth, Toss API, OpenAI/LLM API, order, account, asset, balance, fill, or accountSeq request | Streamlit UI display only; existing local read-only snapshot dashboard flow supplies safe summary fields, MS-08.02 builds a mock-only result, and MS-08.03 validates the display ViewModel before rendering | OpenAI and Toss API keys, Toss secret, token, authorization header, credential input, and accountSeq are not required or used | Existing local read-only snapshot flow only; no DB write, environment read, API refresh, live refresh, real recommendation, investment advice, direct buy/sell/hold directive, order execution, real trade, account data display, raw API response, raw DB row display, or real order control |
+
+## MS-08.05 Recommendation Panel AppTest Smoke
+
+| Stage | Endpoint scope | Runtime scope | Credential scope | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-08.05 | No endpoint use; no OAuth, Toss API, OpenAI/LLM API, order, account, asset, balance, fill, or accountSeq request | Streamlit AppTest local render only; no Streamlit server, HTTP smoke, browser, live smoke, or fake smoke | OpenAI and Toss API keys, Toss secret, token, authorization header, credential input, and accountSeq are not required or used | AppTest verifies the MS-08.04 mock-only panel safe copy and forbidden control absence with no network/OAuth/LLM/env access and no DB write; existing local read-only snapshot flow remains display-only and app code is unchanged |

@@ -228,7 +228,7 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 | MS-08.02 | Mock-only recommendation policy model | src/ai_stock/recommendation/mock_policy_model.py, src/ai_stock/recommendation/\_\_init\_\_.py, tests/test_ai_recommendation_mock_policy_model.py, reports/MS-08.02_mock_only_recommendation_policy_model_report.md, docs/, references/ | Caller-supplied mock/local snapshot summary만 받는 frozen DTO, deterministic pure no-I/O builder/validator, MS-08.01 disclaimer·언어 정책 재사용, incomplete/risk/neutral 분기, 전체 offline regression | 실제 추천·투자 자문·직접 매수/매도/보유 지시·LLM/OpenAI/Toss API·OAuth·credential·accountSeq·DB write·Streamlit·계좌/주문 기능은 금지하며, 다음 단계는 별도 승인 후 MS-08.03 recommendation explanation UI preflight |
 | MS-08.03 | Recommendation explanation UI preflight | src/ai_stock/recommendation/explanation_ui_preflight.py, src/ai_stock/recommendation/\_\_init\_\_.py, tests/test_ai_recommendation_explanation_ui_preflight.py, reports/MS-08.03_recommendation_explanation_ui_preflight_report.md, docs/, references/ | UI contract only=true인 deterministic pure no-I/O display ViewModel preflight. MS-08.02 caller-supplied mock result만 입력으로 받고 safe sections, forbidden sections, disclaimer, diagnostics, sensitive control deny flags를 검증 | 실제 Streamlit UI 연결, app/streamlit_app.py 수정, 실제 추천/투자 자문/buy/sell/hold directive/LLM/OpenAI/Toss API/OAuth/accountSeq/DB write/order/account/assets/balance/fills/실주문 버튼은 금지하며, 다음 단계는 별도 승인 후 MS-08.04 mock-only recommendation panel UI integration |
 | MS-08.04 | Mock-only recommendation panel UI integration | app/streamlit_app.py, tests/test_ai_recommendation_panel_ui_integration.py, docs/19_DETAILED_MICRO_WBS.md, references/endpoint_matrix.md, reports/MS-08.04_mock_only_recommendation_panel_ui_integration_report.md | 기존 read-only Streamlit dashboard 아래에 MS-08.02 mock-only result와 MS-08.03 explanation ViewModel contract를 검증 후 표시한다. 표시 목적은 mock-only, observation-only, not investment advice, no real recommendation, no order/account/live/credential 상태 안내다. | 실제 추천, 투자 자문, buy/sell/hold 지시, live refresh, OAuth, credential/accountSeq 입력, order/account/assets/balance/fills, DB write 및 실주문 버튼은 계속 금지한다. 다음 단계는 별도 승인 후 MS-08.05 recommendation panel AppTest smoke 또는 server smoke |
-| MS-08.05 | Recommendation panel AppTest smoke 또는 server smoke | reports/, tests/ | MS-08.04 panel 표시 결과를 별도 승인 범위 안에서 smoke 검증 | live/API/OAuth/credential/accountSeq/order/DB write는 계속 금지하며 server smoke는 별도 승인 필요 |
+| MS-08.05 | Recommendation panel AppTest smoke | tests/test_ai_recommendation_panel_apptest_smoke.py, docs/19_DETAILED_MICRO_WBS.md, references/endpoint_matrix.md, reports/MS-08.05_recommendation_panel_apptest_smoke_report.md | Streamlit AppTest local render only smoke. MS-08.04 mock-only panel copy, observation-only/not-investment-advice safety text, forbidden UI control absence, no network/OAuth/LLM/env/DB-write guard, and DB file mtime stability are verified without running a server | Streamlit server, HTTP smoke, live smoke, fake smoke, browser, actual API/OAuth/LLM, credential/accountSeq, order/account/assets/balance/fills, DB write, app code change, commit, and push remain forbidden. Next step is separately approved MS-08.06 recommendation panel server smoke |
 
 ### MS-08.04 상세 범위
 
@@ -238,6 +238,15 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 - 산출물: mock-only explanation panel, `tests/test_ai_recommendation_panel_ui_integration.py`, MS-08.04 report, WBS 및 endpoint matrix 기록.
 - 검증: compileall, unittest, pytest, `scripts/dev_check.py`, ruff, `git diff --check`, AppTest 기반 렌더 확인, forbidden control/string 부재 확인.
 - 다음 단계: 별도 사용자 승인 후 MS-08.05 recommendation panel AppTest smoke 또는 MS-08.05 recommendation panel server smoke.
+
+### MS-08.05 상세 범위
+
+- 목적: MS-08.04 mock-only recommendation panel이 Streamlit AppTest 로컬 렌더에서 안전하게 표시되는지 smoke 검증한다.
+- 허용 범위: `tests/test_ai_recommendation_panel_apptest_smoke.py`, WBS, endpoint matrix, MS-08.05 report 작성. AppTest local render only, no-network/no-credential/no-live-api/no-DB-write guard 사용.
+- 금지 범위: `app/streamlit_app.py` 수정, Streamlit server 실행, HTTP smoke, live smoke, fake smoke, browser 실행, 실제 AI 추천, buy/sell/hold 지시, LLM/OpenAI/Toss API/OAuth 호출, credential/accountSeq 입력, 주문/계좌/자산/잔고/체결 기능, 실주문 버튼, DB write, raw DB row/raw API response 출력.
+- 산출물: AppTest smoke 테스트, MS-08.05 report, WBS 및 endpoint matrix 기록.
+- 검증: compileall, unittest, pytest, `scripts/dev_check.py`, ruff, `git diff --check`, `git status`, AppTest smoke 포함, `app/streamlit_app.py` 변경 없음, forbidden control/string 부재, `.env.local` 및 DB/data Git 미추적 확인.
+- 다음 단계: 별도 사용자 승인 후 MS-08.06 recommendation panel server smoke.
 | MS-08.06 | 샘플 데이터/fixture 정리 | tests/fixtures/ | fixture load test | 실제 데이터 포함 금지 확인 |
 | MS-08.07 | 최종 구현 리포트 | reports/implementation/ | 파일 존재 확인 | v0.1 완료 승인 대기 |
 | MS-08.08 | M8 통합 체크 | reports/stage-gates/M8-completion-checklist.md | final checks pass | 최종본 승인 대기 |
