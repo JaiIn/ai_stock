@@ -258,3 +258,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Endpoint scope | Input and model scope | Credential scope | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-08.02 | No endpoint use; no OAuth, Toss API, OpenAI/LLM API, order, account, asset, balance, fill, or accountSeq request | Deterministic pure policy model uses only caller-supplied mock/local snapshot summary flags; it performs no DB read, read-model call, API refresh, or external model call | OpenAI and Toss API keys, Toss secret, token, authorization header, and accountSeq are not required or used | Mock-only non-directive labels and explanation language; no DB write, environment read, Streamlit change, investment advice, direct buy/sell/hold directive, order execution, or real trade |
+
+## MS-08.03 Recommendation Explanation UI Preflight
+
+| Stage | Endpoint scope | Input and UI contract scope | Credential scope | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-08.03 | No endpoint use; no OAuth, Toss API, OpenAI/LLM API, order, account, asset, balance, fill, or accountSeq request | Deterministic pure no-I/O explanation UI contract uses only an already caller-supplied MS-08.02 mock result; it performs no DB read, read-model call, API refresh, mock recommendation recalculation, or Streamlit UI change | OpenAI and Toss API keys, Toss secret, token, authorization header, credential input, and accountSeq are not required or used | Safe sections and forbidden sections are defined for a future panel only; no DB write, environment read, Streamlit app change, investment advice, direct buy/sell/hold directive, order execution, real trade, account data display, raw API response, or raw DB row display |
