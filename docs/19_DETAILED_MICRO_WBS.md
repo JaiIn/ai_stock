@@ -309,3 +309,47 @@ Live API 검증은 기본 WBS에 자동 포함하지 않는다. 사용자가 명
 - 실주문 관련 설정 변경 필요
 - 테스트 실패
 - 스펙 불일치 발견
+
+## MS-09.00: Next Roadmap MS09-MS20 Planning
+
+### Purpose
+
+Document the MS-09 through MS-20 restart roadmap after the MS-08 mock-only recommendation panel checkpoint, so the project can continue toward a local-only MVP with explicit safety, credential, DB-write, and no-real-order boundaries.
+
+### Deliverables
+
+```text
+docs/29_AI_STOCK_NEXT_ROADMAP_MS09_MS20.md
+reports/MS-09.00_next_roadmap_ms09_ms20_report.md
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+```
+
+### Allowed Scope
+
+- Add the MS-09 through MS-20 roadmap document.
+- Record MS-09.00 in the WBS and endpoint matrix.
+- Summarize stage-by-stage credential timing.
+- Summarize stage-by-stage DB write timing.
+- Keep the work documentation-only.
+
+### Forbidden Scope
+
+- No code implementation.
+- No `src/`, `tests/`, `app/streamlit_app.py`, `README.md`, `pyproject.toml`, or read-only dashboard runbook changes.
+- No Streamlit server, HTTP smoke, live smoke, fake smoke, or browser execution.
+- No Toss API, OAuth token endpoint, OpenAI/LLM/API model call, credential request, accountSeq request, DB write, raw DB row output, raw API response output, order/account/assets/balance/fills implementation, or real order button.
+
+### Completion Criteria
+
+- `docs/29_AI_STOCK_NEXT_ROADMAP_MS09_MS20.md` and `reports/MS-09.00_next_roadmap_ms09_ms20_report.md` are present.
+- WBS and endpoint matrix contain natural MS-09.00 entries without helper guide text.
+- Helper source files and insertion guide are excluded from the final changed-file set.
+- Only the two existing project documents and two MS-09.00 documents remain changed.
+- Offline validation commands pass or known warnings are documented.
+
+### Next Step Candidate
+
+```text
+MS-09.01 candidate input contract preflight
+```

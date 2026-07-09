@@ -288,3 +288,10 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Endpoint scope | Runtime scope | Credential scope | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-08.07 | No endpoint use; no OAuth, Toss API, OpenAI/LLM API, order, account, asset, balance, fill, or accountSeq request | Documentation-only final checkpoint for MS-08.01 through MS-08.06; no Streamlit server, HTTP smoke, live smoke, fake smoke, manual browser, AppTest-only addition, or code execution beyond offline validation commands | OpenAI and Toss API keys, Toss secret, token, authorization header, credential input, and accountSeq are not required or used | No DB write, environment file read, raw API response display, raw DB row display, real recommendation, direct buy/sell/hold directive, order execution, real trade, app code change, test code change, or src code change |
+
+
+## MS-09.00 Next Roadmap MS09-MS20 Planning
+
+| Stage | Endpoint scope | Runtime scope | Credential scope | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-09.00 | No endpoint use; no OAuth, Toss API, OpenAI/LLM API, order, account, asset, balance, fill, or accountSeq request | Documentation-only roadmap insertion; no Streamlit server, HTTP smoke, live smoke, fake smoke, manual browser, API refresh, or DB write | OpenAI and Toss API keys, Toss secret, token, authorization header, credential input, and accountSeq are not required or used | Final restart roadmap documentation only; no app, src, tests, README, pyproject, runbook, data, or .env.local change; no raw API response, raw DB row, real recommendation, direct buy/sell/hold directive, order execution, real trade, or real order button |
