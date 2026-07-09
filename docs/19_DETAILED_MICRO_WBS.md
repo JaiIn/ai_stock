@@ -247,7 +247,16 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 - 산출물: AppTest smoke 테스트, MS-08.05 report, WBS 및 endpoint matrix 기록.
 - 검증: compileall, unittest, pytest, `scripts/dev_check.py`, ruff, `git diff --check`, `git status`, AppTest smoke 포함, `app/streamlit_app.py` 변경 없음, forbidden control/string 부재, `.env.local` 및 DB/data Git 미추적 확인.
 - 다음 단계: 별도 사용자 승인 후 MS-08.06 recommendation panel server smoke.
-| MS-08.06 | 샘플 데이터/fixture 정리 | tests/fixtures/ | fixture load test | 실제 데이터 포함 금지 확인 |
+| MS-08.06 | Recommendation panel server smoke | docs/19_DETAILED_MICRO_WBS.md, references/endpoint_matrix.md, reports/MS-08.06_recommendation_panel_server_smoke_report.md | Streamlit local headless server smoke exactly once; localhost root and health endpoint checks; clean shutdown and port listener removal; offline regression checks | External endpoints, live/fake smoke, manual browser, Toss/OAuth/OpenAI/LLM/API calls, credential/accountSeq, order/account/assets/balance/fills, DB write, app code change, commit, and push remain forbidden. Next step is separately approved MS-08.07 recommendation panel final checkpoint |
+
+### MS-08.06 Detail Scope
+
+- Purpose: verify the MS-08.04 mock-only recommendation panel in a local Streamlit server process after MS-08.05 AppTest coverage, focusing on server startup, localhost root/health responses, clean shutdown, and no remaining port listener.
+- Allowed scope: `reports/MS-08.06_recommendation_panel_server_smoke_report.md`, WBS, and endpoint matrix updates. One local headless Streamlit server run bound to localhost, with `http://127.0.0.1:8501/` and `http://127.0.0.1:8501/_stcore/health` checks only.
+- Forbidden scope: `app/streamlit_app.py` changes, external network endpoints, Toss API, OAuth token endpoint, OpenAI/LLM/API calls, live smoke, fake smoke, manual browser execution, credential or accountSeq usage, order/account/assets/balance/fills functionality, real recommendation or buy/sell/hold directive generation, DB write, raw DB row output, raw API response output, commit, and push.
+- Deliverables: MS-08.06 server smoke report, WBS update, and endpoint matrix update.
+- Verification: compileall, unittest, pytest, `scripts/dev_check.py`, ruff, `git diff --check`, `git status`, one Streamlit local server smoke, root 200, health 200/ok, fatal log pattern absence, server shutdown, port 8501 listener removal, `app/streamlit_app.py` unchanged, forbidden path unchanged checks, `.env.local` and DB/data Git untracked checks.
+- Next step: separately approved MS-08.07 recommendation panel final checkpoint.
 | MS-08.07 | 최종 구현 리포트 | reports/implementation/ | 파일 존재 확인 | v0.1 완료 승인 대기 |
 | MS-08.08 | M8 통합 체크 | reports/stage-gates/M8-completion-checklist.md | final checks pass | 최종본 승인 대기 |
 
