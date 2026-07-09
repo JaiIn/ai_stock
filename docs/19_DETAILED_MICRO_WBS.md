@@ -257,7 +257,17 @@ reports/micro-stages/MS-02.03-oauth-token-client.md
 - Deliverables: MS-08.06 server smoke report, WBS update, and endpoint matrix update.
 - Verification: compileall, unittest, pytest, `scripts/dev_check.py`, ruff, `git diff --check`, `git status`, one Streamlit local server smoke, root 200, health 200/ok, fatal log pattern absence, server shutdown, port 8501 listener removal, `app/streamlit_app.py` unchanged, forbidden path unchanged checks, `.env.local` and DB/data Git untracked checks.
 - Next step: separately approved MS-08.07 recommendation panel final checkpoint.
-| MS-08.07 | 최종 구현 리포트 | reports/implementation/ | 파일 존재 확인 | v0.1 완료 승인 대기 |
+
+### MS-08.07 Detail Scope
+
+- Purpose: summarize the completed MS-08.01 through MS-08.06 recommendation panel work, record supported scope, explicitly list unsupported scope, and propose next-stage candidates.
+- Allowed scope: WBS update, endpoint matrix update, and `reports/MS-08.07_recommendation_panel_final_checkpoint_report.md`.
+- Forbidden scope: `app/streamlit_app.py`, `tests/`, `src/`, `README.md`, `docs/28_READONLY_DASHBOARD_RUNBOOK.md`, `pyproject.toml`, `data/`, `.env.local`, Streamlit server execution, HTTP smoke, live smoke, fake smoke, browser execution, AI recommendation generation, buy/sell/hold directive generation, LLM/OpenAI/API calls, Toss API calls, OAuth token endpoint calls, credential/accountSeq use, DB write, raw DB row output, raw API response output, order/account/assets/balance/fills implementation, real order button, commit, and push.
+- Deliverables: MS-08.07 final checkpoint report plus WBS and endpoint matrix entries.
+- Verification: compileall, unittest, pytest, `scripts/dev_check.py`, ruff, `git diff --check`, `git status`, forbidden path unchanged checks, `.env.local` and DB/data Git untracked checks, and Git diff sensitive value scan.
+- MS-08 completion criteria: MS-08.01 safety preflight, MS-08.02 deterministic mock-only policy model, MS-08.03 explanation UI contract, MS-08.04 read-only dashboard panel integration, MS-08.05 AppTest smoke, and MS-08.06 local server smoke records are present and retain the no-advice/no-order/no-credential/no-live-API boundaries.
+- Next step candidates: MS-08.08 M8 integrated completion checklist, recommendation panel copy polish under the same mock-only policy, or a separately approved future stage for any real recommendation/LLM/live API capability.
+| MS-08.07 | Recommendation panel final checkpoint | docs/19_DETAILED_MICRO_WBS.md, references/endpoint_matrix.md, reports/MS-08.07_recommendation_panel_final_checkpoint_report.md | MS-08.01~MS-08.06 산출물 요약, 지원/미지원 범위, 안전 경계, AppTest/server smoke 기록, 민감정보/DB/data 미추적 확인 | 별도 승인 후 커밋 대기 |
 | MS-08.08 | M8 통합 체크 | reports/stage-gates/M8-completion-checklist.md | final checks pass | 최종본 승인 대기 |
 
 ---

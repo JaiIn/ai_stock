@@ -282,3 +282,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Endpoint scope | Runtime scope | Credential scope | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-08.06 | No external endpoint use; only `http://127.0.0.1:8501/` and `http://127.0.0.1:8501/_stcore/health` are allowed for the one local Streamlit server smoke | Streamlit server local headless smoke exactly once; root and health checks only; clean shutdown and port 8501 listener removal required; no manual browser, live smoke, or fake smoke | OpenAI and Toss API keys, Toss secret, token, authorization header, credential input, and accountSeq are not required or used | No OAuth, Toss API, OpenAI/LLM API, order, account, asset, balance, fill, accountSeq request, external API refresh, DB write, environment file read, raw API response display, raw DB row display, real recommendation, direct buy/sell/hold directive, order execution, real trade, or app code change |
+
+## MS-08.07 Recommendation Panel Final Checkpoint
+
+| Stage | Endpoint scope | Runtime scope | Credential scope | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-08.07 | No endpoint use; no OAuth, Toss API, OpenAI/LLM API, order, account, asset, balance, fill, or accountSeq request | Documentation-only final checkpoint for MS-08.01 through MS-08.06; no Streamlit server, HTTP smoke, live smoke, fake smoke, manual browser, AppTest-only addition, or code execution beyond offline validation commands | OpenAI and Toss API keys, Toss secret, token, authorization header, credential input, and accountSeq are not required or used | No DB write, environment file read, raw API response display, raw DB row display, real recommendation, direct buy/sell/hold directive, order execution, real trade, app code change, test code change, or src code change |
