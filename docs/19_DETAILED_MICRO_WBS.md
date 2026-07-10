@@ -493,3 +493,75 @@ reports/MS-09.02_watchlist_data_model_report.md
 ```text
 MS-09.03 manual/local watchlist source
 ```
+
+## MS-09.03: Manual/Local Watchlist Source
+
+### Purpose
+
+Define a pure no-I/O manual/local source adapter that converts only
+caller-supplied symbols or item dictionaries into the MS-09.02 watchlist model
+and validates the result through the existing MS-09.01 candidate input contract.
+
+### Allowed Scope
+
+- Add a pure no-I/O source adapter for caller-supplied manual symbols, manual
+  watchlist items, local static candidates, and test fixture records.
+- Reuse MS-09.01 candidate source/status/forbidden label policies and MS-09.02
+  watchlist item, collection, validation, summary, and candidate conversion
+  policies.
+- Normalize default market, tags, group, reason, enabled state, priority, note,
+  and data availability hints without reading files or databases.
+- Detect forbidden caller-supplied fields and report safe diagnostics without
+  copying forbidden values into output models.
+- Add offline tests, WBS entry, endpoint matrix entry, and MS-09.03 report.
+
+### Forbidden Scope
+
+- No actual recommendation, scoring model, watchlist storage, watchlist file
+  loader, file read, file write, DB read, DB write, UI change, or Streamlit app
+  change.
+- No Streamlit server, HTTP smoke, live smoke, fake smoke, or browser run.
+- No Toss API, OAuth token endpoint, OpenAI/LLM/API model call, credential
+  request, accountSeq request, raw DB row output, raw API response output,
+  order/account/assets/balance/fills implementation, or real order button.
+
+### Deliverables
+
+```text
+src/ai_stock/recommendation/watchlist_source.py
+src/ai_stock/recommendation/__init__.py
+tests/test_ai_recommendation_watchlist_source.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-09.03_manual_local_watchlist_source_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- Source types are limited to caller-supplied manual symbols, manual watchlist
+  item dictionaries, local static candidates, and test fixture records.
+- File path, database table/query, API endpoint, credential, token,
+  Authorization header, accountSeq, raw API response, raw DB row, and real
+  holdings/balance/fills/order inputs are rejected or safely diagnosed.
+- Source result flags remain false for credential, DB read/write, file
+  read/write, Toss API, OpenAI, OAuth, accountSeq, real order, scoring, and UI.
+- Tests confirm deterministic pure no-I/O behavior, forbidden field sanitizing,
+  duplicate handling, disabled item handling, and insufficient-data handling.
+
+### Next Step Candidate
+
+```text
+MS-09.04 watchlist source test fixtures or manual dashboard preflight
+```
