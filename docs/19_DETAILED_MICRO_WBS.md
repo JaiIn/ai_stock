@@ -424,3 +424,72 @@ reports/MS-09.01_candidate_input_contract_preflight_report.md
 ```text
 MS-09.02 watchlist data model
 ```
+
+## MS-09.02: Watchlist Data Model
+
+### Purpose
+
+Define a local/manual watchlist data model on top of the MS-09.01 candidate
+input contract before any watchlist persistence, file loader, UI, DB read/write,
+scoring, recommendation, Toss API, OpenAI/LLM, OAuth, accountSeq, account,
+order, balance, asset, or fill integration is added.
+
+### Allowed Scope
+
+- Add a pure no-I/O watchlist model and validation contract.
+- Reuse MS-09.01 allowed sources, forbidden sources, candidate validation
+  statuses, forbidden label policy, and required false flags.
+- Define watchlist item fields, collection fields, statuses, forbidden fields,
+  duplicate handling, disabled-item handling, insufficient-data handling, and
+  summary flags.
+- Add a pure conversion from watchlist items to MS-09.01 candidate inputs.
+- Add offline tests, WBS entry, endpoint matrix entry, and MS-09.02 report.
+
+### Forbidden Scope
+
+- No actual recommendation, scoring model, watchlist storage, watchlist file
+  loader, DB read, DB write, UI change, or Streamlit app change.
+- No Streamlit server, HTTP smoke, live smoke, fake smoke, or browser run.
+- No Toss API, OAuth token endpoint, OpenAI/LLM/API model call, credential
+  request, accountSeq request, raw DB row output, raw API response output,
+  order/account/assets/balance/fills implementation, or real order button.
+
+### Deliverables
+
+```text
+src/ai_stock/recommendation/watchlist_model.py
+src/ai_stock/recommendation/__init__.py
+tests/test_ai_recommendation_watchlist_model.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-09.02_watchlist_data_model_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- Watchlist item fields exclude real holdings, real balance, fills, order IDs,
+  accountSeq, access token, authorization header, API keys, secrets, scores,
+  buy/sell/hold labels, target price, and expected return.
+- Watchlist collection fields are metadata-only and do not include storage path,
+  file loader, DB table, or schema behavior.
+- Summary flags remain false for credential, DB read/write, file read/write,
+  Toss API, OpenAI, OAuth, accountSeq, real order, scoring, and UI.
+- Tests confirm deterministic pure no-I/O behavior and MS-09.01 contract reuse.
+
+### Next Step Candidate
+
+```text
+MS-09.03 manual/local watchlist source
+```
