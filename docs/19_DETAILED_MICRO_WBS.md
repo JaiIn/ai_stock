@@ -565,3 +565,78 @@ reports/MS-09.03_manual_local_watchlist_source_report.md
 ```text
 MS-09.04 watchlist source test fixtures or manual dashboard preflight
 ```
+
+## MS-09.04: Watchlist Source Test Fixtures
+
+### Purpose
+
+Define deterministic pure no-I/O watchlist source fixtures on top of the
+MS-09.01 candidate input contract, MS-09.02 watchlist data model, and MS-09.03
+manual/local source adapter. These fixtures are reusable by tests, future
+documentation, and future dashboard preflight work without adding UI, storage,
+file loading, DB access, scoring, recommendation, Toss API, OpenAI/LLM, OAuth,
+accountSeq, account, order, balance, asset, or fill behavior.
+
+### Allowed Scope
+
+- Add in-memory fixture scenario records for basic manual symbols, mixed valid
+  and invalid symbols, duplicates and disabled items, insufficient-data review,
+  forbidden-field sanitization, and empty watchlists.
+- Reuse the MS-09.03 source adapter to build actual watchlist source results.
+- Define expected-vs-actual fixture evaluation that compares watchlist status,
+  candidate statuses, required false flags, diagnostics, and rejection reasons.
+- Keep fixture/evaluation outputs deterministic, immutable-friendly, and
+  side-effect free.
+- Add offline tests, WBS entry, endpoint matrix entry, and MS-09.04 report.
+
+### Forbidden Scope
+
+- No actual recommendation, scoring model, watchlist storage, fixture file
+  loader, watchlist file loader, file read, file write, DB read, DB write, UI
+  change, or Streamlit app change.
+- No Streamlit server, HTTP smoke, live smoke, fake smoke, or browser run.
+- No Toss API, OAuth token endpoint, OpenAI/LLM/API model call, credential
+  request, accountSeq request, raw DB row output, raw API response output,
+  order/account/assets/balance/fills implementation, or real order button.
+
+### Deliverables
+
+```text
+src/ai_stock/recommendation/watchlist_fixtures.py
+src/ai_stock/recommendation/__init__.py
+tests/test_ai_recommendation_watchlist_fixtures.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-09.04_watchlist_source_test_fixtures_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- All allowed fixture scenarios are generated deterministically.
+- Fixture records contain scenario, description, source config, expected
+  watchlist status, expected candidate statuses, expected summary flags,
+  expected rejection keywords, and expected diagnostics keywords.
+- Evaluation results compare expected vs actual adapter output and keep all
+  required flags false.
+- Forbidden fields are diagnosed without copying forbidden values into output
+  models.
+- Forbidden labels are not generated as action labels, recommendation results,
+  scoring output, or execution directives.
+
+### Next Step Candidate
+
+```text
+MS-09.05 manual dashboard preflight
+```
