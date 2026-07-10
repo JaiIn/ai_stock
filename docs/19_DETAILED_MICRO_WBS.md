@@ -640,3 +640,83 @@ reports/MS-09.04_watchlist_source_test_fixtures_report.md
 ```text
 MS-09.05 manual dashboard preflight
 ```
+
+## MS-09.05: Manual Dashboard Preflight
+
+### Purpose
+
+Define a pure no-I/O dashboard preflight view model contract on top of the
+MS-09.01 candidate input contract, MS-09.02 watchlist data model, MS-09.03
+manual/local source adapter, and MS-09.04 test fixtures. This stage prepares
+dashboard display fields, safety badges, warnings, diagnostics, and safe empty
+states before any Streamlit UI integration or dashboard selector work.
+
+### Allowed Scope
+
+- Add an immutable-friendly dashboard preflight policy, row model, view model,
+  validation result, and builder functions.
+- Convert in-memory MS-09.03 source results and MS-09.04 fixtures into
+  dashboard-ready preflight models without rendering UI.
+- Define safety badges, forbidden badge/action policy, row sanitization,
+  duplicate display policy, disabled display policy, insufficient-data display
+  policy, empty-watchlist display policy, and required false flags.
+- Reuse existing candidate, watchlist, source, fixture, forbidden field,
+  forbidden label, and no-I/O policies.
+- Add offline tests, WBS entry, endpoint matrix entry, and MS-09.05 report.
+
+### Forbidden Scope
+
+- No actual recommendation, scoring model, watchlist storage, file loader,
+  file read, file write, DB read, DB write, UI integration, Streamlit component,
+  Streamlit app change, dashboard selector, or `app/streamlit_app.py` change.
+- No Streamlit server, HTTP smoke, live smoke, fake smoke, or browser run.
+- No Toss API, OAuth token endpoint, OpenAI/LLM/API model call, credential
+  request, accountSeq request, raw DB row output, raw API response output,
+  order/account/assets/balance/fills implementation, or real order button.
+
+### Deliverables
+
+```text
+src/ai_stock/recommendation/dashboard_preflight.py
+src/ai_stock/recommendation/__init__.py
+tests/test_ai_recommendation_dashboard_preflight.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-09.05_manual_dashboard_preflight_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- Dashboard view model fields include display metadata, counts, rows, warnings,
+  diagnostics, safety badges, and next-action hints only.
+- Dashboard rows exclude account, order, balance, holdings, fills, token,
+  authorization, API key, secret, score, target price, expected return, and
+  buy/sell/hold action fields.
+- Safety badges remain non-directive and include observation-only, manual/mock
+  input only, no real order, no account access, no live API, no LLM, no DB
+  write, needs review, and insufficient data states only.
+- Required flags remain false for credential, DB read/write, file read/write,
+  Toss API, OpenAI, OAuth, accountSeq, real order, scoring, UI, Streamlit, and
+  HTTP smoke.
+- Tests confirm deterministic pure no-I/O behavior, fixture-based preflight
+  generation, forbidden field sanitization, forbidden label/action prevention,
+  and safe display policy for duplicate, disabled, insufficient-data, and empty
+  watchlist states.
+
+### Next Step Candidate
+
+```text
+MS-09.06 manual dashboard UI integration
+```
