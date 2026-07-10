@@ -353,3 +353,74 @@ references/endpoint_matrix.md
 ```text
 MS-09.01 candidate input contract preflight
 ```
+
+## MS-09.01: Candidate Input Contract Preflight
+
+### Purpose
+
+Define the safe candidate input contract before any recommendation, scoring,
+watchlist persistence, UI integration, Toss API, OpenAI/LLM, OAuth, accountSeq,
+account, order, balance, asset, fill, or DB read/write functionality is added.
+
+### Allowed Scope
+
+- Add a pure no-I/O candidate input preflight module.
+- Define allowed candidate sources such as dashboard selector, local snapshot
+  summary, manual watchlist, future watchlist file, and test fixture.
+- Define forbidden candidate sources such as real account holdings, account
+  balance, order history, fills, live API refresh, OAuth/account scope,
+  accountSeq-based source, raw API response, raw DB rows, and credential-based
+  source.
+- Define candidate item fields, safe validation statuses, duplicate handling
+  policy, insufficient-data policy, and preflight summary flags.
+- Add offline tests, WBS entry, endpoint matrix entry, and MS-09.01 report.
+
+### Forbidden Scope
+
+- No actual recommendation, scoring model, watchlist storage, UI change, or
+  Streamlit app change.
+- No Streamlit server, HTTP smoke, live smoke, fake smoke, or browser run.
+- No Toss API, OAuth token endpoint, OpenAI/LLM/API model call, credential
+  request, accountSeq request, DB read, DB write, raw DB row output, raw API
+  response output, order/account/assets/balance/fills implementation, or real
+  order button.
+
+### Deliverables
+
+```text
+src/ai_stock/recommendation/candidate_input_preflight.py
+src/ai_stock/recommendation/__init__.py
+tests/test_ai_recommendation_candidate_input_preflight.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-09.01_candidate_input_contract_preflight_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- Allowed and forbidden candidate sources are explicitly defined.
+- Candidate item fields exclude price, real holdings, real balance, fills,
+  recommendation score, and buy/sell/hold labels.
+- Safe statuses include valid, insufficient data, unsupported source, invalid
+  symbol, disabled, duplicate, and needs-review states.
+- Preflight summary required flags remain false for credential, DB read/write,
+  Toss API, OpenAI, OAuth, accountSeq, and real order.
+- Tests confirm deterministic pure no-I/O behavior and no forbidden labels.
+
+### Next Step Candidate
+
+```text
+MS-09.02 watchlist data model
+```

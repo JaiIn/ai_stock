@@ -295,3 +295,9 @@ read-only/account-free 정책을 유지하며 다음 live 후보는 별도 승�
 | Stage | Endpoint scope | Runtime scope | Credential scope | Safety note |
 | --- | --- | --- | --- | --- |
 | MS-09.00 | No endpoint use; no OAuth, Toss API, OpenAI/LLM API, order, account, asset, balance, fill, or accountSeq request | Documentation-only roadmap insertion; no Streamlit server, HTTP smoke, live smoke, fake smoke, manual browser, API refresh, or DB write | OpenAI and Toss API keys, Toss secret, token, authorization header, credential input, and accountSeq are not required or used | Final restart roadmap documentation only; no app, src, tests, README, pyproject, runbook, data, or .env.local change; no raw API response, raw DB row, real recommendation, direct buy/sell/hold directive, order execution, real trade, or real order button |
+
+## MS-09.01 Candidate Input Contract Preflight
+
+| Stage | Endpoint scope | Runtime and data scope | Credential scope | Safety note |
+| --- | --- | --- | --- | --- |
+| MS-09.01 | No endpoint use; no OAuth, Toss API, OpenAI/LLM API, order, account, asset, balance, fill, or accountSeq request | Pure no-I/O candidate input contract only; no DB read, DB write, Streamlit server, HTTP smoke, live smoke, fake smoke, browser, UI change, scoring, watchlist storage, or actual recommendation generation | OpenAI and Toss API keys, Toss secret, token, authorization header, credential input, and accountSeq are not required or used | Allowed sources are dashboard selector, local snapshot summary, manual watchlist, future watchlist file, and test fixture; forbidden sources include real account holdings/balance, order history, fills, live API refresh, OAuth/account scope, accountSeq source, raw API response, raw DB rows, and credential-based source |
