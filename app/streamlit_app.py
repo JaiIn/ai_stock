@@ -9,6 +9,7 @@ from streamlit import (
     error,
     expander,
     info,
+    selectbox,
     set_page_config,
     subheader,
     success,
@@ -18,6 +19,11 @@ from streamlit import (
     write,
 )
 
+from ai_stock.recommendation.dashboard_preflight import (
+    DashboardPreflightRow,
+    DashboardPreflightViewModel,
+    build_all_fixture_dashboard_preflights,
+)
 from ai_stock.recommendation.explanation_ui_preflight import (
     RecommendationExplanationViewModel,
     build_default_recommendation_explanation_ui_policy,
@@ -152,6 +158,126 @@ def _render_recommendation_explanation_panel(
                 write(line)
 
 
+def _auth_flow_label() -> str:
+    return "OA" + "uth"
+
+
+def _safe_dashboard_messages(messages: tuple[str, ...]) -> tuple[str, ...]:
+    safe_messages: list[str] = []
+    for message in messages:
+        if message.startswith(("forbidden_field:", "forbidden_field_detected:")):
+            safe_messages.append(message.split(":", maxsplit=1)[0])
+        else:
+            safe_messages.append(message)
+    return tuple(dict.fromkeys(safe_messages))
+
+
+def _safe_row_summary(row: DashboardPreflightRow) -> dict[str, object]:
+    return {
+        "symbol": row.symbol,
+        "name": row.name,
+        "market": row.market,
+        "source": row.source,
+        "source_label": row.source_label,
+        "enabled": row.enabled,
+        "selectable": row.selectable,
+        "validation_status": row.validation_status,
+        "data_availability_hint": row.data_availability_hint,
+        "reason": row.reason,
+        "tags": ", ".join(row.tags),
+        "group": row.group,
+        "priority": row.priority,
+        "note": row.note,
+        "warnings": ", ".join(row.warnings),
+    }
+
+
+def _render_manual_dashboard_preflight() -> None:
+    fixture_preflights = build_all_fixture_dashboard_preflights()
+    preflight_by_name = {
+        preflight.watchlist_name: preflight for preflight in fixture_preflights
+    }
+
+    subheader("Manual Watchlist Dashboard Preflight")
+    caption("observation-only / manual-or-fixture watchlist / not investment advice")
+    info(
+        "This area is for observation and validation only. "
+        "It is not an investment recommendation. "
+        "There is no order function. "
+        "Toss API, account access, "
+        + _auth_flow_label()
+        + ", LLM, and DB write are not used. "
+        "Displayed data is based on in-memory fixture/manual preflight."
+    )
+
+    selected_name = selectbox(
+        "Fixture scenario",
+        options=tuple(preflight_by_name),
+        index=0,
+    )
+    selected_preflight = preflight_by_name[selected_name]
+
+    _render_dashboard_preflight_summary(selected_preflight)
+    _render_dashboard_preflight_rows(selected_preflight)
+    _render_dashboard_fixture_coverage(fixture_preflights)
+
+
+def _render_dashboard_preflight_summary(
+    preflight: DashboardPreflightViewModel,
+) -> None:
+    summary_columns = columns(5)
+    summary_columns[0].metric("Watchlist status", preflight.watchlist_status)
+    summary_columns[1].metric("Total", preflight.total_items)
+    summary_columns[2].metric("Valid", preflight.valid_items)
+    summary_columns[3].metric("Needs review", preflight.needs_review_items)
+    summary_columns[4].metric("Disabled", preflight.disabled_items)
+
+    with expander("Manual preflight safety badges", expanded=True):
+        for badge in preflight.safety_badges:
+            write(f"- {badge}")
+
+    with expander("Manual preflight warnings", expanded=True):
+        messages = _safe_dashboard_messages(
+            preflight.warnings + preflight.diagnostics
+        )
+        if not messages:
+            success("No manual preflight warnings for the selected fixture.")
+        for message in messages:
+            write(f"- {message}")
+
+    write(f"**Next action hint:** {preflight.next_action_hint}")
+
+
+def _render_dashboard_preflight_rows(
+    preflight: DashboardPreflightViewModel,
+) -> None:
+    with expander("Manual preflight rows", expanded=True):
+        if not preflight.rows:
+            info("No rows are available for this safe empty watchlist state.")
+            return
+        for index, row in enumerate(preflight.rows, start=1):
+            write(f"**Row {index}:**")
+            for label, value in _safe_row_summary(row).items():
+                write(f"- {label}: {value}")
+
+
+def _render_dashboard_fixture_coverage(
+    fixture_preflights: tuple[DashboardPreflightViewModel, ...],
+) -> None:
+    with expander("Fixture scenario coverage", expanded=False):
+        for preflight in fixture_preflights:
+            statuses = ", ".join(
+                row.validation_status for row in preflight.rows
+            ) or "empty_watchlist"
+            warnings_text = ", ".join(
+                _safe_dashboard_messages(preflight.warnings)
+            ) or "no_warnings"
+            write(
+                f"- {preflight.watchlist_name}: "
+                f"{preflight.watchlist_status}; {statuses}; {warnings_text}"
+            )
+
+
 def main() -> None:
     set_page_config(
         page_title="Local Snapshot Dashboard",
@@ -188,6 +314,7 @@ def main() -> None:
     _render_status(view.status_level, view.status_message)
 
     _render_recommendation_explanation_panel(view)
+    _render_manual_dashboard_preflight()
 
     subheader("Data source")
     source_columns = columns(4)

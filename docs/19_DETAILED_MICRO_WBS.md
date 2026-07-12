@@ -720,3 +720,77 @@ reports/MS-09.05_manual_dashboard_preflight_report.md
 ```text
 MS-09.06 manual dashboard UI integration
 ```
+
+## MS-09.06: Manual Dashboard UI Integration
+
+### Purpose
+
+Render the MS-09.05 dashboard preflight view model inside the existing
+Streamlit dashboard as an observation-only manual/watchlist preflight section.
+This stage displays in-memory MS-09.04 fixture-based preflight output without
+adding real recommendation, scoring, persistence, file loading, DB read/write,
+Toss API, OpenAI/LLM, OAuth, accountSeq, account, order, balance, asset, or
+fill behavior.
+
+### Allowed Scope
+
+- Add a Streamlit display section for manual/watchlist dashboard preflight.
+- Use the existing MS-09.05 fixture dashboard preflight builder.
+- Display safe section copy, fixture scenario selection, counts, safety badges,
+  warnings, diagnostics, and sanitized row fields.
+- Add AppTest-only UI integration coverage.
+- Add WBS entry, endpoint matrix entry, and MS-09.06 report.
+
+### Forbidden Scope
+
+- No actual recommendation, scoring model, buy/sell/hold judgment, watchlist
+  storage, watchlist file loader, fixture file loader, file read, file write,
+  DB write, Toss API call, OAuth token endpoint call, OpenAI/LLM/API model
+  call, credential request, accountSeq request, raw DB row output, raw API
+  response output, order/account/assets/balance/fills implementation, or real
+  order button.
+- No Streamlit server, HTTP smoke, live smoke, fake smoke, manual browser, API
+  refresh, OAuth login button, credential input, accountSeq input, file upload,
+  file path input, DB refresh button, or real order control.
+
+### Deliverables
+
+```text
+app/streamlit_app.py
+tests/test_ai_recommendation_manual_dashboard_ui_integration.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-09.06_manual_dashboard_ui_integration_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- Existing MS-08 mock-only recommendation panel remains intact.
+- Manual dashboard preflight section renders observation-only copy and safe
+  fixture/manual watchlist data.
+- Safety badges include observation-only, manual/mock input only, no real
+  order, no account access, no live API, no LLM, and no DB write.
+- Displayed rows include only allowed preflight fields and exclude account,
+  order, balance, holdings, fills, token, authorization, API key, secret,
+  score, target price, expected return, and buy/sell/hold action fields.
+- AppTest confirms safe render, fixture scenario selection or default fixture
+  display, duplicate/disabled/insufficient/empty states, forbidden control
+  absence, and no local DB file modification.
+
+### Next Step Candidate
+
+```text
+MS-09.07 manual dashboard AppTest smoke hardening or MS-09.07 recommendation list UI preflight
+```
