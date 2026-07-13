@@ -794,3 +794,79 @@ reports/MS-09.06_manual_dashboard_ui_integration_report.md
 ```text
 MS-09.07 manual dashboard AppTest smoke hardening or MS-09.07 recommendation list UI preflight
 ```
+
+## MS-09.07: Manual Dashboard AppTest Hardening
+
+### Purpose
+
+Harden the MS-09.06 observation-only manual/watchlist preflight UI with
+additional Streamlit AppTest coverage. This is a checkpoint stage that fixes
+UI safety policy expectations and fixture scenario coverage without adding new
+dashboard functionality.
+
+### Allowed Scope
+
+- Add AppTest hardening coverage for the existing Manual Watchlist Dashboard
+  Preflight section.
+- Verify observation-only copy, fixture scenario selectbox behavior, fixture
+  coverage expander output, summary metrics, safety badges, warnings,
+  diagnostics, rows, and safe empty states.
+- Verify forbidden button/action/input absence and forbidden field
+  sanitization in rendered output.
+- Confirm local DB file metadata is unchanged by AppTest render.
+- Add WBS entry, endpoint matrix entry, and MS-09.07 report.
+- Keep `app/streamlit_app.py` unchanged unless label stability requires a
+  minimal copy-only adjustment.
+
+### Forbidden Scope
+
+- No actual recommendation, scoring model, buy/sell/hold judgment, watchlist
+  storage, watchlist file loader, fixture file loader, file read, file write,
+  new DB read/write implementation, Toss API call, OAuth token endpoint call,
+  OpenAI/LLM/API model call, credential request, accountSeq request, raw DB row
+  output, raw API response output, order/account/assets/balance/fills
+  implementation, real order button, API refresh button, OAuth login button,
+  credential input, accountSeq input, Streamlit server, HTTP smoke, live smoke,
+  fake smoke, or manual browser run.
+
+### Deliverables
+
+```text
+tests/test_ai_recommendation_manual_dashboard_apptest_hardening.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-09.07_manual_dashboard_apptest_hardening_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- AppTest renders the Manual Watchlist Dashboard Preflight section without
+  Streamlit server, HTTP smoke, browser, Toss API, OAuth, OpenAI/LLM, or
+  credential access.
+- Scenario selectbox covers basic, mixed invalid, duplicate/disabled,
+  insufficient-data, forbidden-field sanitized, and empty watchlist fixtures.
+- Fixture coverage expander lists every fixture scenario and safe status.
+- Safety badges and observation-only/no-order/no-account/no-live-api/no-LLM
+  copy remain visible.
+- Forbidden fields remain sanitized from row output.
+- Forbidden buttons, actions, file upload/path, credential, API refresh, OAuth
+  login, accountSeq, raw API response, and raw DB row controls remain absent.
+- DB file metadata remains unchanged by AppTest render.
+
+### Next Step Candidate
+
+```text
+MS-10.00 feature/data quality model preflight
+```
