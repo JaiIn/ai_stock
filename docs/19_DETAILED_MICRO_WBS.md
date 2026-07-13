@@ -947,3 +947,79 @@ reports/MS-10.00_feature_data_quality_model_preflight_report.md
 ```text
 MS-10.01 feature quality fixture expansion or MS-10.01 deterministic feature extraction preflight
 ```
+
+## MS-10.01: Feature Quality Fixture Expansion
+
+### Purpose
+
+Expand deterministic feature quality fixture scenarios on top of the MS-10.00
+feature/data quality model contract. This stage fixes expected-vs-actual
+quality behavior for data quality, review, and usability cases only; it does
+not score, rank, recommend, or produce buy/sell/hold actions.
+
+### Allowed Scope
+
+- Add `src/ai_stock/recommendation/feature_quality_fixtures.py`.
+- Reuse MS-10.00 feature quality policy, assessment builders, validators,
+  allowed quality statuses, forbidden action/status policy, and required false
+  flags.
+- Reuse MS-09.04 in-memory watchlist fixtures and MS-09.05 dashboard preflight
+  outputs through the MS-10.00 quality builders.
+- Define expanded fixture records, all-fixture matrix coverage, evaluator
+  results, and expected-vs-actual checks.
+- Add offline unit tests, WBS entry, endpoint matrix entry, and MS-10.01 report.
+
+### Forbidden Scope
+
+- No actual recommendation, scoring model, ranking model, buy/sell/hold
+  judgment, target price, expected return, profit probability, watchlist
+  storage, watchlist file loader, feature file loader, fixture file loader,
+  file read/write, DB read/write, Toss API call, OAuth token endpoint call,
+  OpenAI/LLM/API model call, credential request, accountSeq request, raw DB row
+  output, raw API response output, order/account/assets/balance/fills
+  implementation, UI integration, `app/streamlit_app.py` change, Streamlit
+  server, HTTP smoke, live/fake smoke, or manual browser run.
+
+### Deliverables
+
+```text
+src/ai_stock/recommendation/feature_quality_fixtures.py
+src/ai_stock/recommendation/__init__.py
+tests/test_ai_recommendation_feature_quality_fixtures.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-10.01_feature_quality_fixture_expansion_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- Expanded quality fixtures cover basic OK, mixed invalid/review, duplicate,
+  disabled, insufficient-data, forbidden-field sanitized, empty input, and the
+  all-fixture matrix.
+- Evaluators compare expected quality statuses, review counts, future-scoring
+  usability counts, blocked reason keywords, warnings, diagnostics, required
+  false flags, and forbidden keyword absence.
+- Duplicate, disabled, insufficient-data, invalid, forbidden-field sanitized,
+  and empty input cases remain conservative review/block states.
+- Forbidden fields are diagnostic-only and are not copied as output fields or
+  raw values.
+- All required flags remain false and no UI, API, DB, file loader, scoring,
+  ranking, or recommendation path is introduced.
+
+### Next Step Candidate
+
+```text
+MS-10.02 deterministic feature extraction preflight
+```
