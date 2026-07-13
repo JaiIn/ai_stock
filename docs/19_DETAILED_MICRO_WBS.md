@@ -870,3 +870,80 @@ reports/MS-09.07_manual_dashboard_apptest_hardening_report.md
 ```text
 MS-10.00 feature/data quality model preflight
 ```
+
+## MS-10.00: Feature/Data Quality Model Preflight
+
+### Purpose
+
+Define a pure no-I/O feature/data quality contract on top of the MS-09
+candidate, watchlist, manual/local source, fixture, and dashboard preflight
+contracts. This stage expresses whether candidate data is usable, incomplete,
+or requires review. It does not score, rank, recommend, or produce
+buy/sell/hold actions.
+
+### Allowed Scope
+
+- Add `src/ai_stock/recommendation/feature_quality.py`.
+- Reuse MS-09 candidate input, watchlist model, manual/local source, fixture,
+  and dashboard preflight contracts.
+- Define feature quality policy, feature records, feature quality assessments,
+  allowed quality statuses, forbidden action/status policy, summary flags, and
+  validation.
+- Build feature quality assessments from dashboard rows, dashboard preflights,
+  and all six in-memory watchlist fixtures.
+- Add offline unit tests, WBS entry, endpoint matrix entry, and MS-10.00 report.
+
+### Forbidden Scope
+
+- No actual recommendation, scoring model, ranking model, buy/sell/hold
+  judgment, target price, expected return, profit probability, watchlist
+  storage, watchlist file loader, feature file loader, file read/write, DB
+  read/write, Toss API call, OAuth token endpoint call, OpenAI/LLM/API model
+  call, credential request, accountSeq request, raw DB row output, raw API
+  response output, order/account/assets/balance/fills implementation, UI
+  integration, `app/streamlit_app.py` change, Streamlit server, HTTP smoke,
+  live/fake smoke, or manual browser run.
+
+### Deliverables
+
+```text
+src/ai_stock/recommendation/feature_quality.py
+src/ai_stock/recommendation/__init__.py
+tests/test_ai_recommendation_feature_quality.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-10.00_feature_data_quality_model_preflight_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- Feature quality policy documents allowed feature names, forbidden feature
+  names, allowed quality statuses, forbidden action/status labels, and all
+  required false flags.
+- Feature records and assessments contain no score, rank, recommendation,
+  action, target price, expected return, profit probability, account, order,
+  credential, token, or accountSeq fields.
+- Valid, duplicate, disabled, insufficient-data, forbidden-field sanitized,
+  invalid, and empty fixture states map to conservative quality statuses.
+- All six MS-09.04 in-memory fixture scenarios generate deterministic feature
+  quality assessments through MS-09.05 dashboard preflight builders.
+- All required flags remain false and no UI, API, DB, file loader, scoring,
+  ranking, or recommendation path is introduced.
+
+### Next Step Candidate
+
+```text
+MS-10.01 feature quality fixture expansion or MS-10.01 deterministic feature extraction preflight
+```
