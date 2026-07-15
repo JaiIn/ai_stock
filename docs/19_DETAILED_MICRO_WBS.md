@@ -1275,3 +1275,86 @@ reports/MS-11.00_deterministic_scoring_model_preflight_report.md
 ```text
 MS-11.01 scoring fixture expansion
 ```
+
+## MS-11.01: Scoring Fixture Expansion
+
+### Purpose
+
+Add a pure no-I/O scoring fixture/evaluator layer on top of the MS-11.00
+deterministic scoring preflight contract. This stage fixes expected scoring
+preflight statuses, score bounds, component names, required false flags, and
+forbidden-output absence across representative fixture scenarios. The
+`total_score` remains a data-quality and extraction-readiness preflight score
+only, not investment attractiveness.
+
+### Allowed Scope
+
+- Add `src/ai_stock/recommendation/scoring_fixtures.py`.
+- Reuse MS-11.00 scoring preflight policy, input/result builders,
+  component builders, validators, summaries, allowed statuses, forbidden
+  source/output policies, and required false flags.
+- Reuse MS-10.03 feature extraction fixtures/evaluators and the MS-10.02
+  extraction contract chain.
+- Reuse MS-10.00/MS-10.01 feature quality contracts indirectly through the
+  extraction and scoring contract chain.
+- Define scoring fixture policy, fixture records, evaluator result records,
+  fixture builders, all-fixture matrix evaluation, and offline unit tests.
+- Add endpoint matrix and MS-11.01 report entries.
+
+### Forbidden Scope
+
+- No actual recommendation, ranking model, ranking list, buy/sell/hold
+  judgment, target price, expected return, profit probability, API/DB/file
+  feature lookup, watchlist storage, watchlist file loader, feature file
+  loader, fixture file loader, file read/write, DB read/write, Toss API call,
+  OAuth token endpoint call, OpenAI/LLM/API model call, credential request,
+  accountSeq request, raw DB row output, raw API response output,
+  order/account/assets/balance/fills implementation, UI integration,
+  `app/streamlit_app.py` change, Streamlit server, HTTP smoke, live/fake
+  smoke, or manual browser run.
+
+### Deliverables
+
+```text
+src/ai_stock/recommendation/scoring_fixtures.py
+src/ai_stock/recommendation/__init__.py
+tests/test_ai_recommendation_scoring_fixtures.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-11.01_scoring_fixture_expansion_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- Scoring fixtures cover basic ready, mixed review, duplicate blocked,
+  disabled blocked, missing data blocked, forbidden-field sanitized, empty
+  input, and all-fixture matrix scenarios.
+- Evaluators compare expected scoring statuses, ready counts, review counts,
+  future-ranking usability counts, total-score bounds, component names,
+  blocked reason keywords, warnings, diagnostics, required false flags, and
+  forbidden keyword absence.
+- Duplicate, disabled, missing-data, invalid, forbidden-field sanitized, and
+  empty-input cases remain conservative review/block score states.
+- `total_score` is deterministic, bounded by `score_scale`, and is not used as
+  recommendation, ranking, action, buy/sell/hold, target price, expected
+  return, or profit probability output.
+- All required flags remain false and no UI, API, DB, file loader, ranking,
+  recommendation, or trade directive path is introduced.
+
+### Next Step Candidate
+
+```text
+MS-11.02 scoring fixture hardening or MS-12.00 recommendation list UI preflight
+```
