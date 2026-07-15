@@ -1107,3 +1107,84 @@ reports/MS-10.02_deterministic_feature_extraction_preflight_report.md
 ```text
 MS-10.03 feature extraction fixture hardening or MS-11.00 deterministic scoring model preflight
 ```
+
+## MS-10.03: Feature Extraction Fixture Hardening
+
+### Purpose
+
+Add a pure no-I/O fixture/evaluator hardening layer for the MS-10.02
+deterministic feature extraction preflight contract. This stage expands and
+locks extraction result verification cases; it does not fetch features, score,
+rank, recommend, or produce buy/sell/hold actions.
+
+### Allowed Scope
+
+- Add `src/ai_stock/recommendation/feature_extraction_fixtures.py`.
+- Reuse MS-10.02 extraction policy, extraction builders, validators, summary
+  counts, allowed extraction statuses, forbidden source/output policy, and
+  required false flags.
+- Reuse MS-10.01 feature quality fixture/evaluator coverage.
+- Reuse MS-10.00 feature quality contract and MS-09.04/MS-09.05 in-memory
+  fixture/dashboard preflight paths through existing builders.
+- Define extraction fixture records, hardening scenarios, forbidden fixture
+  scenarios, expected-vs-actual evaluator results, all-fixture matrix checks,
+  and forbidden output sanitization checks.
+- Add offline unit tests, WBS entry, endpoint matrix entry, and MS-10.03
+  report.
+
+### Forbidden Scope
+
+- No actual recommendation, scoring model, ranking model, buy/sell/hold
+  judgment, target price, expected return, profit probability, API/DB/file
+  feature lookup, watchlist storage, watchlist file loader, feature file
+  loader, fixture file loader, file read/write, DB read/write, Toss API call,
+  OAuth token endpoint call, OpenAI/LLM/API model call, credential request,
+  accountSeq request, raw DB row output, raw API response output,
+  order/account/assets/balance/fills implementation, UI integration,
+  `app/streamlit_app.py` change, Streamlit server, HTTP smoke, live/fake
+  smoke, or manual browser run.
+
+### Deliverables
+
+```text
+src/ai_stock/recommendation/feature_extraction_fixtures.py
+src/ai_stock/recommendation/__init__.py
+tests/test_ai_recommendation_feature_extraction_fixtures.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-10.03_feature_extraction_fixture_hardening_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- Extraction fixtures cover basic ready, mixed review, duplicate blocked,
+  disabled blocked, missing data blocked, forbidden-field sanitized, empty
+  input, and all-fixture matrix scenarios.
+- Evaluators compare expected extraction statuses, ready counts, review
+  counts, future-scoring usability counts, missing/blocked feature keywords,
+  blocked reason keywords, warnings, diagnostics, required false flags, and
+  forbidden keyword absence.
+- Duplicate, disabled, insufficient-data, invalid, forbidden-field sanitized,
+  and empty-input cases remain conservative review/block extraction states.
+- Forbidden fields are diagnostics-only and are not copied as output fields or
+  raw values.
+- All required flags remain false and no UI, API, DB, file loader, scoring,
+  ranking, or recommendation path is introduced.
+
+### Next Step Candidate
+
+```text
+MS-11.00 deterministic scoring model preflight
+```
