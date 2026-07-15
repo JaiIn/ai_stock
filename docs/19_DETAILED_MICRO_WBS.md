@@ -1188,3 +1188,90 @@ reports/MS-10.03_feature_extraction_fixture_hardening_report.md
 ```text
 MS-11.00 deterministic scoring model preflight
 ```
+
+## MS-11.00: Deterministic Scoring Model Preflight
+
+### Purpose
+
+Define a pure no-I/O deterministic scoring preflight contract on top of the
+MS-10.02 extracted feature set contract and MS-10.03 fixture/evaluator
+hardening. This stage creates only a data-quality scoring policy, input model,
+component model, result model, validators, and summaries for future scoring
+shape checks. It does not rank, recommend, produce buy/sell/hold actions, or
+interpret scores as investment attractiveness.
+
+### Allowed Scope
+
+- Add `src/ai_stock/recommendation/scoring_preflight.py`.
+- Reuse MS-10.02 feature extraction policy, extraction builders, validators,
+  summaries, allowed extraction statuses, forbidden source/output policy, and
+  required false flags.
+- Reuse MS-10.03 feature extraction fixtures and evaluators.
+- Reuse MS-10.00/MS-10.01 feature quality contracts indirectly through the
+  extraction contract chain.
+- Define scoring preflight policy, scoring input records, score components,
+  scoring preflight result records, allowed scoring statuses, forbidden scoring
+  sources, forbidden output fields, validation, fixture scoring builders, and
+  summary counts.
+- Add offline unit tests, WBS entry, endpoint matrix entry, and MS-11.00
+  report.
+
+### Forbidden Scope
+
+- No actual recommendation, ranking model, ranking list, buy/sell/hold
+  judgment, target price, expected return, profit probability, API/DB/file
+  feature lookup, watchlist storage, watchlist file loader, feature file
+  loader, fixture file loader, file read/write, DB read/write, Toss API call,
+  OAuth token endpoint call, OpenAI/LLM/API model call, credential request,
+  accountSeq request, raw DB row output, raw API response output,
+  order/account/assets/balance/fills implementation, UI integration,
+  `app/streamlit_app.py` change, Streamlit server, HTTP smoke, live/fake
+  smoke, or manual browser run.
+
+### Deliverables
+
+```text
+src/ai_stock/recommendation/scoring_preflight.py
+src/ai_stock/recommendation/__init__.py
+tests/test_ai_recommendation_scoring_preflight.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-11.00_deterministic_scoring_model_preflight_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- Scoring preflight policy documents allowed in-memory extracted feature set
+  sources, forbidden sources, allowed scoring statuses, forbidden output
+  labels/fields, data-quality component names, and all required false flags.
+- Scoring input, score component, and scoring preflight result models contain
+  no recommendation, action, buy/sell/hold, rank, target price, expected
+  return, profit probability, account, order, credential, token, or accountSeq
+  fields.
+- Extraction ready, duplicate, disabled, missing-data, invalid,
+  forbidden-field sanitized, and empty-input states map to conservative scoring
+  statuses.
+- `total_score` is deterministic, bounded by `score_scale`, and represents
+  only data quality and extraction readiness preflight shape.
+- All MS-09.04 and MS-10.03 fixture paths produce deterministic scoring
+  preflight outputs with required flags false.
+- No UI, API, DB, file loader, ranking, recommendation, or trade directive path
+  is introduced.
+
+### Next Step Candidate
+
+```text
+MS-11.01 scoring fixture expansion
+```
