@@ -1440,3 +1440,90 @@ reports/MS-11.02_scoring_fixture_hardening_report.md
 ```text
 MS-12.00 recommendation list model preflight
 ```
+
+## MS-12.00: Recommendation List Model Preflight
+
+### Purpose
+
+Add a pure no-I/O recommendation list model preflight contract on top of the
+MS-11.00 deterministic scoring preflight, MS-11.01 scoring fixtures, and
+MS-11.02 scoring fixture hardening contracts. This stage defines only future
+list item model shape, policy, validation, and summary guardrails. It does not
+create an actual recommendation list, ranking, buy/sell/hold action, or trade
+directive. The `score_snapshot` remains a data-quality and extraction-readiness
+preflight score snapshot only, not investment attractiveness.
+
+### Allowed Scope
+
+- Add `src/ai_stock/recommendation/recommendation_list_preflight.py`.
+- Reuse MS-11.00 scoring preflight policy, result builders, validators,
+  summaries, allowed statuses, forbidden source/output policies, and required
+  false flags.
+- Reuse MS-11.01 scoring fixture policy, fixture builders, evaluators, and
+  all-fixture matrix.
+- Reuse MS-11.02 scoring fixture hardening policy and checks.
+- Define recommendation list preflight policy, list input model, observation
+  item model, item validation, deterministic builders, summaries, offline unit
+  tests, endpoint matrix entry, and report.
+
+### Forbidden Scope
+
+- No actual recommendation, recommendation list generation, ranking model,
+  ranking list, buy/sell/hold judgment, target price, expected return, profit
+  probability, API/DB/file feature lookup, watchlist storage, watchlist file
+  loader, feature file loader, fixture file loader, file read/write, DB
+  read/write, Toss API call, OAuth token endpoint call, OpenAI/LLM/API model
+  call, credential request, accountSeq request, raw DB row output, raw API
+  response output, order/account/assets/balance/fills implementation, UI
+  integration, `app/streamlit_app.py` change, Streamlit server, HTTP smoke,
+  live/fake smoke, or manual browser run.
+
+### Deliverables
+
+```text
+src/ai_stock/recommendation/recommendation_list_preflight.py
+src/ai_stock/recommendation/__init__.py
+tests/test_ai_recommendation_recommendation_list_preflight.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-12.00_recommendation_list_model_preflight_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- Recommendation list preflight policy documents allowed in-memory scoring
+  result sources, forbidden sources, allowed item statuses, forbidden action,
+  recommendation, ranking labels, forbidden output fields, and required false
+  flags.
+- List input and observation item models contain no recommendation result,
+  action, buy/sell/hold, rank, ranking position, target price, expected return,
+  profit probability, order, position, account, credential, token, or accountSeq
+  fields.
+- Score statuses map conservatively to observation item statuses for ready,
+  needs-review, duplicate, disabled, missing-data, invalid, forbidden-field
+  sanitized, blocked-quality, and empty-input states.
+- `display_bucket` is a review grouping label only, not a rank or priority.
+- `usable_for_future_list` is a future list-readiness flag only, not a ranking
+  flag.
+- `score_snapshot` is not used as recommendation, ranking, action,
+  buy/sell/hold, target price, expected return, or profit probability output.
+- All required flags remain false and no UI, API, DB, file loader, ranking,
+  recommendation, or trade directive path is introduced.
+
+### Next Step Candidate
+
+```text
+MS-12.01 recommendation list fixture expansion
+```
