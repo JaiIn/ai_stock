@@ -1527,3 +1527,87 @@ reports/MS-12.00_recommendation_list_model_preflight_report.md
 ```text
 MS-12.01 recommendation list fixture expansion
 ```
+
+## MS-12.01: Recommendation List Fixture Expansion
+
+### Purpose
+
+Add a pure no-I/O fixture/evaluator layer on top of the MS-12.00
+recommendation list model preflight contract. This stage fixes
+observation-only list item scenarios and compares expected item statuses,
+review counts, list-readiness counts, display buckets, score snapshot bounds,
+component names, diagnostics, warnings, required false flags, and forbidden
+output absence. It does not create an actual recommendation list, ranking, or
+buy/sell/hold action.
+
+### Allowed Scope
+
+- Add `src/ai_stock/recommendation/recommendation_list_fixtures.py`.
+- Reuse MS-12.00 recommendation list preflight policy, item builders,
+  validators, summaries, allowed item statuses, forbidden source/output
+  policies, and required false flags.
+- Reuse MS-11.00 scoring preflight, MS-11.01 scoring fixtures/evaluators, and
+  MS-11.02 scoring fixture hardening.
+- Define recommendation list fixture policy, fixture records, scenario builders,
+  expected-vs-actual evaluators, offline unit tests, endpoint matrix entry, and
+  report.
+
+### Forbidden Scope
+
+- No actual recommendation, recommendation list generation, ranking model,
+  ranking list, buy/sell/hold judgment, target price, expected return, profit
+  probability, API/DB/file feature lookup, watchlist storage, watchlist file
+  loader, feature file loader, fixture file loader, file read/write, DB
+  read/write, Toss API call, OAuth token endpoint call, OpenAI/LLM/API model
+  call, credential request, accountSeq request, raw DB row output, raw API
+  response output, order/account/assets/balance/fills implementation, UI
+  integration, `app/streamlit_app.py` change, Streamlit server, HTTP smoke,
+  live/fake smoke, or manual browser run.
+
+### Deliverables
+
+```text
+src/ai_stock/recommendation/recommendation_list_fixtures.py
+src/ai_stock/recommendation/__init__.py
+tests/test_ai_recommendation_recommendation_list_fixtures.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-12.01_recommendation_list_fixture_expansion_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- Recommendation list fixtures cover ready-for-review, mixed review,
+  duplicate blocked, disabled blocked, missing-data blocked, forbidden-field
+  sanitized, empty input, and all-fixture matrix scenarios.
+- Evaluators compare expected item statuses, ready-for-review counts, review
+  counts, future-list usability counts, display buckets, score snapshot bounds,
+  component names, blocked reason keywords, warnings, diagnostics, required
+  false flags, and forbidden keyword absence.
+- `score_snapshot` remains a data-quality and extraction-readiness preflight
+  snapshot only, not investment attractiveness.
+- `display_bucket` remains a review grouping label only, not rank, priority, or
+  ordering.
+- `usable_for_future_list` remains a future list-readiness flag only, not a
+  ranking flag.
+- All required flags remain false and no UI, API, DB, file loader, ranking,
+  recommendation, actual list generation, or trade directive path is
+  introduced.
+
+### Next Step Candidate
+
+```text
+MS-12.02 recommendation list fixture hardening
+```
