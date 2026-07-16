@@ -1611,3 +1611,89 @@ reports/MS-12.01_recommendation_list_fixture_expansion_report.md
 ```text
 MS-12.02 recommendation list fixture hardening
 ```
+
+## MS-12.02: Recommendation List Fixture Hardening
+
+### Purpose
+
+Add a pure no-I/O hardening layer on top of the MS-12.00 recommendation list
+model preflight contract and MS-12.01 recommendation list fixture/evaluator
+layer. This stage verifies observation-only list fixture scenarios, evaluator
+success, score snapshot bounds, display bucket guardrails, component names,
+allowed item statuses, forbidden output absence, required false flags,
+deterministic repeated runs, summary stability, and evaluator failure probe
+behavior. It does not create an actual recommendation list, ranking, or
+buy/sell/hold action.
+
+### Allowed Scope
+
+- Add `src/ai_stock/recommendation/recommendation_list_fixture_hardening.py`.
+- Reuse MS-12.00 recommendation list preflight policy, item builders,
+  validators, summaries, allowed item statuses, forbidden source/output
+  policies, and required false flags.
+- Reuse MS-12.01 recommendation list fixtures/evaluators.
+- Reuse MS-11.00 scoring preflight, MS-11.01 scoring fixtures/evaluators, and
+  MS-11.02 scoring fixture hardening.
+- Define recommendation list fixture hardening policy, aggregate hardening
+  result, deterministic check functions, evaluator failure probe, offline unit
+  tests, endpoint matrix entry, and report.
+
+### Forbidden Scope
+
+- No actual recommendation, actual recommendation list generation, ranking
+  model, ranking list, buy/sell/hold judgment, target price, expected return,
+  profit probability, API/DB/file feature lookup, watchlist storage, watchlist
+  file loader, feature file loader, fixture file loader, file read/write, DB
+  read/write, Toss API call, OAuth token endpoint call, OpenAI/LLM/API model
+  call, credential request, accountSeq request, raw DB row output, raw API
+  response output, order/account/assets/balance/fills implementation, UI
+  integration, `app/streamlit_app.py` change, Streamlit server, HTTP smoke,
+  live/fake smoke, or manual browser run.
+
+### Deliverables
+
+```text
+src/ai_stock/recommendation/recommendation_list_fixture_hardening.py
+src/ai_stock/recommendation/__init__.py
+tests/test_ai_recommendation_recommendation_list_fixture_hardening.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-12.02_recommendation_list_fixture_hardening_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- Required recommendation list fixture scenarios exist, including
+  `list_all_fixture_matrix`.
+- All recommendation list fixture evaluators pass.
+- `score_snapshot` remains within `0..100` and remains a data-quality and
+  extraction-readiness preflight snapshot only.
+- `display_bucket` remains a review grouping label only, not rank, priority, or
+  ordering.
+- `usable_for_future_list` remains a future list-readiness flag only, not a
+  ranking flag.
+- Component names and item statuses remain inside allowed contract values.
+- Forbidden item statuses and forbidden output keywords are absent from
+  hardening outputs.
+- Required flags remain false, repeated runs are deterministic, summaries are
+  stable, and evaluator mismatch probes produce failures.
+- No UI, API, DB, file loader, ranking, recommendation, actual list generation,
+  or trade directive path is introduced.
+
+### Next Step Candidate
+
+```text
+MS-13.00 observation list UI preflight
+```
