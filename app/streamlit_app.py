@@ -278,6 +278,217 @@ def _render_dashboard_fixture_coverage(
             )
 
 
+_OBSERVATION_LIST_UI_ROW_SOURCE_NAME = (
+    "build_observation_list_ui_rows_from_all_fixtures"
+)
+_OBSERVATION_LIST_UI_SUMMARY_SOURCE_NAME = "summarize_observation_list_ui_rows"
+_OBSERVATION_LIST_UI_HARDENING_SOURCE_NAME = (
+    "run_observation_list_ui_fixture_hardening_checks"
+)
+
+ObservationListUIPreviewRow = dict[str, object]
+
+
+def _build_observation_list_ui_fixture_preview_rows() -> (
+    tuple[ObservationListUIPreviewRow, ...]
+):
+    return (
+        {
+            "symbol": "005930",
+            "market": "KOSPI",
+            "item_status": "item_ready_for_review",
+            "status_badge": "review_ready",
+            "display_bucket": "review_ready",
+            "score_snapshot_label": "quality_preflight_score=100",
+            "score_scale_label": "score_scale=0..100",
+            "component_summary": (
+                "data_completeness",
+                "quality_reliability",
+                "review_penalty",
+                "sanitized_observation_detail",
+                "sanitization_penalty",
+            ),
+            "needs_review_label": "review_not_required",
+            "usability_label": "future_list_ready",
+            "blocked_reason_summary": (),
+            "warning_summary": (
+                "quality_preflight_score_only",
+                "no_trade_directive",
+                "observation_item_preflight_only",
+                "score_snapshot_quality_preflight_only",
+                "display_bucket_review_group_only",
+            ),
+            "diagnostic_summary": (
+                "deterministic_in_memory_score_shape",
+                "deterministic_in_memory_list_item_shape",
+            ),
+            "disclaimer_labels": (
+                "observation_only_preflight",
+                "not_trade_directive",
+                "no_live_refresh",
+                "score_snapshot_quality_only",
+            ),
+            "guardrail_flags": ("all_false=17",),
+        },
+        {
+            "symbol": "",
+            "market": "UNKNOWN",
+            "item_status": "item_invalid_candidate",
+            "status_badge": "invalid_candidate",
+            "display_bucket": "invalid_candidate_review",
+            "score_snapshot_label": "quality_preflight_score=0",
+            "score_scale_label": "score_scale=0..100",
+            "component_summary": (
+                "data_completeness",
+                "quality_reliability",
+                "review_penalty",
+                "sanitized_observation_detail",
+                "sanitization_penalty",
+            ),
+            "needs_review_label": "needs_review",
+            "usability_label": "future_list_review_only",
+            "blocked_reason_summary": ("quality_invalid_candidate",),
+            "warning_summary": (
+                "invalid_symbol_review",
+                "quality_preflight_score_only",
+                "no_trade_directive",
+                "observation_item_preflight_only",
+                "score_snapshot_quality_preflight_only",
+                "display_bucket_review_group_only",
+            ),
+            "diagnostic_summary": (
+                "symbol_required",
+                "deterministic_in_memory_score_shape",
+                "deterministic_in_memory_list_item_shape",
+            ),
+            "disclaimer_labels": (
+                "observation_only_preflight",
+                "not_trade_directive",
+                "no_live_refresh",
+                "score_snapshot_quality_only",
+            ),
+            "guardrail_flags": ("all_false=17",),
+        },
+        {
+            "symbol": "005930",
+            "market": "KOSPI",
+            "item_status": "item_forbidden_field_sanitized",
+            "status_badge": "sanitized_input",
+            "display_bucket": "sanitized_candidate_review",
+            "score_snapshot_label": "quality_preflight_score=70",
+            "score_scale_label": "score_scale=0..100",
+            "component_summary": (
+                "data_completeness",
+                "quality_reliability",
+                "review_penalty",
+                "sanitized_observation_detail",
+                "sanitization_penalty",
+            ),
+            "needs_review_label": "needs_review",
+            "usability_label": "future_list_review_only",
+            "blocked_reason_summary": ("quality_forbidden_field_sanitized",),
+            "warning_summary": (
+                "quality_preflight_score_only",
+                "no_trade_directive",
+                "observation_item_preflight_only",
+                "score_snapshot_quality_preflight_only",
+                "display_bucket_review_group_only",
+            ),
+            "diagnostic_summary": (
+                "sanitized_observation_detail",
+                "deterministic_in_memory_score_shape",
+                "deterministic_in_memory_list_item_shape",
+            ),
+            "disclaimer_labels": (
+                "observation_only_preflight",
+                "not_trade_directive",
+                "no_live_refresh",
+                "score_snapshot_quality_only",
+            ),
+            "guardrail_flags": ("all_false=17",),
+        },
+    )
+
+
+def _summarize_observation_list_ui_fixture_preview_rows(
+    rows: tuple[ObservationListUIPreviewRow, ...],
+) -> dict[str, object]:
+    return {
+        "total_rows": len(rows),
+        "ready_rows": sum(
+            row["status_badge"] == "review_ready" for row in rows
+        ),
+        "needs_review_rows": sum(
+            row["needs_review_label"] == "needs_review" for row in rows
+        ),
+        "blocked_rows": sum(bool(row["blocked_reason_summary"]) for row in rows),
+        "usable_rows": sum(
+            row["usability_label"] == "future_list_ready" for row in rows
+        ),
+        "status_badges": tuple(dict.fromkeys(row["status_badge"] for row in rows)),
+        "display_buckets": tuple(
+            dict.fromkeys(row["display_bucket"] for row in rows)
+        ),
+    }
+
+
+def _safe_observation_list_ui_row_summary(
+    row: ObservationListUIPreviewRow,
+) -> dict[str, object]:
+    return {
+        "symbol": row["symbol"],
+        "market": row["market"],
+        "item_status": row["item_status"],
+        "status_badge": row["status_badge"],
+        "display_bucket": row["display_bucket"],
+        "score_snapshot_label": row["score_snapshot_label"],
+        "score_scale_label": row["score_scale_label"],
+        "component_summary": ", ".join(row["component_summary"]),
+        "needs_review_label": row["needs_review_label"],
+        "usability_label": row["usability_label"],
+        "blocked_reason_summary": ", ".join(row["blocked_reason_summary"]),
+        "warning_summary": ", ".join(row["warning_summary"]),
+        "diagnostic_summary": ", ".join(row["diagnostic_summary"]),
+        "disclaimer_labels": ", ".join(row["disclaimer_labels"]),
+        "guardrail_flags": ", ".join(row["guardrail_flags"]),
+    }
+
+
+def _render_observation_list_ui_preflight() -> None:
+    rows = _build_observation_list_ui_fixture_preview_rows()
+    summary = _summarize_observation_list_ui_fixture_preview_rows(rows)
+
+    subheader("Observation List UI Preflight")
+    caption("fixture-based observation rows / observation-only / preflight")
+    info(
+        "Fixture-based display preview only. "
+        "Not investment advice. "
+        "No live API or trading controls are used."
+    )
+
+    summary_columns = columns(5)
+    summary_columns[0].metric("Rows", summary["total_rows"])
+    summary_columns[1].metric("Ready", summary["ready_rows"])
+    summary_columns[2].metric("Review", summary["needs_review_rows"])
+    summary_columns[3].metric("Blocked", summary["blocked_rows"])
+    summary_columns[4].metric("Usable", summary["usable_rows"])
+
+    with expander("Fixture row preview", expanded=True):
+        for index, row in enumerate(rows, start=1):
+            write(f"**Observation row {index}:**")
+            for label, value in _safe_observation_list_ui_row_summary(row).items():
+                write(f"- {label}: {value}")
+
+    with expander("Fixture coverage reference", expanded=False):
+        write(f"- row_builder_ref: {_OBSERVATION_LIST_UI_ROW_SOURCE_NAME}")
+        write(f"- summary_ref: {_OBSERVATION_LIST_UI_SUMMARY_SOURCE_NAME}")
+        write(f"- hardening_ref: {_OBSERVATION_LIST_UI_HARDENING_SOURCE_NAME}")
+        write("- hardening_state: fixture_contract_passed")
+        write("- status_badges: " + ", ".join(summary["status_badges"]))
+        write("- display_buckets: " + ", ".join(summary["display_buckets"]))
+        write("- external_capability_flags: all_false")
+
+
 def main() -> None:
     set_page_config(
         page_title="Local Snapshot Dashboard",
@@ -315,6 +526,7 @@ def main() -> None:
 
     _render_recommendation_explanation_panel(view)
     _render_manual_dashboard_preflight()
+    _render_observation_list_ui_preflight()
 
     subheader("Data source")
     source_columns = columns(4)

@@ -1969,3 +1969,80 @@ reports/MS-13.02_observation_list_ui_fixture_hardening_report.md
 ```text
 MS-13.03 Streamlit observation list UI integration preflight
 ```
+
+## MS-13.03: Streamlit Observation List UI Integration Preflight
+
+### Purpose
+
+Add a Streamlit observation-list UI preflight section based on the MS-13.00
+observation-list UI preflight contract, MS-13.01 UI fixture/evaluator layer,
+and MS-13.02 UI fixture hardening layer. This stage displays fixture-based
+observation rows only. It is not a live API integration, an actual
+recommendation UI, a ranking table, or a buy/sell/hold workflow.
+
+### Allowed Scope
+
+- Update `app/streamlit_app.py` with an observation-only preflight section.
+- Add `tests/test_ai_recommendation_observation_list_ui_integration_preflight.py`.
+- Use fixture-derived observation row display fields only:
+  `symbol`, `market`, `item_status`, `status_badge`, `display_bucket`,
+  `score_snapshot_label`, `score_scale_label`, `component_summary`,
+  `needs_review_label`, `usability_label`, `blocked_reason_summary`,
+  `warning_summary`, `diagnostic_summary`, `disclaimer_labels`, and
+  `guardrail_flags`.
+- Reference the MS-13.00 row builder, summary builder, and MS-13.02 hardening
+  runner contract without adding live input, API refresh, or session mutation.
+- Update this WBS, the endpoint matrix, and the MS-13.03 report.
+
+### Forbidden Scope
+
+- No actual recommendation list, ranking list, buy/sell/hold judgment, target
+  price, expected return, profit probability, watchlist persistence, feature
+  file loader, watchlist file loader, fixture file loader, file read/write, DB
+  read/write, Toss API call, OAuth token endpoint call, OpenAI/LLM/API model
+  call, credential request/input, accountSeq request/input, order/account/
+  assets/balance/holdings/fills UI, API refresh button, OAuth login button,
+  `st.button`, callback, session state, Streamlit server, HTTP smoke, live/fake
+  smoke, or manual browser run.
+
+### Deliverables
+
+```text
+app/streamlit_app.py
+tests/test_ai_recommendation_observation_list_ui_integration_preflight.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-13.03_streamlit_observation_list_ui_integration_preflight_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm the app change is limited to the MS-13.03 observation-list section
+  and forbidden modules remain unchanged.
+
+### Completion Criteria
+
+- The Streamlit app renders a section named `Observation List UI Preflight`.
+- The section is fixture-based, observation-only, and read-only.
+- The section references the MS-13.00 row builder, summary builder, and
+  MS-13.02 hardening runner contract.
+- Displayed fields remain limited to observation row fields.
+- `status_badge` is not buy/sell/hold, `score_snapshot_label` is not a
+  recommendation/ranking/action, `display_bucket` is not ranking/priority/
+  order, and `usability_label` is not a ranking flag.
+- No forbidden control, API, DB write, file loader, credential, accountSeq,
+  actual recommendation, ranking, target price, expected return, or trade
+  directive path is introduced.
+
+### Next Step Candidate
+
+```text
+MS-13.04 Streamlit observation list UI AppTest hardening
+```
