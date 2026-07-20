@@ -1697,3 +1697,96 @@ reports/MS-12.02_recommendation_list_fixture_hardening_report.md
 ```text
 MS-13.00 observation list UI preflight
 ```
+
+## MS-13.00: Observation List UI Preflight
+
+### Purpose
+
+Add a pure no-I/O observation-list UI preflight contract on top of the
+MS-12.00 recommendation list model preflight, MS-12.01 recommendation list
+fixtures/evaluators, and MS-12.02 recommendation list fixture hardening. This
+stage defines Streamlit-safe row/view model shapes, display policy, summary,
+and guardrail validation for future UI integration. It does not render UI,
+modify Streamlit code, create an actual recommendation list, rank candidates,
+or issue buy/sell/hold actions.
+
+### Allowed Scope
+
+- Add `src/ai_stock/recommendation/observation_list_ui_preflight.py`.
+- Reuse MS-12.00 recommendation list preflight policy, item builders,
+  validators, summaries, allowed item statuses, forbidden source/output
+  policies, and required false flags.
+- Reuse MS-12.01 recommendation list fixtures/evaluators.
+- Reuse MS-12.02 recommendation list fixture hardening.
+- Define observation-list UI preflight policy, row/view model, validation
+  result, summary model, deterministic row builders, validators, offline unit
+  tests, endpoint matrix entry, and report.
+
+### Forbidden Scope
+
+- No Streamlit import, UI rendering, UI integration, button, callback,
+  session state, API refresh button, OAuth login button, credential input,
+  accountSeq input, order/account/assets/balance/fills UI, actual
+  recommendation, actual recommendation list generation, ranking model,
+  ranking list, buy/sell/hold judgment, target price, expected return, profit
+  probability, API/DB/file feature lookup, watchlist storage, watchlist file
+  loader, feature file loader, fixture file loader, file read/write, DB
+  read/write, Toss API call, OAuth token endpoint call, OpenAI/LLM/API model
+  call, credential request, accountSeq request, raw DB row output, raw API
+  response output, `app/streamlit_app.py` change, Streamlit server, HTTP
+  smoke, live/fake smoke, or manual browser run.
+
+### Deliverables
+
+```text
+src/ai_stock/recommendation/observation_list_ui_preflight.py
+src/ai_stock/recommendation/__init__.py
+tests/test_ai_recommendation_observation_list_ui_preflight.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-13.00_observation_list_ui_preflight_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- Observation-list UI preflight policy exists with allowed view modes, allowed
+  column keys, forbidden column keys, allowed badge labels, forbidden badge
+  labels, required disclaimer labels, required false flags, and no-action,
+  no-ranking, no-trade-directive, no-live-refresh, deterministic-only policies.
+- Observation-list UI row/view model exists with symbol, market, item status,
+  status badge, display bucket, score snapshot label, score scale label,
+  component summary, review/usability labels, blocked reason summary, warning
+  summary, diagnostic summary, disclaimer labels, and guardrail flags.
+- Rows can be built deterministically from all in-memory recommendation list
+  fixtures.
+- `status_badge` remains an observation status, not buy/sell/hold.
+- `score_snapshot_label` remains a data-quality/extraction-readiness display
+  label, not recommendation, ranking, or action.
+- `display_bucket` remains a grouping label only, not rank, priority, or
+  order.
+- `usability_label` remains a list-readiness display label only, not a ranking
+  flag.
+- Forbidden output fields are not copied into UI rows and required flags
+  remain false.
+- No Streamlit import, app code change, UI control, API refresh, OAuth,
+  credential input, accountSeq input, API, DB, file loader, ranking,
+  recommendation, actual list generation, or trade directive path is
+  introduced.
+
+### Next Step Candidate
+
+```text
+MS-13.01 observation list UI fixture expansion
+```
