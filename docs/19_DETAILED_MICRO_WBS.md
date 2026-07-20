@@ -1790,3 +1790,92 @@ reports/MS-13.00_observation_list_ui_preflight_report.md
 ```text
 MS-13.01 observation list UI fixture expansion
 ```
+
+## MS-13.01: Observation List UI Fixture Expansion
+
+### Purpose
+
+Add a pure no-I/O fixture/evaluator layer for the MS-13.00 observation-list UI
+preflight contract. This stage fixes deterministic row/view model expectations
+for ready, review, blocked, sanitized, empty, and all-fixture matrix cases. It
+does not connect Streamlit UI, modify app code, create an actual
+recommendation list, rank candidates, or issue buy/sell/hold actions.
+
+### Allowed Scope
+
+- Add `src/ai_stock/recommendation/observation_list_ui_fixtures.py`.
+- Reuse MS-13.00 observation-list UI preflight policy, row builders,
+  validators, and summary.
+- Reuse MS-12.00 recommendation list preflight, MS-12.01 recommendation list
+  fixtures/evaluators, and MS-12.02 recommendation list fixture hardening.
+- Define observation-list UI fixture policy, fixture record, evaluator result,
+  deterministic fixture builders, expected-vs-actual evaluator, offline unit
+  tests, endpoint matrix entry, and report.
+
+### Forbidden Scope
+
+- No Streamlit import, UI rendering, UI integration, button, callback,
+  session state, API refresh button, OAuth login button, credential input,
+  accountSeq input, order/account/assets/balance/fills UI, actual
+  recommendation, actual recommendation list generation, ranking model,
+  ranking list, buy/sell/hold judgment, target price, expected return, profit
+  probability, API/DB/file feature lookup, watchlist storage, watchlist file
+  loader, feature file loader, fixture file loader, file read/write, DB
+  read/write, Toss API call, OAuth token endpoint call, OpenAI/LLM/API model
+  call, credential request, accountSeq request, raw DB row output, raw API
+  response output, `app/streamlit_app.py` change, Streamlit server, HTTP
+  smoke, live/fake smoke, or manual browser run.
+
+### Deliverables
+
+```text
+src/ai_stock/recommendation/observation_list_ui_fixtures.py
+src/ai_stock/recommendation/__init__.py
+tests/test_ai_recommendation_observation_list_ui_fixtures.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-13.01_observation_list_ui_fixture_expansion_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm forbidden paths remain unchanged and `.env.local`, DB file, and
+  `data/` remain untracked/ignored.
+
+### Completion Criteria
+
+- Observation-list UI fixture policy, fixture record, and evaluator result
+  models exist and are immutable.
+- Required fixture scenarios exist:
+  `ui_basic_ready_for_review`, `ui_mixed_review`,
+  `ui_duplicates_blocked`, `ui_disabled_blocked`,
+  `ui_missing_data_blocked`, `ui_forbidden_field_sanitized`,
+  `ui_empty_input`, and `ui_all_fixture_matrix`.
+- All UI fixture scenarios evaluate deterministically and pass expected-vs-
+  actual checks.
+- Rows can be built from all in-memory recommendation list fixtures without
+  file, network, environment, database, or Streamlit access.
+- `status_badge` remains an observation status, not buy/sell/hold.
+- `score_snapshot_label` remains a data-quality/extraction-readiness display
+  label, not recommendation, ranking, or action.
+- `display_bucket` remains a grouping label only, not rank, priority, or
+  order.
+- `usability_label` remains a list-readiness display label only, not a ranking
+  flag.
+- Forbidden output fields are not copied into UI rows and required flags
+  remain false.
+- No UI integration, API, DB, file loader, ranking, recommendation, actual list
+  generation, or trade directive path is introduced.
+
+### Next Step Candidate
+
+```text
+MS-13.02 observation list UI fixture hardening
+```
