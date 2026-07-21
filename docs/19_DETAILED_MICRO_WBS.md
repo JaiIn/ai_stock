@@ -2118,3 +2118,83 @@ reports/MS-13.04_streamlit_observation_list_ui_apptest_hardening_report.md
 ```text
 MS-14.00 Toss API client contract preflight
 ```
+
+## MS-14.00: Toss API Client Contract Preflight
+
+### Purpose
+
+Define a pure no-I/O Toss API client contract before implementing any live
+client behavior. This stage describes symbolic endpoint, request, response,
+error, credential-name, redaction, and validation shapes only. It is not a live
+Toss API call, OAuth token issuance, credential loading, account/balance/order/
+fill lookup, OpenAI/LLM call, recommendation, ranking, or buy/sell/hold
+workflow.
+
+### Allowed Scope
+
+- Add `src/ai_stock/clients/toss_api_client_contract.py`.
+- Add public exports in `src/ai_stock/clients/__init__.py`.
+- Add `tests/test_ai_clients_toss_api_client_contract.py`.
+- Define frozen dataclass contract models and deterministic validation helpers.
+- Define symbolic endpoint contracts only; no concrete Toss URL or path.
+- Define credential name policy only; no credential values or loaders.
+- Define pure redaction helpers and raw-payload blocking policy.
+- Update this WBS, the endpoint matrix, and the MS-14.00 report.
+
+### Forbidden Scope
+
+- No `requests`, `httpx`, `aiohttp`, `urllib.request`, socket, environment,
+  `.env.local`, credential, OAuth token endpoint, Access Token issuance,
+  Authorization Bearer creation, accountSeq, account/assets/balance/holdings/
+  fills/order, DB read/write, file read/write, OpenAI/LLM, Streamlit,
+  recommendation, ranking, buy/sell/hold, target price, expected return, profit
+  probability, live HTTP, smoke test, or client instance initialization.
+- No changes to `app/streamlit_app.py`, `scripts/dev_check.py`,
+  `src/ai_stock/models/toss.py`, storage, paper trading, risk, recommendation,
+  README, pyproject, docs/28, data, or `.env` files.
+
+### Deliverables
+
+```text
+src/ai_stock/clients/__init__.py
+src/ai_stock/clients/toss_api_client_contract.py
+tests/test_ai_clients_toss_api_client_contract.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-14.00_toss_api_client_contract_preflight_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm app, dev_check, recommendation, storage, paper_trading, risk, README,
+  pyproject, docs/28, data, and `.env` paths remain unchanged.
+
+### Completion Criteria
+
+- Contract policy includes no-network, no-OAuth, no-credential, no-accountSeq,
+  no-order/account/balance/fill, no-DB, no-file-I/O, no-Streamlit, no-LLM,
+  no-recommendation, and no-ranking flags.
+- External capability flags remain false, including `live_http_ready=false`,
+  `oauth_ready=false`, `credential_required_now=false`,
+  `accountSeq_required_now=false`, `order_required_now=false`,
+  `streamlit_required=false`, and `http_smoke_required=false`.
+- Endpoint contracts are symbolic only and include no concrete URL/path.
+- Request contracts are dry-run-only and `live_call_allowed=false`.
+- Response contracts block raw payload output.
+- Redaction helpers mask sensitive field values deterministically.
+- No Toss API key, secret key, OpenAI key, Access Token, Authorization Bearer,
+  accountSeq, raw response, raw request, raw DB row, DB file, or `.env.local`
+  content is read, printed, stored, or committed.
+
+### Next Step Candidate
+
+```text
+MS-14.01 Toss API fake transport / response fixtures
+```
