@@ -2198,3 +2198,84 @@ reports/MS-14.00_toss_api_client_contract_preflight_report.md
 ```text
 MS-14.01 Toss API fake transport / response fixtures
 ```
+
+## MS-14.01: Toss API Fake Transport / Response Fixtures
+
+### Purpose
+
+Add a pure no-I/O fake transport and deterministic in-memory response fixture
+layer on top of the MS-14.00 Toss API client contract. This stage provides
+contract-safe previews only. It is not a live Toss API call, OAuth token
+issuance, credential loading, accountSeq use, account/balance/order/fill
+lookup, OpenAI/LLM call, recommendation, ranking, or buy/sell/hold workflow.
+
+### Allowed Scope
+
+- Add `src/ai_stock/clients/toss_api_fake_transport.py`.
+- Add public exports in `src/ai_stock/clients/__init__.py`.
+- Add `tests/test_ai_clients_toss_api_fake_transport.py`.
+- Reuse MS-14.00 contract policy, symbolic endpoint contract, redaction helper,
+  sensitive-output validation, and contract preflight runner.
+- Define frozen dataclass fake transport policy, symbolic fake request, fake
+  response, fixture, runner result, and validation result models.
+- Define in-memory response fixtures only.
+- Update this WBS, the endpoint matrix, and the MS-14.01 report.
+
+### Forbidden Scope
+
+- No `requests`, `httpx`, `aiohttp`, `urllib.request`, socket, live HTTP,
+  OAuth token endpoint, Access Token issuance, Authorization Bearer creation,
+  environment, `.env.local`, credential values, accountSeq, account/assets/
+  balance/holdings/fills/order, DB read/write, file read/write, OpenAI/LLM,
+  Streamlit, recommendation, ranking, buy/sell/hold, target price, expected
+  return, profit probability, live smoke, fake live smoke, HTTP smoke, or
+  client instance initialization.
+- No changes to `app/streamlit_app.py`, `scripts/dev_check.py`,
+  `src/ai_stock/clients/toss_api_client_contract.py`,
+  `src/ai_stock/models/toss.py`, storage, paper trading, risk,
+  recommendation, README, pyproject, docs/28, data, or `.env` files.
+
+### Deliverables
+
+```text
+src/ai_stock/clients/__init__.py
+src/ai_stock/clients/toss_api_fake_transport.py
+tests/test_ai_clients_toss_api_fake_transport.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-14.01_toss_api_fake_transport_response_fixtures_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm app, dev_check, MS-14.00 contract, recommendation, storage,
+  paper_trading, risk, README, pyproject, docs/28, data, and `.env` paths
+  remain unchanged.
+
+### Completion Criteria
+
+- Fake transport policy reuses the MS-14.00 contract and keeps no-network,
+  no-OAuth, no-credential, no-accountSeq, no-order/account/balance/fill, no-DB,
+  no-file-I/O, no-Streamlit, no-LLM, no-recommendation, and no-ranking flags.
+- `fake_transport_ready=true`, while `live_http_ready=false`,
+  `oauth_ready=false`, `credential_required_now=false`,
+  `accountSeq_required_now=false`, `order_required_now=false`,
+  `streamlit_required=false`, and `http_smoke_required=false`.
+- Fake requests are symbolic and dry-run-only.
+- Fake response fixtures are in-memory and expose redacted previews only.
+- Raw payload, credential values, Access Token, Authorization Bearer,
+  accountSeq, account/balance/order/fill data, DB row, file path, and
+  `.env.local` content are not read, printed, stored, or committed.
+
+### Next Step Candidate
+
+```text
+MS-14.02 credential/config redaction guardrail
+```
