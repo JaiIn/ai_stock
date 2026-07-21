@@ -2279,3 +2279,87 @@ reports/MS-14.01_toss_api_fake_transport_response_fixtures_report.md
 ```text
 MS-14.02 credential/config redaction guardrail
 ```
+
+## MS-14.02: Credential/Config Redaction Guardrail
+
+### Purpose
+
+Add a pure no-I/O credential/config redaction guardrail before any Toss API
+live smoke work. This stage defines validation-only source policy, symbolic
+credential field policy, readiness decision, redaction helpers, and preflight
+checks. It does not read `.env.local`, `.env`, `.env.example`, environment
+variables, credential values, files, DB rows, or live service responses.
+
+### Allowed Scope
+
+- Add `src/ai_stock/clients/toss_api_config_guardrail.py`.
+- Add public exports in `src/ai_stock/clients/__init__.py`.
+- Add `tests/test_ai_clients_toss_api_config_guardrail.py`.
+- Reuse MS-14.00 contract policy, credential-name policy, external capability
+  flags, redaction helpers, sensitive-output validation, and contract preflight.
+- Define frozen dataclass guardrail policy, source policy, field policy,
+  redaction result, validation result, readiness decision, and preflight result.
+- Update this WBS, the endpoint matrix, and the MS-14.02 report.
+
+### Forbidden Scope
+
+- No `requests`, `httpx`, `aiohttp`, `urllib.request`, socket, live HTTP,
+  OAuth token endpoint, Access Token issuance, Authorization Bearer creation,
+  environment read, `.env.local` read, `.env` read, `.env.example` creation,
+  credential value input/read/output, accountSeq, account/assets/balance/
+  holdings/fills/order, DB read/write, file read/write, OpenAI/LLM, Streamlit,
+  recommendation, ranking, buy/sell/hold, target price, expected return, profit
+  probability, live smoke, fake live smoke, HTTP smoke, or client instance
+  initialization.
+- No changes to `app/streamlit_app.py`, `scripts/dev_check.py`,
+  `src/ai_stock/clients/toss_api_client_contract.py`,
+  `src/ai_stock/clients/toss_api_fake_transport.py`,
+  `src/ai_stock/models/toss.py`, storage, paper trading, risk,
+  recommendation, README, pyproject, docs/28, data, `.env`, `.env.local`, or
+  `.env.example`.
+
+### Deliverables
+
+```text
+src/ai_stock/clients/__init__.py
+src/ai_stock/clients/toss_api_config_guardrail.py
+tests/test_ai_clients_toss_api_config_guardrail.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-14.02_credential_config_redaction_guardrail_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm app, dev_check, MS-14.00 contract, MS-14.01 fake transport,
+  recommendation, storage, paper_trading, risk, README, pyproject, docs/28,
+  data, `.env`, `.env.local`, and `.env.example` paths remain unchanged.
+
+### Completion Criteria
+
+- Guardrail policy reuses the MS-14.00 contract and credential-name policy.
+- Config sources remain symbolic, validation-only, and `read_now=false`.
+- Credential field policies are name-only; values, raw output, print, log, and
+  persist are all disallowed.
+- Readiness decision keeps `credential_required_now=false`,
+  `toss_key_required_now=false`, `toss_secret_required_now=false`,
+  `openai_key_required_now=false`, `access_token_required_now=false`,
+  `accountSeq_required_now=false`, `live_http_allowed_now=false`,
+  `oauth_allowed_now=false`, and `safe_to_request_user_secret_now=false`.
+- Sensitive dummy inputs are masked and safe previews do not expose raw values.
+- No Toss API key, secret key, OpenAI key, Access Token, Authorization Bearer,
+  accountSeq, raw response, raw request, raw DB row, DB file, `.env.local`, or
+  `.env` content is read, printed, stored, or committed.
+
+### Next Step Candidate
+
+```text
+MS-14.03 live-readiness checklist / no-secret dry run gate
+```
