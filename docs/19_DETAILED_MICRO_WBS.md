@@ -2046,3 +2046,75 @@ reports/MS-13.03_streamlit_observation_list_ui_integration_preflight_report.md
 ```text
 MS-13.04 Streamlit observation list UI AppTest hardening
 ```
+
+## MS-13.04: Streamlit Observation List UI AppTest Hardening
+
+### Purpose
+
+Harden the MS-13.03 Streamlit observation-list UI section with AppTest and
+static checks. This stage fixes the fixture-based observation-only section as a
+read-only preflight display. It is not a live API integration, an actual
+recommendation UI, a ranking table, or a buy/sell/hold workflow.
+
+### Allowed Scope
+
+- Add `tests/test_ai_recommendation_observation_list_ui_apptest_hardening.py`.
+- Validate the existing MS-13.03 section with `streamlit.testing.v1.AppTest`.
+- Use static checks to confirm the section title, fixture row preview,
+  hardening reference, allowed observation fields, and forbidden UI element
+  absence.
+- Update this WBS, the endpoint matrix, and the MS-13.04 report.
+
+### Forbidden Scope
+
+- No `app/streamlit_app.py` change unless a rendering blocker is separately
+  reported and approved.
+- No Streamlit server, HTTP smoke, browser run, live/fake smoke, Toss API call,
+  OAuth token endpoint call, OpenAI/LLM/API model call, credential input,
+  accountSeq input, API refresh button, OAuth login button, new `st.button`,
+  callback, session state, order/account/assets/balance/holdings/fills UI,
+  new DB read/write, file read/write, feature loader, watchlist loader,
+  fixture loader, actual recommendation, ranking, target price, expected
+  return, profit probability, or trade directive path.
+
+### Deliverables
+
+```text
+tests/test_ai_recommendation_observation_list_ui_apptest_hardening.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-13.04_streamlit_observation_list_ui_apptest_hardening_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm `app/streamlit_app.py` and existing MS-13.00 through MS-13.03
+  contract modules remain unchanged.
+
+### Completion Criteria
+
+- AppTest renders the observation-list UI preflight section successfully.
+- The section remains fixture-based, observation-only, read-only, and preflight
+  scoped.
+- Fixture row preview and hardening check reference are visible.
+- Display fields remain limited to observation row fields.
+- Forbidden UI elements, recommendation/action/ranking labels, buy/sell/hold
+  controls, target price, expected return, profit probability, credential,
+  accountSeq, API refresh, OAuth login, new button, callback, and session state
+  paths are absent from the MS-13.03 section.
+- `status_badge` is not buy/sell/hold, `score_snapshot_label` is not a
+  recommendation/ranking/action, `display_bucket` is not ranking/priority/
+  order, and `usability_label` is not a ranking flag.
+
+### Next Step Candidate
+
+```text
+MS-14.00 Toss API client contract preflight
+```
