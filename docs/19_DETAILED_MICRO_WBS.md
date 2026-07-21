@@ -2363,3 +2363,95 @@ reports/MS-14.02_credential_config_redaction_guardrail_report.md
 ```text
 MS-14.03 live-readiness checklist / no-secret dry run gate
 ```
+
+## MS-14.03: Live-Readiness Checklist / No-Secret Dry Run Gate
+
+### Purpose
+
+Add a pure no-I/O live-readiness checklist and no-secret dry run gate before
+any Toss API live smoke work. This stage aggregates MS-14.00 contract
+preflight, MS-14.01 fake transport preflight, and MS-14.02 config guardrail
+preflight results to decide whether live work may proceed now. The decision
+keeps live smoke, secret requests, OAuth, live HTTP, accountSeq, order/account/
+balance/fill capabilities, env reads, file I/O, DB access, OpenAI/LLM,
+recommendation, ranking, and buy/sell/hold flows blocked until an explicit
+future stage.
+
+### Allowed Scope
+
+- Add `src/ai_stock/clients/toss_api_live_readiness.py`.
+- Add public exports in `src/ai_stock/clients/__init__.py`.
+- Add `tests/test_ai_clients_toss_api_live_readiness.py`.
+- Reuse MS-14.00 contract preflight, MS-14.01 fake transport preflight, and
+  MS-14.02 config guardrail preflight without modifying those modules.
+- Define frozen dataclass policy, checklist item, gate decision, no-secret dry
+  run result, and aggregate preflight result models.
+- Update this WBS, the endpoint matrix, and the MS-14.03 report.
+
+### Forbidden Scope
+
+- No `requests`, `httpx`, `aiohttp`, `urllib.request`, socket, live HTTP,
+  OAuth token endpoint, Access Token issuance, Authorization Bearer creation,
+  environment read, `.env.local` read, `.env` read, `.env.example` creation or
+  modification, credential value input/read/output, accountSeq, account/assets/
+  balance/holdings/fills/order, DB read/write, file read/write, OpenAI/LLM,
+  Streamlit, recommendation, ranking, buy/sell/hold, target price, expected
+  return, profit probability, live smoke, fake live smoke, HTTP smoke, or
+  client instance initialization.
+- No changes to `app/streamlit_app.py`, `scripts/dev_check.py`,
+  `src/ai_stock/clients/toss_api_client_contract.py`,
+  `src/ai_stock/clients/toss_api_fake_transport.py`,
+  `src/ai_stock/clients/toss_api_config_guardrail.py`,
+  `src/ai_stock/models/toss.py`, storage, paper trading, risk,
+  recommendation, README, pyproject, docs/28, data, `.env`, `.env.local`, or
+  `.env.example`.
+
+### Deliverables
+
+```text
+src/ai_stock/clients/__init__.py
+src/ai_stock/clients/toss_api_live_readiness.py
+tests/test_ai_clients_toss_api_live_readiness.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-14.03_live_readiness_no_secret_dry_run_gate_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm app, dev_check, MS-14.00 contract, MS-14.01 fake transport,
+  MS-14.02 config guardrail, recommendation, storage, paper_trading, risk,
+  README, pyproject, docs/28, data, `.env`, `.env.local`, and `.env.example`
+  paths remain unchanged.
+
+### Completion Criteria
+
+- Live-readiness policy reuses the MS-14.00, MS-14.01, and MS-14.02 preflight
+  layers.
+- Checklist categories cover contract, fake transport, config guardrail,
+  secret request/output, env read, file I/O, live HTTP, OAuth, accountSeq,
+  order/account/balance/fills, DB, Streamlit, LLM, recommendation/ranking/
+  action, and next-stage gate checks.
+- Gate decision keeps `live_smoke_allowed_now=false`,
+  `safe_to_request_user_secret_now=false`, `credential_required_now=false`,
+  `toss_key_required_now=false`, `toss_secret_required_now=false`,
+  `openai_key_required_now=false`, `access_token_required_now=false`,
+  `oauth_allowed_now=false`, `live_http_allowed_now=false`,
+  `accountSeq_allowed_now=false`, and `order_allowed_now=false`.
+- No-secret dry run returns safe summary fields only and remains deterministic.
+- No Toss API key, secret key, OpenAI key, Access Token, Authorization Bearer,
+  accountSeq, raw response, raw request, raw DB row, DB file, `.env.local`,
+  `.env`, or `.env.example` content is read, printed, stored, or committed.
+
+### Next Step Candidate
+
+```text
+MS-15.00 first read-only live smoke planning
+```
