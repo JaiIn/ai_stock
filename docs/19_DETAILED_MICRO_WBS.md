@@ -2842,3 +2842,117 @@ reports/MS-15.03_credential_request_timing_policy_report.md
 ```text
 MS-16.00 first read-only Toss API live smoke
 ```
+
+## MS-16.00: First Read-Only Toss API Live Smoke
+
+### Purpose
+
+Implement the first tightly gated read-only Toss API live smoke entrypoint after
+MS-15.03 credential request timing policy. MS-16.00 permits checking only the
+presence of approved local process environment names and attempts live HTTP only
+when an explicit runtime approval object, redaction block, read-only scope, and
+confirmed public/market-data endpoint candidate are all present.
+
+### Allowed Scope
+
+- Add `src/ai_stock/clients/toss_api_first_live_smoke.py`.
+- Add public exports in `src/ai_stock/clients/__init__.py`.
+- Add `tests/test_ai_clients_toss_api_first_live_smoke.py`.
+- Reuse MS-14.00 contract preflight, MS-14.01 fake transport preflight,
+  MS-14.02 config guardrail preflight, MS-14.03 live-readiness/no-secret dry run,
+  MS-15.00 planning preflight, MS-15.01 disabled skeleton preflight,
+  MS-15.02 approval gate preflight, and MS-15.03 credential timing preflight.
+- Allow process environment presence checks for `AI_STOCK_TOSS_API_KEY` and
+  `AI_STOCK_TOSS_API_SECRET` only, returning booleans and redacted missing-name
+  placeholders only.
+- Allow only injected/fake executor testing and redacted HTTP result summaries.
+
+### Forbidden Scope
+
+- No accountSeq request/use, account assets, balance, fills, holdings, order
+  scope, OpenAI key request, OpenAI/LLM call, Streamlit import, DB read/write,
+  file read/write, `.env.local` read, `.env` read, `.env.example` creation or
+  modification, credential value output, credential persistence, raw request
+  output, raw response output, Access Token manual entry, Authorization Bearer
+  manual entry, recommendation, ranking, buy/sell/hold action, target price,
+  expected return, or profit probability.
+- No changes to `app/streamlit_app.py`, `scripts/dev_check.py`,
+  `src/ai_stock/clients/toss_api_client_contract.py`,
+  `src/ai_stock/clients/toss_api_fake_transport.py`,
+  `src/ai_stock/clients/toss_api_config_guardrail.py`,
+  `src/ai_stock/clients/toss_api_live_readiness.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_plan.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_disabled.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_approval.py`,
+  `src/ai_stock/clients/toss_api_credential_timing.py`, live client modules,
+  `src/ai_stock/models/toss.py`, storage, paper trading, risk, recommendation,
+  README, pyproject, docs/28, data, `.env`, `.env.local`, or `.env.example`.
+
+### Secret Handling
+
+- Do not paste Toss key or secret values into ChatGPT.
+- Do not echo, print, log, store, hash, fingerprint, suffix-mask, or commit
+  credential values.
+- If local setup is needed in a future approved run, use local process
+  environment variables only:
+
+```powershell
+$env:AI_STOCK_TOSS_API_KEY = "<YOUR_TOSS_API_KEY>"
+$env:AI_STOCK_TOSS_API_SECRET = "<YOUR_TOSS_API_SECRET>"
+```
+
+### Runtime Approval Conditions
+
+Live HTTP remains blocked unless all of these are true:
+
+- `explicit_user_approved_ms_16_00=true`
+- `runtime_live_http_approved=true`
+- `credential_request_approved=true`
+- `readonly_scope_confirmed=true`
+- `raw_output_block_confirmed=true`
+- `no_account_scope_confirmed=true`
+- `no_order_scope_confirmed=true`
+- required credential presence booleans are true
+- endpoint candidate is confirmed read-only market-data/public and executable
+  without OAuth or account scope
+
+### Deliverables
+
+```text
+src/ai_stock/clients/__init__.py
+src/ai_stock/clients/toss_api_first_live_smoke.py
+tests/test_ai_clients_toss_api_first_live_smoke.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-16.00_first_readonly_toss_api_live_smoke_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm app, dev_check, MS-14/MS-15 modules, recommendation, storage,
+  paper_trading, risk, README, pyproject, docs/28, data, `.env`, `.env.local`,
+  and `.env.example` paths remain unchanged.
+
+### Completion Criteria
+
+- Default run returns a blocked dry-run with `live_http_attempted=false`.
+- Missing credentials, missing runtime approval, or unconfirmed endpoint keeps
+  live HTTP unattempted.
+- Injected fake executor can exercise the attempted case without raw request or
+  raw response output.
+- Decisions keep accountSeq/order/account/balance/fills/OpenAI/LLM/DB/
+  Streamlit/recommendation/ranking/buy-sell-hold flags false and credentials
+  redacted.
+
+### Next Step Candidate
+
+```text
+MS-16.01 read-only live smoke result hardening
+```
