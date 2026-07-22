@@ -2745,3 +2745,100 @@ reports/MS-15.02_readonly_live_smoke_explicit_approval_gate_report.md
 ```text
 MS-15.03 credential request timing policy
 ```
+
+## MS-15.03: Credential Request Timing Policy
+
+### Purpose
+
+Define a pure no-I/O policy for when Toss API credentials may be requested in a
+future stage. MS-15.03 records MS-16.00 as the first candidate for a separately
+approved Toss credential request while proving that the current stage does not
+request, read, load, use, print, or persist credentials and does not execute
+OAuth, live HTTP, accountSeq, account/account/balance/fills/order, DB, OpenAI,
+recommendation, ranking, or buy/sell/hold behavior.
+
+### Allowed Scope
+
+- Add `src/ai_stock/clients/toss_api_credential_timing.py`.
+- Add public exports in `src/ai_stock/clients/__init__.py`.
+- Add `tests/test_ai_clients_toss_api_credential_timing.py`.
+- Reuse MS-14.00 contract preflight, MS-14.01 fake transport preflight,
+  MS-14.02 config guardrail preflight, MS-14.03 live-readiness preflight,
+  MS-14.03 no-secret dry run, MS-15.00 planning preflight, MS-15.01 disabled
+  skeleton preflight, and MS-15.02 explicit approval gate preflight.
+- Define frozen dataclass timing policy, candidate stage, requirement, decision,
+  result, and validation result models.
+- Update this WBS, the endpoint matrix, and the MS-15.03 report.
+
+### Forbidden Scope
+
+- No `requests`, `httpx`, `aiohttp`, `urllib.request`, socket, live HTTP,
+  OAuth token endpoint, Access Token issuance, Authorization Bearer creation,
+  environment read, `.env.local` read, `.env` read, `.env.example` creation or
+  modification, credential value input/read/output, accountSeq, account/assets/
+  balance/holdings/fills/order, DB read/write, file read/write, OpenAI/LLM,
+  Streamlit, recommendation, ranking, buy/sell/hold, target price, expected
+  return, profit probability, live smoke execution, HTTP smoke, or credential
+  prompt.
+- No changes to `app/streamlit_app.py`, `scripts/dev_check.py`,
+  `src/ai_stock/clients/toss_api_client_contract.py`,
+  `src/ai_stock/clients/toss_api_fake_transport.py`,
+  `src/ai_stock/clients/toss_api_config_guardrail.py`,
+  `src/ai_stock/clients/toss_api_live_readiness.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_plan.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_disabled.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_approval.py`, live client modules,
+  `src/ai_stock/models/toss.py`, storage, paper trading, risk, recommendation,
+  README, pyproject, docs/28, data, `.env`, `.env.local`, or `.env.example`.
+
+### Deliverables
+
+```text
+src/ai_stock/clients/__init__.py
+src/ai_stock/clients/toss_api_credential_timing.py
+tests/test_ai_clients_toss_api_credential_timing.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-15.03_credential_request_timing_policy_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm app, dev_check, MS-14.00 contract, MS-14.01 fake transport,
+  MS-14.02 config guardrail, MS-14.03 live-readiness, MS-15.00 planning,
+  MS-15.01 disabled skeleton, MS-15.02 approval gate, recommendation, storage,
+  paper_trading, risk, README, pyproject, docs/28, data, `.env`, `.env.local`,
+  and `.env.example` paths remain unchanged.
+
+### Completion Criteria
+
+- Timing policy is `credential_timing_policy_only=true`,
+  `current_stage_requests_credentials=false`,
+  `current_stage_reads_credentials=false`, `current_stage_uses_credentials=false`,
+  `credential_required_now=false`, `toss_key_required_now=false`,
+  `toss_secret_required_now=false`, `openai_key_required_now=false`,
+  `access_token_required_now=false`, `safe_to_request_user_secret_now=false`,
+  `live_execution_allowed_now=false`, and `credential_request_allowed_now=false`.
+- Candidate stage is symbolic MS-16.00 read-only market data scope with
+  `may_request_toss_credentials_later=true` only after explicit approval, while
+  OpenAI key, accountSeq, and order scope remain unavailable.
+- Timing decision keeps `timing_policy_invocation_allowed=true`,
+  `approval_gate_passed=true`, all current-stage credential/env/OAuth/token/live
+  HTTP/live execution/account/order/balance/fills/OpenAI/LLM flags false, and
+  `ms_16_00_can_request_toss_credentials_after_explicit_approval=true`.
+- No Toss API key, secret key, OpenAI key, Access Token, Authorization Bearer,
+  accountSeq, raw response, raw request, raw DB row, DB file, `.env.local`,
+  `.env`, or `.env.example` content is read, printed, stored, or committed.
+
+### Next Step Candidate
+
+```text
+MS-16.00 first read-only Toss API live smoke
+```
