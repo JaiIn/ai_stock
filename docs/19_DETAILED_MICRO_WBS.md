@@ -2643,3 +2643,105 @@ reports/MS-15.01_readonly_live_smoke_disabled_skeleton_report.md
 ```text
 MS-15.02 read-only live smoke explicit approval gate
 ```
+
+## MS-15.02: Read-Only Live Smoke Explicit Approval Gate
+
+### Purpose
+
+Add a pure no-I/O explicit approval gate for the future read-only Toss API live
+smoke. This stage proves that the approval gate can be evaluated locally while
+no explicit approval is present and live execution, credential requests, OAuth,
+token issuance, env/file access, accountSeq, account/balance/order/fill access,
+DB access, OpenAI/LLM, recommendation, ranking, and buy/sell/hold behavior
+remain blocked.
+
+### Allowed Scope
+
+- Add `src/ai_stock/clients/toss_api_live_smoke_approval.py`.
+- Add public exports in `src/ai_stock/clients/__init__.py`.
+- Add `tests/test_ai_clients_toss_api_live_smoke_approval.py`.
+- Reuse MS-14.00 contract preflight, MS-14.01 fake transport preflight,
+  MS-14.02 config guardrail preflight, MS-14.03 live-readiness preflight,
+  MS-14.03 no-secret dry run, MS-15.00 planning preflight, and MS-15.01
+  disabled skeleton preflight.
+- Define frozen dataclass approval policy, intent, requirement, decision, gate
+  result, and validation result models.
+- Update this WBS, the endpoint matrix, and the MS-15.02 report.
+
+### Forbidden Scope
+
+- No `requests`, `httpx`, `aiohttp`, `urllib.request`, socket, live HTTP,
+  OAuth token endpoint, Access Token issuance, Authorization Bearer creation,
+  environment read, `.env.local` read, `.env` read, `.env.example` creation or
+  modification, credential value input/read/output, accountSeq, account/assets/
+  balance/holdings/fills/order, DB read/write, file read/write, OpenAI/LLM,
+  Streamlit, recommendation, ranking, buy/sell/hold, target price, expected
+  return, profit probability, live smoke execution, HTTP smoke, user signature
+  capture, or client instance initialization.
+- No changes to `app/streamlit_app.py`, `scripts/dev_check.py`,
+  `src/ai_stock/clients/toss_api_client_contract.py`,
+  `src/ai_stock/clients/toss_api_fake_transport.py`,
+  `src/ai_stock/clients/toss_api_config_guardrail.py`,
+  `src/ai_stock/clients/toss_api_live_readiness.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_plan.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_disabled.py`, live client modules,
+  `src/ai_stock/models/toss.py`, storage, paper trading, risk, recommendation,
+  README, pyproject, docs/28, data, `.env`, `.env.local`, or `.env.example`.
+
+### Deliverables
+
+```text
+src/ai_stock/clients/__init__.py
+src/ai_stock/clients/toss_api_live_smoke_approval.py
+tests/test_ai_clients_toss_api_live_smoke_approval.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-15.02_readonly_live_smoke_explicit_approval_gate_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm app, dev_check, MS-14.00 contract, MS-14.01 fake transport,
+  MS-14.02 config guardrail, MS-14.03 live-readiness, MS-15.00 planning,
+  MS-15.01 disabled skeleton, recommendation, storage, paper_trading, risk,
+  README, pyproject, docs/28, data, `.env`, `.env.local`, and `.env.example`
+  paths remain unchanged.
+
+### Completion Criteria
+
+- Approval policy is `approval_gate_only=true`,
+  `explicit_user_approval_required=true`, `disabled_skeleton_required=true`,
+  `planning_gate_required=true`, `uses_ms_15_00_plan=true`, and
+  `uses_ms_15_01_disabled_skeleton=true`.
+- Symbolic approval intent keeps `readonly=true`, `planning_only=true`,
+  `approval_recorded=false`, `live_call_requested=false`,
+  `live_call_approved=false`, `credential_request_approved=false`,
+  `oauth_approved=false`, `token_issuance_approved=false`,
+  `account_seq_approved=false`, `order_approved=false`,
+  `account_data_approved=false`, and `raw_payload_approved=false`.
+- Approval decision keeps `approval_gate_invocation_allowed=true`,
+  `planning_gate_passed=true`, `disabled_skeleton_passed=true`,
+  `explicit_approval_present=false`, `live_execution_allowed_now=false`,
+  `credential_request_allowed_now=false`, `env_read_allowed_now=false`,
+  `file_read_allowed_now=false`, `oauth_allowed_now=false`,
+  `token_issuance_allowed_now=false`, `account_seq_allowed_now=false`,
+  `order_allowed_now=false`, `account_data_allowed_now=false`,
+  `balance_allowed_now=false`, `fills_allowed_now=false`,
+  `openai_key_allowed_now=false`, `llm_allowed_now=false`, and
+  `gate_closed=true`.
+- No Toss API key, secret key, OpenAI key, Access Token, Authorization Bearer,
+  accountSeq, raw response, raw request, raw DB row, DB file, `.env.local`,
+  `.env`, or `.env.example` content is read, printed, stored, or committed.
+
+### Next Step Candidate
+
+```text
+MS-15.03 credential request timing policy
+```
