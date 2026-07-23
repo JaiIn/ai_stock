@@ -3343,3 +3343,131 @@ MS-16.04 confirmed endpoint evidence update
 or
 MS-16.04 live smoke dry-run command contract
 ```
+
+MS-16.04 confirmed endpoint evidence update
+-------------------------------------------
+
+## MS-16.04: Confirmed Endpoint Evidence Update
+
+### Purpose
+
+MS-16.04 updates the MS-16 live-smoke chain with a pure no-I/O confirmed
+endpoint evidence policy. The stage resolves the MS-16.02 default selected
+endpoint gap by modeling a single symbolic read-only public/market-data
+candidate backed by existing official/project evidence, while keeping all live
+runtime gates closed.
+
+### Allowed Scope
+
+- Add `src/ai_stock/clients/toss_api_confirmed_endpoint_evidence.py`.
+- Add `tests/test_ai_clients_toss_api_confirmed_endpoint_evidence.py`.
+- Export only public dataclasses and helper functions from
+  `src/ai_stock/clients/__init__.py`.
+- Update `references/endpoint_matrix.md`.
+- Add `reports/MS-16.04_confirmed_endpoint_evidence_update_report.md`.
+- Reuse MS-16.00 first live smoke preflight.
+- Reuse MS-16.01 result hardening preflight.
+- Reuse MS-16.02 endpoint selection preflight.
+- Reuse MS-16.03 operator rehearsal preflight.
+
+### Forbidden Scope
+
+- No actual live HTTP execution.
+- No Toss credential request, credential loading, or credential presence check.
+- No environment variable read and no environment file read.
+- No OAuth token issuance, Access Token creation, or Authorization Bearer
+  construction.
+- No accountSeq, account, order, balance, fills, DB, Streamlit, OpenAI/LLM,
+  recommendation, ranking, or buy/sell/hold scope.
+- No endpoint full URL output, raw endpoint path output, raw request output, raw
+  response output, or execution command generation.
+- No changes to app, dev_check, MS-14/MS-15/MS-16.00/MS-16.01/MS-16.02/MS-16.03
+  modules, recommendation modules, storage, paper_trading, risk, README,
+  pyproject, docs/28, data, or environment files.
+
+### Endpoint Evidence Criteria
+
+The selected endpoint candidate must be symbolic and must satisfy all of the
+following:
+
+- Official or project evidence is available.
+- Read-only behavior is confirmed.
+- Public or market-data scope is confirmed.
+- accountSeq is not required.
+- Order scope is not required.
+- Account, balance, and fills scope are not required.
+- OAuth token issuance is not required for this evidence update stage.
+- Raw request and raw response output are blocked.
+- Endpoint full URL and raw path are not emitted.
+
+### Selected Endpoint Success Conditions
+
+The default MS-16.04 candidate is a symbolic Prices single-symbol read-only
+market-data endpoint candidate. MS-16.04 marks it selected only as an evidence
+record for the later MS-16.05 live-smoke stage:
+
+- `endpoint_evidence_confirmed=true`
+- `selected_endpoint_id` is not `None`
+- `selected_endpoint_confirmed=true`
+- `selected_endpoint_readonly=true`
+- `selected_endpoint_public_or_market_data=true`
+- `selected_endpoint_requires_account_seq=false`
+- `selected_endpoint_requires_order_scope=false`
+- `selected_endpoint_requires_account_balance_fills=false`
+- `selected_endpoint_requires_oauth_token=false`
+- `selected_endpoint_allows_raw_payload_output=false`
+- `selection_blocked=false`
+
+### Blocked Conditions
+
+MS-16.04 returns a safe blocked result if evidence is absent or the candidate is
+not eligible:
+
+- `selected_endpoint_id=None`
+- `endpoint_evidence_confirmed=false`
+- `selection_blocked=true`
+- `blocking_reasons` includes `confirmed_endpoint_evidence_missing` or
+  `candidate_ineligible`
+
+### Deliverables
+
+```text
+src/ai_stock/clients/__init__.py
+src/ai_stock/clients/toss_api_confirmed_endpoint_evidence.py
+tests/test_ai_clients_toss_api_confirmed_endpoint_evidence.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-16.04_confirmed_endpoint_evidence_update_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+
+If standalone ruff is blocked by Windows Application Control, record it as an
+OS/tool execution policy known warning and do not bypass it.
+
+### Completion Criteria
+
+- Confirmed endpoint evidence policy is deterministic and pure no-I/O.
+- Default symbolic selected endpoint is confirmed for MS-16.05 candidacy.
+- Evidence-missing and ineligible-candidate paths fail closed.
+- MS-16.00, MS-16.01, MS-16.02, and MS-16.03 preflights are reused.
+- Live HTTP, credentials, env read, OAuth/token issuance, accountSeq, account,
+  order, balance, fills, DB, Streamlit, OpenAI/LLM, recommendation, ranking, and
+  buy/sell/hold remain blocked.
+- Safe diagnostics contain only counts, symbolic selected endpoint id/label,
+  evidence confirmed flag, selection blocked flag, blocking reason ids, and
+  redaction status.
+
+### Next Stage Candidate
+
+```text
+MS-16.05 first actual read-only live HTTP smoke
+```
