@@ -2956,3 +2956,121 @@ reports/MS-16.00_first_readonly_toss_api_live_smoke_report.md
 ```text
 MS-16.01 read-only live smoke result hardening
 ```
+
+## MS-16.01: Read-Only Live Smoke Result Hardening
+
+### Purpose
+
+Harden the result and diagnostics path around the MS-16.00 first read-only Toss
+API live smoke framework. MS-16.01 does not execute live HTTP and does not
+request, read, load, print, or persist Toss credentials. It validates that only
+safe result summaries and redacted diagnostics can be reported from blocked
+dry-run and injected/fake executor paths.
+
+### Allowed Scope
+
+- Add `src/ai_stock/clients/toss_api_live_smoke_result_hardening.py`.
+- Add public exports in `src/ai_stock/clients/__init__.py`.
+- Add `tests/test_ai_clients_toss_api_live_smoke_result_hardening.py`.
+- Reuse MS-16.00 first live smoke policy, endpoint candidate, runtime approval,
+  run, validation, and preflight helpers without modifying MS-16.00.
+- Reuse MS-14/MS-15 preflight checks and redaction helpers without modifying
+  their modules.
+- Add safe HTTP summary, safe error summary, redaction probe, hardening decision,
+  hardening result, and validation result dataclass shapes.
+
+### Forbidden Scope
+
+- No live HTTP, HTTP smoke, Toss API call, network access, OAuth token endpoint,
+  Access Token issuance, Authorization Bearer creation/output, Toss key/secret
+  request, OpenAI key request, credential value read/output, environment read,
+  `.env.local` read, `.env` read, `.env.example` creation/modification,
+  accountSeq, account/assets/balance/holdings/fills/order scope, DB read/write,
+  file read/write, Streamlit import, OpenAI/LLM call, recommendation, ranking,
+  buy/sell/hold, target price, expected return, profit probability, raw request,
+  raw response, raw DB row, endpoint URL output, or raw traceback output.
+- No changes to `app/streamlit_app.py`, `scripts/dev_check.py`,
+  `src/ai_stock/clients/toss_api_client_contract.py`,
+  `src/ai_stock/clients/toss_api_fake_transport.py`,
+  `src/ai_stock/clients/toss_api_config_guardrail.py`,
+  `src/ai_stock/clients/toss_api_live_readiness.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_plan.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_disabled.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_approval.py`,
+  `src/ai_stock/clients/toss_api_credential_timing.py`,
+  `src/ai_stock/clients/toss_api_first_live_smoke.py`, live client modules,
+  storage, paper trading, risk, recommendation, README, pyproject, docs/28,
+  data, `.env`, `.env.local`, or `.env.example`.
+
+### Result Hardening Scope
+
+- Preserve `live_http_execution_allowed=false`.
+- Preserve `credential_request_allowed=false`.
+- Preserve `raw_request_output_allowed=false` and
+  `raw_response_output_allowed=false`.
+- Preserve account/order/balance/fills/OpenAI/LLM/DB/Streamlit/recommendation/
+  ranking/buy-sell-hold false decision flags.
+
+### Safe HTTP Summary
+
+Allowed fields are `attempted`, `status_code`, `success`, `error_category`,
+`response_shape_summary`, `elapsed_ms`, `diagnostics_kind`, and
+`redaction_applied=true`. Raw URL, headers, request body, response body,
+Authorization, token, credential, accountSeq, and account/order/balance/fills
+data remain blocked.
+
+### Safe Error Summary
+
+Allowed fields are `error_category`, `safe_error_code`, `retryable`,
+`operator_action`, and `redacted_message`. Raw exception text, raw traceback,
+endpoint URL, Authorization header, token, credential, accountSeq, and raw
+payload remain blocked.
+
+### Redaction Probe
+
+Synthetic forbidden probe inputs are checked only inside validation. Hardening
+results return safe probe labels, counts, placeholder metadata, and whether raw
+probe validation failure was observed; raw synthetic inputs are not returned in
+result, decision, or safe diagnostics.
+
+### Deliverables
+
+```text
+src/ai_stock/clients/__init__.py
+src/ai_stock/clients/toss_api_live_smoke_result_hardening.py
+tests/test_ai_clients_toss_api_live_smoke_result_hardening.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-16.01_readonly_live_smoke_result_hardening_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm app, dev_check, MS-14/MS-15/MS-16.00 modules, recommendation,
+  storage, paper_trading, risk, README, pyproject, docs/28, data, `.env`,
+  `.env.local`, and `.env.example` paths remain unchanged.
+
+### Completion Criteria
+
+- Hardening decision keeps `hardening_invocation_allowed=true`,
+  `ms_16_00_preflight_passed=true`, `live_http_execution_allowed=false`,
+  `credential_request_allowed=false`, `raw_request_output_allowed=false`,
+  `raw_response_output_allowed=false`, `credentials_redacted=true`,
+  `safe_http_summary_allowed=true`, `safe_error_summary_allowed=true`, and
+  `redaction_probe_passed=true`.
+- Forbidden synthetic strings fail validation if they appear in safe output.
+- Safe result reports only status code, elapsed ms, response shape summary,
+  error category, safe diagnostics kind, and redacted summary metadata.
+
+### Next Step Candidate
+
+```text
+MS-16.02 confirmed read-only endpoint selection
+```
