@@ -3074,3 +3074,126 @@ reports/MS-16.01_readonly_live_smoke_result_hardening_report.md
 ```text
 MS-16.02 confirmed read-only endpoint selection
 ```
+
+## MS-16.02: Confirmed Read-Only Endpoint Selection
+
+### Purpose
+
+Add a pure no-I/O policy for selecting a confirmed read-only/public market-data
+endpoint candidate for a later live smoke. MS-16.02 does not execute live HTTP,
+does not request or read Toss credentials, does not issue OAuth tokens, does not
+use accountSeq, and does not touch account/order/balance/fills, OpenAI/LLM,
+recommendation, ranking, or buy/sell/hold paths.
+
+### Allowed Scope
+
+- Add `src/ai_stock/clients/toss_api_readonly_endpoint_selection.py`.
+- Add public exports in `src/ai_stock/clients/__init__.py`.
+- Add `tests/test_ai_clients_toss_api_readonly_endpoint_selection.py`.
+- Reuse MS-16.00 first live smoke preflight and validation helpers without
+  modifying MS-16.00.
+- Reuse MS-16.01 result hardening preflight and validation helpers without
+  modifying MS-16.01.
+- Reuse MS-14/MS-15 preflight checks and redaction helpers without modifying
+  those modules.
+- Model endpoint evidence, candidate, selection decision, selection result, and
+  validation result as frozen dataclasses.
+
+### Forbidden Scope
+
+- No live HTTP, HTTP smoke, Toss API call, network access, OAuth token endpoint,
+  Access Token issuance, Authorization Bearer creation/output, Toss key/secret
+  request, OpenAI key request, credential value read/output, environment read,
+  `.env.local` read, `.env` read, `.env.example` creation/modification,
+  accountSeq, account/assets/balance/holdings/fills/order scope, DB read/write,
+  file read/write, Streamlit import, OpenAI/LLM call, recommendation, ranking,
+  buy/sell/hold, target price, expected return, profit probability, raw request,
+  raw response, raw DB row, endpoint full URL output, or unconfirmed endpoint
+  path creation.
+- No changes to `app/streamlit_app.py`, `scripts/dev_check.py`,
+  `src/ai_stock/clients/toss_api_client_contract.py`,
+  `src/ai_stock/clients/toss_api_fake_transport.py`,
+  `src/ai_stock/clients/toss_api_config_guardrail.py`,
+  `src/ai_stock/clients/toss_api_live_readiness.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_plan.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_disabled.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_approval.py`,
+  `src/ai_stock/clients/toss_api_credential_timing.py`,
+  `src/ai_stock/clients/toss_api_first_live_smoke.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_result_hardening.py`, live client
+  modules, storage, paper trading, risk, recommendation, README, pyproject,
+  docs/28, data, `.env`, `.env.local`, or `.env.example`.
+
+### Endpoint Selection Criteria
+
+An endpoint candidate can be selected only when all of these symbolic evidence
+conditions are true:
+
+- `endpoint_confirmed=true`
+- `readonly=true`
+- `market_data_only=true` or `public_or_market_data=true`
+- `requires_account_seq=false`
+- `requires_order_scope=false`
+- `requires_account_balance_fills=false`
+- `requires_oauth_token=false`
+- `live_http_executable_without_oauth=true`
+- `allows_raw_payload_output=false`
+- evidence confirms read-only scope, no accountSeq, no order scope, no
+  account/balance/fills scope, no OAuth requirement for the smoke, and raw
+  output blocking
+
+### Rejected Candidate Conditions
+
+Candidates are rejected when confirmation is missing, the candidate requires
+accountSeq, order scope, account/balance/fills scope, OAuth token issuance, raw
+payload output, or cannot be executed later without OAuth. Rejected candidates
+remain symbolic metadata only and do not trigger live HTTP.
+
+### Selected Endpoint Conditions
+
+If no existing project reference or symbolic contract confirms a candidate,
+MS-16.02 returns a safe blocked result with no selected endpoint. The default
+candidate is deliberately unconfirmed until a later stage supplies confirmed
+project-local evidence.
+
+### Deliverables
+
+```text
+src/ai_stock/clients/__init__.py
+src/ai_stock/clients/toss_api_readonly_endpoint_selection.py
+tests/test_ai_clients_toss_api_readonly_endpoint_selection.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-16.02_confirmed_readonly_endpoint_selection_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm app, dev_check, MS-14/MS-15/MS-16.00/MS-16.01 modules,
+  recommendation, storage, paper_trading, risk, README, pyproject, docs/28,
+  data, `.env`, `.env.local`, and `.env.example` paths remain unchanged.
+
+### Completion Criteria
+
+- Default selection is blocked with no selected endpoint because the default
+  candidate is unconfirmed.
+- Confirmed symbolic read-only/public market-data candidates can be selected
+  only when all evidence and safety flags pass.
+- Rejected candidate conditions keep selection blocked and leave
+  `live_http_execution_allowed_now=false`, `credential_request_allowed_now=false`,
+  OAuth/token/account/order/balance/fills/OpenAI/LLM/DB/Streamlit/recommendation/
+  ranking/buy-sell-hold flags false, raw request/response output false, and
+  endpoint full URL output false.
+
+### Next Step Candidate
+
+```text
+MS-16.03 live smoke operator runbook / runtime approval rehearsal
+```
