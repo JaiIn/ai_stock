@@ -3197,3 +3197,149 @@ reports/MS-16.02_confirmed_readonly_endpoint_selection_report.md
 ```text
 MS-16.03 live smoke operator runbook / runtime approval rehearsal
 ```
+
+## MS-16.03: Live Smoke Operator Runbook / Runtime Approval Rehearsal
+
+### Purpose
+
+Add a pure no-I/O operator runbook and runtime approval rehearsal model after
+MS-16.00 first live smoke, MS-16.01 result hardening, and MS-16.02 endpoint
+selection. MS-16.03 documents and validates the prerequisite, approval, stop,
+and runbook-step shape that must exist before any future live HTTP smoke, while
+preserving the current MS-16.02 state: no selected endpoint,
+`selection_blocked=true`, and `candidate_ineligible`.
+
+### Allowed Scope
+
+- Add `src/ai_stock/clients/toss_api_live_smoke_operator_runbook.py`.
+- Add public exports in `src/ai_stock/clients/__init__.py`.
+- Add `tests/test_ai_clients_toss_api_live_smoke_operator_runbook.py`.
+- Reuse MS-16.00 first live smoke preflight/validation helpers without modifying
+  MS-16.00.
+- Reuse MS-16.01 result hardening preflight/validation helpers without modifying
+  MS-16.01.
+- Reuse MS-16.02 endpoint selection preflight/validation helpers without
+  modifying MS-16.02.
+- Model operator policy, prerequisite, runtime approval checklist, stop
+  condition, runbook step, rehearsal decision, rehearsal result, and validation
+  result as frozen dataclasses.
+
+### Forbidden Scope
+
+- No live HTTP, HTTP smoke, Toss API call, network access, OAuth token endpoint,
+  Access Token issuance, Authorization Bearer creation/output, Toss key/secret
+  request, OpenAI key request, credential value read/output, credential presence
+  inspection, environment read, `.env.local` read, `.env` read, `.env.example`
+  creation/modification, accountSeq, account/assets/balance/holdings/fills/order
+  scope, DB read/write, file read/write, Streamlit import, OpenAI/LLM call,
+  recommendation, ranking, buy/sell/hold, target price, expected return, profit
+  probability, raw request, raw response, raw DB row, endpoint full URL output,
+  unconfirmed endpoint path creation, actual execution command generation, or
+  live smoke CLI implementation.
+- No changes to `app/streamlit_app.py`, `scripts/dev_check.py`,
+  `src/ai_stock/clients/toss_api_client_contract.py`,
+  `src/ai_stock/clients/toss_api_fake_transport.py`,
+  `src/ai_stock/clients/toss_api_config_guardrail.py`,
+  `src/ai_stock/clients/toss_api_live_readiness.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_plan.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_disabled.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_approval.py`,
+  `src/ai_stock/clients/toss_api_credential_timing.py`,
+  `src/ai_stock/clients/toss_api_first_live_smoke.py`,
+  `src/ai_stock/clients/toss_api_live_smoke_result_hardening.py`,
+  `src/ai_stock/clients/toss_api_readonly_endpoint_selection.py`, live client
+  modules, storage, paper trading, risk, recommendation, README, pyproject,
+  docs/28, data, `.env`, `.env.local`, or `.env.example`.
+
+### Operator Runbook Scope
+
+- Capture symbolic runbook steps only.
+- Keep `execute_live_http_smoke.allowed_now=false`.
+- Keep `collect_runtime_approval` as a rehearsal item, not actual approval
+  collection.
+- Do not create command strings, endpoint URLs, credential prompts, or live
+  smoke CLI behavior.
+
+### Runtime Approval Rehearsal Scope
+
+- Default approval checklist has no explicit live HTTP approval.
+- Default approval checklist has no selected endpoint.
+- Default approval checklist keeps account, order, balance, fills, accountSeq,
+  OAuth token issuance, raw output, OpenAI key, and LLM scope blocked.
+- `approval_rehearsal_passed=false`.
+
+### Prerequisite
+
+Required prerequisites include confirmed endpoint selection, MS-16.00 framework
+availability, MS-16.01 hardening availability, MS-16.02 selection availability,
+runtime approval rehearsal, local-session credential rule, raw output block,
+account scope block, order scope block, OAuth token scope block, environment
+file usage block, and no OpenAI/LLM scope.
+
+### Stop Condition
+
+Stop conditions include missing selected endpoint, blocked endpoint selection,
+endpoint accountSeq requirement, endpoint order requirement, endpoint OAuth token
+requirement, raw response exposure, credential value exposure, environment file
+requirement, account/balance/fills scope, OpenAI/LLM scope, and
+recommendation/trading action scope. The default rehearsal triggers
+`selected_endpoint_missing` and `endpoint_selection_blocked`.
+
+### Runbook Step
+
+Runbook steps are symbolic only: verify main commit, verify MS-16.00 preflight,
+verify MS-16.01 hardening, verify MS-16.02 endpoint selection, verify selected
+endpoint, collect runtime approval rehearsal, require local-session credentials,
+block environment files, block raw output, block account scope, block order
+scope, block OAuth token scope, and keep live HTTP smoke execution blocked.
+
+### Rehearsal Blocked Conditions
+
+The rehearsal remains blocked while selected endpoint is missing or endpoint
+selection is blocked. With the current MS-16.02 default, `rehearsal_blocked=true`
+and blocking reasons include `selected_endpoint_missing` and
+`endpoint_selection_blocked`.
+
+### Deliverables
+
+```text
+src/ai_stock/clients/__init__.py
+src/ai_stock/clients/toss_api_live_smoke_operator_runbook.py
+tests/test_ai_clients_toss_api_live_smoke_operator_runbook.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-16.03_live_smoke_operator_runbook_rehearsal_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+- Confirm app, dev_check, MS-14/MS-15/MS-16.00/MS-16.01/MS-16.02 modules,
+  recommendation, storage, paper_trading, risk, README, pyproject, docs/28,
+  data, `.env`, `.env.local`, and `.env.example` paths remain unchanged.
+
+### Completion Criteria
+
+- Default rehearsal returns a safe blocked result with no selected endpoint.
+- Decision keeps `operator_runbook_invocation_allowed=true`,
+  `runtime_approval_rehearsal_only=true`, MS-16.00/MS-16.01/MS-16.02 preflight
+  flags true, `selected_endpoint_available=false`,
+  `endpoint_selection_blocked=true`, and `rehearsal_blocked=true`.
+- Runtime execution, credential request, env read, OAuth/token issuance,
+  accountSeq, order/account/balance/fills, OpenAI/LLM, DB/Streamlit,
+  recommendation/ranking/buy-sell-hold, raw request/response, endpoint full URL,
+  and execution command output remain blocked.
+
+### Next Step Candidate
+
+```text
+MS-16.04 confirmed endpoint evidence update
+or
+MS-16.04 live smoke dry-run command contract
+```
