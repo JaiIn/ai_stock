@@ -3471,3 +3471,103 @@ OS/tool execution policy known warning and do not bypass it.
 ```text
 MS-16.05 first actual read-only live HTTP smoke
 ```
+
+MS-16.05a live smoke auth/execution bridge realignment
+--------------------------------------------------------
+
+## MS-16.05a: Live Smoke Auth/Execution Bridge Realignment
+
+### Purpose
+
+MS-16.05a records a superseding bridge contract between MS-16.04 confirmed
+endpoint evidence and the later actual live smoke. It preserves the selected
+symbolic Prices endpoint but corrects the MS-16.04 OAuth assumption: the
+read-only market-data endpoint does not require accountSeq, order, account,
+balance, or fills scope, but it does require OAuth2 Client Credentials, an
+Access Token, and an Authorization Bearer header for the future live smoke.
+
+### MS-16.04 OAuth Assumption Correction
+
+- Preserve `selected_endpoint_id=confirmed_prices_single_symbol_readonly_market_data`.
+- Preserve `selected_endpoint_label=Prices single-symbol read-only market data`.
+- Supersede `previous_oauth_required_assumption=false`.
+- Set `corrected_oauth_required=true`.
+- Set `corrected_access_token_required=true`.
+- Set `corrected_authorization_bearer_required=true`.
+- Keep accountSeq, order scope, account data, balance, and fills unnecessary.
+- Keep Access Token, Authorization Bearer, credential values, raw requests, raw
+  responses, and endpoint full URLs out of output and storage.
+
+### Allowed Scope
+
+- Add `src/ai_stock/clients/toss_api_live_smoke_execution_bridge.py`.
+- Add `tests/test_ai_clients_toss_api_live_smoke_execution_bridge.py`.
+- Export only bridge dataclasses and helper functions from
+  `src/ai_stock/clients/__init__.py`.
+- Update `references/endpoint_matrix.md`.
+- Add `reports/MS-16.05a_live_smoke_auth_execution_bridge_report.md`.
+- Reuse MS-16.00, MS-16.01, MS-16.02, MS-16.03 preflights and the MS-16.04
+  confirmed endpoint evidence result.
+
+### Forbidden Scope
+
+- No actual live HTTP execution.
+- No OAuth token request or Access Token issuance.
+- No Authorization Bearer construction or output.
+- No Toss credential request, credential loading, credential presence check, or
+  environment variable read.
+- No `.env`, `.env.local`, or `.env.example` read, create, or update.
+- No endpoint full URL, raw endpoint path, raw request, or raw response output.
+- No accountSeq, account, order, balance, fills, DB, Streamlit, OpenAI/LLM,
+  recommendation, ranking, buy/sell/hold, target price, or expected return
+  scope.
+
+### Future MS-16.05b Execution Plan
+
+- `planned_network_call_count=2`
+- `planned_oauth_call_count=1`
+- `planned_readonly_business_call_count=1`
+- `planned_retry_count=0`
+- `credential_source_policy=local_session_env_only_for_future_stage`
+- `token_storage_policy=memory_only_no_raw_output_for_future_stage`
+- `ready_for_ms_16_05b=true`
+
+### Deliverables
+
+```text
+src/ai_stock/clients/__init__.py
+src/ai_stock/clients/toss_api_live_smoke_execution_bridge.py
+tests/test_ai_clients_toss_api_live_smoke_execution_bridge.py
+docs/19_DETAILED_MICRO_WBS.md
+references/endpoint_matrix.md
+reports/MS-16.05a_live_smoke_auth_execution_bridge_report.md
+```
+
+### Verification
+
+- `python -m compileall -q src tests app`
+- `python -m unittest discover -s tests`
+- `python -m pytest`
+- `python scripts/dev_check.py`
+- `ruff check src tests app`
+- `git diff --check`
+- `git status --short`
+
+### Completion Criteria
+
+- Bridge output is deterministic and pure no-I/O.
+- MS-16.04 selected endpoint is preserved.
+- OAuth2 Client Credentials, Access Token, and Authorization Bearer need are
+  corrected for the future stage.
+- Future plan records exactly one OAuth call and one read-only business call,
+  with no retry loop.
+- Current stage keeps live HTTP, credential request, credential presence check,
+  env read, OAuth/token issuance, raw output, endpoint full URL, accountSeq,
+  order/account/balance/fills, DB, Streamlit, OpenAI/LLM, recommendation,
+  ranking, and buy/sell/hold blocked.
+
+### Next Stage
+
+```text
+MS-16.05b first actual read-only live HTTP smoke
+```
